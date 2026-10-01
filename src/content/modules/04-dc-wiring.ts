@@ -8,7 +8,7 @@ const mod: Module = {
   number: 4,
   title: 'DC Wiring and Batteries',
   summary: 'Checking batteries, wiring them to the inverter, solar (PV) wiring, and the ground leakage test.',
-  status: 'coming-soon',
+  status: 'ready',
   outline: [
     { text: 'Battery voltage check before wiring', sources: [src('manual', 20)] },
     { text: 'Paralleling procedure and wiring order, BMS communication cable', sources: [src('manual', 20, 21, 22, 23, 24, 25)] },

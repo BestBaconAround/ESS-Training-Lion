@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import type { Module, SimKind } from '../content/types'
+import BenchSim from './bench/BenchSim'
 import PanelSim from './panel/PanelSim'
 
 export interface SimProps {
@@ -12,4 +13,5 @@ export interface SimProps {
  */
 export const simRegistry: Partial<Record<SimKind, ComponentType<SimProps>>> = {
   'inverter-panel': PanelSim,
+  'multimeter-bench': BenchSim,
 }
