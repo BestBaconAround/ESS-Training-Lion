@@ -266,6 +266,11 @@ const mod: Module = {
             ),
             fact('The USB-C port is at the top left of the control board.', [AUTHOR], ['rev4']),
             fact(
+              'The Meter Port is unused on Rev 4. The label on the board for that port reads NOT USED. (On Rev 3 the meter port is used for inverter communication.)',
+              [AUTHOR, src('emsc', 8, 9), src('san2_3', 36)],
+              ['rev4'],
+            ),
+            fact(
               'Remote Shutdown is DRYI_1B and DRYI_1A, with a wire loop between the pins. Remove the loop to fit a remote shutdown switch, which uses the normally closed position.',
               [AUTHOR, src('manual', 29)],
               ['rev4'],
@@ -282,8 +287,137 @@ const mod: Module = {
           sources: [src('manual', 29), AUTHOR],
           revisions: ['rev4'],
         },
-        todo('The diagram labels the front right port "Meter Port", but the label on the board and the EMS-C manual (p.8) say "NOT USED" for Rev 4. Confirm which is right.'),
         todo('The same diagram for Revs 1-3 (the manuals show different port labels).'),
+      ],
+    },
+
+    // ---------------------------------------------------------------- 3c
+    {
+      id: 'm4-revs13-wiring',
+      title: 'Wiring on Revs 1-3: the manual diagrams',
+      summary: 'Where the Rev 2 and Rev 3 battery and BMS wiring differs from Rev 4, with the pages from the guides.',
+      blocks: [
+        {
+          type: 'text',
+          text: 'Revs 1-3 are wired a little differently from Rev 4. The pages below come straight from the installation guides. Rev 1 uses the Rev 2 guide.',
+        },
+        {
+          type: 'revisionDiff',
+          title: 'Wiring differences',
+          rows: [
+            {
+              label: 'Battery cables, several inverters',
+              values: {
+                rev1: 'Busbars connected to each other (a 225A T-fuse on the positive cable between busbars is recommended; cables and T-fuses not provided). Eyelet cables from each inverter to its busbar. Negative battery cables to the battery receptacles, positives last.',
+                rev2: 'Busbars connected to each other (a 225A T-fuse on the positive cable between busbars is recommended; cables and T-fuses not provided). Eyelet cables from each inverter to its busbar. Negative battery cables to the battery receptacles, positives last.',
+                rev3: 'Busbars connected to each other. Eyelet cables from each inverter to its busbar. Negative, then positive, battery cable eyelet ends go onto the busbars first, not yet on the battery terminals. Then plug the negative cables, then the positive cables, into the batteries.',
+                rev4: 'Busbars below each inverter, connected to each other. Eyelet cables from each inverter to its busbar. Negative battery cables to the battery receptacles, positives last.',
+              },
+              sources: [src('san2_2', 14), src('san2_3', 20), src('manual', 24)],
+            },
+            {
+              label: 'BMS communication',
+              values: {
+                rev1: 'BMS Com splitter on the BMS Coms port (bottom left RJ45 port of the Parent inverter). Each battery BMS Coms cable goes to the splitter, with the 4-pin aviation end on each battery.',
+                rev2: 'BMS Com splitter on the BMS Coms port (bottom left RJ45 port of the Parent inverter). Each battery BMS Coms cable goes to the splitter, with the 4-pin aviation end on each battery.',
+                rev3: 'BMS Com splitter on the BMS Coms port (bottom left RJ45 port of the Parent inverter). Each battery BMS Coms cable goes to the splitter, with the 4-pin aviation end on each battery.',
+                rev4: 'Standard Ethernet (T568A or T568B) daisy chain from the parent inverter to battery 1, then battery to battery.',
+              },
+              sources: [src('san2_2', 14), src('san2_3', 20), src('manual', 21, 24)],
+            },
+            {
+              label: 'Inverter-to-inverter communication',
+              values: {
+                rev1: '4-port RJ45 splitter on the Parent WCM inverter comm port, with the 6.5 in cat5 cable to the splitter. Each Child connects a 10 ft cat5 patch cable from its inverter comm port to the splitter.',
+                rev2: '4-port RJ45 splitter on the Parent WCM inverter comm port, with the 6.5 in cat5 cable to the splitter. Each Child connects a 10 ft cat5 patch cable from its inverter comm port to the splitter.',
+                rev3: '4-port RJ45 splitter on the Parent WCM comm port, then a 10 in flat cable from the splitter to the meter port. Each Child connects a 10 ft cat5 patch cable from the coupler on its flat cable (to its meter port) to the splitter.',
+                rev4: 'A single EMS-C in the parent inverter. The inverters are linked with Parallel B to Parallel A cables.',
+              },
+              sources: [src('san2_2', 29), src('san2_3', 36), src('emsc', 13), src('manual', 39)],
+            },
+          ],
+        },
+        {
+          type: 'facts',
+          title: 'Same on every revision',
+          items: [
+            fact(
+              'When connecting multiple batteries, check the voltage on each battery first. Batteries must be within 0.5V in order to connect in parallel.',
+              [src('san2_2', 13, 14), src('san2_3', 19, 20)],
+              ['rev1', 'rev2', 'rev3'],
+            ),
+            fact(
+              'When connecting busbars, the battery cables must be the same length throughout the entire system and have a correct degree and voltage rating.',
+              [src('san2_2', 14), src('san2_3', 20)],
+              ['rev1', 'rev2', 'rev3'],
+            ),
+          ],
+        },
+        image(
+          'images/rev2-p12-lv-dc-one-inverter.webp',
+          [809, 1118],
+          'Page 12 of the Rev 2 installation guide, Low Voltage DC Wiring for 1 inverter: a diagram of one inverter wired to one battery, with step-by-step text for 1 battery and for multiple batteries.',
+          'Revs 1-2 guide, p.12: Low Voltage DC Wiring, 1 inverter (1 battery, and several batteries on busbars).',
+          ['rev1', 'rev2'],
+          [src('san2_2', 12)],
+        ),
+        image(
+          'images/rev2-p13-lv-dc-battery-steps.webp',
+          [842, 1119],
+          'Page 13 of the Rev 2 installation guide: four diagrams (Step 1 to Step 4) of one inverter with three batteries and busbars, plus a Battery Voltage warning.',
+          'Revs 1-2 guide, p.13: the four wiring steps for one inverter with three batteries.',
+          ['rev1', 'rev2'],
+          [src('san2_2', 13)],
+        ),
+        image(
+          'images/rev2-p14-lv-dc-multiple-inverters.webp',
+          [820, 1142],
+          'Page 14 of the Rev 2 installation guide, Low Voltage DC Wiring for multiple inverters (3 inverters, 6 batteries): five numbered steps with diagrams, and a Battery Voltage warning.',
+          'Revs 1-2 guide, p.14: Low Voltage DC Wiring, multiple inverters (3 inverters, 6 batteries). It recommends a 225A T-fuse on the positive cable between busbars.',
+          ['rev1', 'rev2'],
+          [src('san2_2', 14)],
+        ),
+        image(
+          'images/rev2-p30-bms-communication.webp',
+          [819, 1119],
+          'Page 30 of the Rev 2 installation guide, BMS Communication Cable Wiring: an inverter and three batteries with the BMS communication cable splitter wired to each battery.',
+          'Revs 1-2 guide, p.30: BMS Communication Cable Wiring.',
+          ['rev1', 'rev2'],
+          [src('san2_2', 30)],
+        ),
+        image(
+          'images/rev3-p18-lv-dc-one-inverter.webp',
+          [816, 1119],
+          'Page 18 of the Rev 3 installation guide, Low Voltage DC Wiring for 1 inverter: a diagram of one inverter wired to one battery, with step-by-step text for 1 battery and for multiple batteries.',
+          'Rev 3 guide, p.18: Low Voltage DC Wiring, 1 inverter.',
+          ['rev3'],
+          [src('san2_3', 18)],
+        ),
+        image(
+          'images/rev3-p19-lv-dc-battery-steps.webp',
+          [835, 1119],
+          'Page 19 of the Rev 3 installation guide: four diagrams (Step 1 to Step 4) of one inverter with three batteries and busbars, plus a Battery Voltage note.',
+          'Rev 3 guide, p.19: the four wiring steps for one inverter with three batteries.',
+          ['rev3'],
+          [src('san2_3', 19)],
+        ),
+        image(
+          'images/rev3-p20-lv-dc-multiple-inverters.webp',
+          [820, 1119],
+          'Page 20 of the Rev 3 installation guide, Low Voltage DC Wiring for multiple inverters (3 inverters, 6 batteries): seven numbered steps with two diagrams, and a Battery Voltage note.',
+          'Rev 3 guide, p.20: Low Voltage DC Wiring, multiple inverters (3 inverters, 6 batteries). Note the busbar-first cable order.',
+          ['rev3'],
+          [src('san2_3', 20)],
+        ),
+        image(
+          'images/rev3-p37-bms-communication.webp',
+          [821, 1119],
+          'Page 37 of the Rev 3 installation guide, BMS Communication Cable Wiring: an inverter and three batteries with the BMS communication cable splitter wired to each battery.',
+          'Rev 3 guide, p.37: BMS Communication Cable Wiring.',
+          ['rev3'],
+          [src('san2_3', 37)],
+        ),
+        todo('The Rev 1-3 equivalent of the Rev 4 wire box cover diagram (the port and connector labels on Revs 1-3).'),
       ],
     },
 
@@ -380,6 +514,22 @@ const mod: Module = {
         },
         todo(
           'Revs 1-2: the Rev 2 guide gives 150 VDC minimum and 13A Isc on p.16, but its spec table (p.36) gives a 120-500V MPPT range and 15A Isc. Confirm which is right.',
+        ),
+        image(
+          'images/rev2-p16-hv-dc-pv-wiring.webp',
+          [819, 1119],
+          'Page 16 of the Rev 2 installation guide, High Voltage DC Wiring: a diagram of four PV strings wired to the four MPPT inputs, with the 12V DC power supply location for rapid shutdown, and warnings about professional installation, high voltage and polarity.',
+          'Revs 1-2 installation guide, p.16: High Voltage DC Wiring (4 strings to the 4 MPPTs). Rev 1 uses the same guide.',
+          ['rev1', 'rev2'],
+          [src('san2_2', 16)],
+        ),
+        image(
+          'images/rev3-p22-hv-dc-pv-wiring.webp',
+          [820, 1118],
+          'Page 22 of the Rev 3 installation guide, High Voltage DC Wiring: a diagram of four PV strings wired to the four MPPT inputs, with the 12V DC power supply location for rapid shutdown, and warnings about polarity, professional installation and high voltage.',
+          'Rev 3 installation guide, p.22: High Voltage DC Wiring (4 strings to the 4 MPPTs).',
+          ['rev3'],
+          [src('san2_3', 22)],
         ),
         {
           type: 'facts',
@@ -833,6 +983,37 @@ const mod: Module = {
         explanation:
           'After commissioning the BMS cables are on the inverter BMS COMM port. The EMS-C connects to the inverter WiFi port, not a parallel port. CT1 & CT2 is for the CTs.',
         sources: [src('emsc', 8), AUTHOR],
+        revisions: ['rev4'],
+      }),
+      question({
+        id: 'm4-q-rev2-tfuse',
+        lessonId: 'm4-revs13-wiring',
+        prompt: 'On a Rev 2 system with several inverters, what does the installation guide recommend adding between the busbars?',
+        correct: ['A 225A T-fuse on the positive cable (cables and T-fuses are not provided)'],
+        wrong: ['A 100A breaker on the negative cable', 'Nothing: the busbars must not be connected to each other', 'A 225A T-fuse on the BMS cable'],
+        explanation: 'Step 1 of the Rev 2 multiple-inverter wiring says to connect the busbars to each other, and recommends a 225A T-fuse on the positive cable between busbars. The cables and T-fuses are not provided.',
+        sources: [src('san2_2', 14)],
+        revisions: ['rev1', 'rev2'],
+      }),
+      question({
+        id: 'm4-q-rev3-order',
+        lessonId: 'm4-revs13-wiring',
+        prompt: 'On a Rev 3 system with several inverters, what is done before the battery cables are plugged into the battery terminals?',
+        correct: ['The negative and positive cable eyelet ends go onto the busbars first'],
+        wrong: ['The positive cables are plugged into the batteries first', 'The BMS splitter is connected first', 'Each battery is charged to 55.6V'],
+        explanation:
+          'On Rev 3 the eyelet ends of the negative cables, then the positive cables, go onto the busbars with the cables not yet on the battery terminals. Then the negative cables, then the positive cables, are plugged into the batteries.',
+        sources: [src('san2_3', 20)],
+        revisions: ['rev3'],
+      }),
+      trueFalse({
+        id: 'm4-q-meter-port',
+        lessonId: 'm4-diagram',
+        prompt: 'On a Rev 4 inverter the Meter Port is unused.',
+        answer: true,
+        explanation:
+          'On Rev 4 the board label for that port reads NOT USED, and the EMS-C connects to the WiFi port. On Rev 3 the meter port is used for inverter communication.',
+        sources: [AUTHOR, src('emsc', 8, 9)],
         revisions: ['rev4'],
       }),
     ],
