@@ -1,5 +1,5 @@
 import type { Module } from '../types'
-import { fact, question, src, todo, trueFalse } from '../helpers'
+import { fact, image, question, src, todo, trueFalse } from '../helpers'
 
 const AUTHOR = src('author')
 
@@ -178,6 +178,12 @@ const mod: Module = {
             ),
           ],
         },
+        image(
+          'images/wire-box-cables.webp',
+          [845, 634],
+          'A red-booted cable and a black-booted cable entering terminals, a 4-pin aviation-style connector, and a labeled busbar with Ethernet cables, inside a wiring compartment.',
+          'Cables and connectors in the wiring compartment of the training setup: red and black battery-style cables entering terminals, a 4-pin aviation-style connector, and a busbar with Ethernet cables.',
+        ),
         {
           type: 'revisionDiff',
           title: 'BMS communication wiring',
@@ -284,6 +290,18 @@ const mod: Module = {
             ),
           ],
         },
+        image(
+          'images/inverter-wiring-compartment.png',
+          [326, 440],
+          'The inverter wiring compartment with its clear cover swung open, showing the control board and Ethernet cables at the top, rows of terminals in the middle, and an EMS-C at the lower left.',
+          'The inverter wiring compartment with its clear cover swung open: the control board and Ethernet cables at the top, the PV and AC terminal rows in the middle, and the EMS-C at the lower left.',
+        ),
+        image(
+          'images/inverter-pv-terminals-and-board.png',
+          [590, 443],
+          'Close-up of the PV terminal row labeled PV1+ to PV4+ and PV1- to PV4-, with three Ethernet cables plugged into the control board above it.',
+          'Close-up: the PV terminals are labeled PV1+ to PV4+ and PV1- to PV4-. Three Ethernet cables are plugged into ports on the control board above them.',
+        ),
         {
           type: 'revisionDiff',
           title: 'PV limits by revision',

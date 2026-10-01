@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { modules } from './index'
 import { FAULT_CODES } from './data/faults'
@@ -43,6 +45,13 @@ function checkBlock(where: string, b: Block, errors: string[]) {
       break
     case 'callout':
       if (!b.text.trim()) errors.push(`${where}: empty callout`)
+      checkSources(where, b.sources, errors)
+      checkRevisions(where, b.revisions, errors)
+      break
+    case 'image':
+      if (!b.alt.trim() || !b.caption.trim()) errors.push(`${where}: image needs alt text and a caption`)
+      if (!existsSync(join(process.cwd(), 'public', b.src))) errors.push(`${where}: image file public/${b.src} does not exist`)
+      if (!(b.width > 0 && b.height > 0)) errors.push(`${where}: image needs width and height`)
       checkSources(where, b.sources, errors)
       checkRevisions(where, b.revisions, errors)
       break

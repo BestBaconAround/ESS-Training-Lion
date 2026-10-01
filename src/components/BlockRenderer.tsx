@@ -74,6 +74,25 @@ export default function BlockRenderer({ block }: { block: Block }) {
         </aside>
       )
 
+    case 'image':
+      return (
+        <figure className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+          <img
+            src={`${import.meta.env.BASE_URL}${block.src}`}
+            alt={block.alt}
+            width={block.width}
+            height={block.height}
+            loading="lazy"
+            className="mx-auto h-auto max-h-[30rem] w-auto max-w-full rounded-lg"
+          />
+          <figcaption className="mt-2 text-sm">
+            <RevisionBadge revisions={block.revisions} />
+            {block.caption}
+            <SourceNote sources={block.sources} />
+          </figcaption>
+        </figure>
+      )
+
     case 'revisionDiff':
       return (
         <section>

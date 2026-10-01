@@ -1,5 +1,5 @@
 import type { Module } from '../types'
-import { fact, question, src, todo, trueFalse } from '../helpers'
+import { fact, image, question, src, todo, trueFalse } from '../helpers'
 
 const MANUAL_CONTROLS = src('manual', 10)
 const AUTHOR = src('author')
@@ -29,6 +29,12 @@ const mod: Module = {
           type: 'text',
           text: 'Customers often say "I turned something off" without knowing which control they touched. Learn what each control does so you can tell what state the system is really in.',
         },
+        image(
+          'images/training-wall.png',
+          [591, 437],
+          'A training wall with two inverters, each mounted above a battery, and two more batteries between them, with electrical panels on either side.',
+          'A training wall: two inverters, each mounted above a battery, with two more batteries between them.',
+        ),
         {
           type: 'facts',
           title: 'Rev 4 controls',
@@ -224,6 +230,14 @@ const mod: Module = {
             ),
           ],
         },
+        image(
+          'images/ems-c-in-inverter.png',
+          [338, 440],
+          'An EMS-C: a black module with status lights, Ethernet ports and a two-wire green power connector, mounted inside the inverter wiring compartment next to a red battery cable.',
+          'An EMS-C mounted inside the inverter wiring compartment. Its status lights show the connection state, and it is powered by a two-wire connection (see the EMS-C manual p.13).',
+          ['rev4'],
+          [src('author'), src('emsc', 6, 13)],
+        ),
         {
           type: 'facts',
           title: 'Remote shutdown switch',

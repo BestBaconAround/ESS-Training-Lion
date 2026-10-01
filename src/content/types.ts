@@ -46,6 +46,17 @@ export type Block =
   /** Visible gap: something not in the source. Never guess; leave a TODO. */
   | { type: 'todo'; text: string }
   | { type: 'revisionDiff'; title: string; rows: RevisionDiffRow[] }
+  /** A photo from public/images. `src` is relative to public/. Alt text and a caption are required. */
+  | {
+      type: 'image'
+      src: string
+      alt: string
+      caption: string
+      width: number
+      height: number
+      sources: SourceRef[]
+      revisions: RevisionTag
+    }
 
 export interface Lesson {
   /** Stable. Progress is keyed by this: never rename or reuse. */
