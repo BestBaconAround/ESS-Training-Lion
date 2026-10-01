@@ -54,6 +54,12 @@ const mod: Module = {
             fact('The buttons latch: pushed in is on, pushed out is off.', [AUTHOR]),
           ],
         },
+        image(
+          'images/inverter-left-side-controls.png',
+          [333, 436],
+          'The left side of an inverter: a warning label and fan grilles at the top, then a red rotary switch, a red round button and a green round button below it.',
+          'The left side of a Rev 4 inverter. From the top: fan grilles, the red rotary PV switch, then the AC/DC button (upper, red) and the Complete System Shutdown button (lower, green).',
+        ),
         {
           type: 'facts',
           title: 'Revs 1-3 controls',
@@ -97,7 +103,7 @@ const mod: Module = {
           revisions: ['rev4'],
         },
         todo('Revs 1-3: confirm whether the WCM keeps communicating with the power button off.'),
-        todo('Revs 1-3: where the power button and the DC switch are on the inverter. Add close-up photos of the Rev 4 left side and the Revs 1-3 controls.'),
+        todo('Revs 1-3: where the power button and the DC switch are on the inverter. Add photos of the Revs 1-3 controls.'),
       ],
     },
 
@@ -125,6 +131,13 @@ const mod: Module = {
             fact('No lights: the system is off.', [MANUAL_CONTROLS], ['rev4']),
           ],
         },
+        image(
+          'images/inverter-front.png',
+          [394, 527],
+          'The front of an inverter: a black panel with the Lion logo and a small rectangular window below the logo, above a wiring compartment with a clear cover.',
+          'The front of a Rev 4 inverter: the black panel with the Lion logo, a small rectangular window below the logo, and the clear-covered wiring compartment underneath.',
+        ),
+        todo('Confirm which part of the front panel is the status light (is it the small window below the logo?).'),
         {
           type: 'facts',
           title: 'Revs 1-3: two lights',

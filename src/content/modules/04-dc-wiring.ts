@@ -184,6 +184,12 @@ const mod: Module = {
           'A red-booted cable and a black-booted cable entering terminals, a 4-pin aviation-style connector, and a labeled busbar with Ethernet cables, inside a wiring compartment.',
           'Cables and connectors in the wiring compartment of the training setup: red and black battery-style cables entering terminals, a 4-pin aviation-style connector, and a busbar with Ethernet cables.',
         ),
+        image(
+          'images/wire-box-cover-wiring-diagram.png',
+          [338, 432],
+          'A framed, color-coded wiring diagram with a QR code, shown on a wall beside an inverter. Too small to read at this size.',
+          'The wiring diagram from the inside of the inverter wire box cover, shown as a framed copy beside an inverter. It is too small to read at this size. TODO: add a higher-resolution copy so it can be taught from.',
+        ),
         {
           type: 'revisionDiff',
           title: 'BMS communication wiring',
