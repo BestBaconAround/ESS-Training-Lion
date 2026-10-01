@@ -29,7 +29,7 @@ All 7 modules are on the dashboard. Modules 2 and 4 are fully built; the rest sh
 | 1 | System Fundamentals | Coming soon |
 | 2 | Inverter Controls and Indicators | Lessons, 16-question quiz, inverter panel simulator |
 | 3 | Installation Location and Mounting | Coming soon |
-| 4 | DC Wiring and Batteries | Lessons, 24-question quiz, battery check and PV leakage simulator |
+| 4 | DC Wiring and Batteries | Lessons, 27-question quiz, battery check and PV leakage simulator |
 | 5 | AC Wiring, CTs, Generator, AC Solar | Coming soon |
 | 6 | Continuity Testing and Phasing | Coming soon |
 | 7 | First-Time Power-Up | Coming soon |

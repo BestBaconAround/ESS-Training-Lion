@@ -184,12 +184,6 @@ const mod: Module = {
           'A red-booted cable and a black-booted cable entering terminals, a 4-pin aviation-style connector, and a labeled busbar with Ethernet cables, inside a wiring compartment.',
           'Cables and connectors in the wiring compartment of the training setup: red and black battery-style cables entering terminals, a 4-pin aviation-style connector, and a busbar with Ethernet cables.',
         ),
-        image(
-          'images/wire-box-cover-wiring-diagram.png',
-          [338, 432],
-          'A framed, color-coded wiring diagram with a QR code, shown on a wall beside an inverter. Too small to read at this size.',
-          'The wiring diagram from the inside of the inverter wire box cover, shown as a framed copy beside an inverter. It is too small to read at this size. TODO: add a higher-resolution copy so it can be taught from.',
-        ),
         {
           type: 'revisionDiff',
           title: 'BMS communication wiring',
@@ -222,6 +216,14 @@ const mod: Module = {
             ),
           ],
         },
+        image(
+          'images/rev4-board-ports.webp',
+          [1873, 775],
+          'A close-up of the Rev 4 control board communication ports. Three black labels read FRONT PARALLEL A over BACK BMS COMM, FRONT PARALLEL B over BACK WIFI PORT, and FRONT NOT USED over BACK CT1 & CT2. An Ethernet cable is plugged in beneath each label. The PV1+ to PV4- fuse holders and the grid and generator terminal blocks are below.',
+          'The Rev 4 control board ports. Each label reads FRONT (top) and BACK (bottom): PARALLEL A / BMS COMM, PARALLEL B / WIFI PORT, and NOT USED / CT1 & CT2. An Ethernet cable is plugged in under each label. The USB-C port is at the top left of the board.',
+          ['rev4'],
+          [src('author', ), src('emsc', 8)],
+        ),
         {
           type: 'call',
           customer: 'Do I connect the cables to the battery first, or the inverter?',
@@ -229,6 +231,59 @@ const mod: Module = {
           sources: [src('manual', 21)],
           revisions: 'all',
         },
+      ],
+    },
+
+    // ---------------------------------------------------------------- 3b
+    {
+      id: 'm4-diagram',
+      title: 'Reading the Rev 4 wiring diagram',
+      summary: 'The diagram on the inside of the wire box cover: where each terminal, port and connector is.',
+      blocks: [
+        image(
+          'images/rev4-wire-box-cover-diagram.webp',
+          [921, 717],
+          'The Rev 4 wiring diagram, labeled Sanctuary Installation Guide Rev 4, showing the inverter wiring compartment layout. Color-coded callouts at the top mark the USB-C port, Remote Shutdown, Generator (AGS) and Rapid Solar Shutdown (RSS) connectors. Enlarged panels show the communication ports and the labeled terminal blocks.',
+          'The diagram from the inside of the inverter wire box cover (labeled "Sanctuary Installation Guide Rev 4").',
+          ['rev4'],
+          [src('author', ), src('manual', 28, 29, 35), src('emsc', 8)],
+        ),
+        {
+          type: 'facts',
+          title: 'What the diagram shows',
+          items: [
+            fact('Battery (low voltage DC) terminals are BAT+ and BAT-. PV terminals are PV1+ to PV4+ and PV1- to PV4-.', [AUTHOR], ['rev4']),
+            fact('The AC terminal blocks are GRID INPUT, GENERATOR and LOAD OUTPUT, each with L1, L2 and N.', [AUTHOR], ['rev4']),
+            fact(
+              'Communication ports, top row: Parallel A (CAN), Parallel B (CAN) and Meter Port. Bottom row: BMS COMM (CAN/RS485), WiFi Port (RS485) and CT1 & CT2.',
+              [AUTHOR, src('emsc', 8)],
+              ['rev4'],
+            ),
+            fact(
+              'Four color-coded connectors are called out: the USB-C port, Remote Shutdown, Generator (AGS), and Rapid Solar Shutdown (RSS).',
+              [AUTHOR],
+              ['rev4'],
+            ),
+            fact('The USB-C port is at the top left of the control board.', [AUTHOR], ['rev4']),
+            fact(
+              'Remote Shutdown is DRYI_1B and DRYI_1A, with a wire loop between the pins. Remove the loop to fit a remote shutdown switch, which uses the normally closed position.',
+              [AUTHOR, src('manual', 29)],
+              ['rev4'],
+            ),
+            fact('Generator (AGS), the two-wire auto start, uses DRYO_1B and DRYO_1A. The contact is an SPDT relay, so DRYO_1A and DRYO_1C give the normally closed option.', [AUTHOR, src('manual', 35)], ['rev4']),
+            fact('Rapid Solar Shutdown (RSS) is +12V_COM and GND_COM: the built-in 12 VDC, 1A supply for the rapid shutdown transmitter. It is polarity sensitive.', [AUTHOR, src('manual', 28)], ['rev4']),
+          ],
+        },
+        {
+          type: 'call',
+          customer: 'Where does my installer connect the remote shutdown switch?',
+          answer:
+            'At the Remote Shutdown connector (DRYI_1B and DRYI_1A). It ships with a black wire loop: unplug the connector, remove the loop, and wire the switch in its place using the normally closed position.',
+          sources: [src('manual', 29), AUTHOR],
+          revisions: ['rev4'],
+        },
+        todo('The diagram labels the front right port "Meter Port", but the label on the board and the EMS-C manual (p.8) say "NOT USED" for Rev 4. Confirm which is right.'),
+        todo('The same diagram for Revs 1-3 (the manuals show different port labels).'),
       ],
     },
 
@@ -297,16 +352,10 @@ const mod: Module = {
           ],
         },
         image(
-          'images/inverter-wiring-compartment.png',
-          [326, 440],
-          'The inverter wiring compartment with its clear cover swung open, showing the control board and Ethernet cables at the top, rows of terminals in the middle, and an EMS-C at the lower left.',
-          'The inverter wiring compartment with its clear cover swung open: the control board and Ethernet cables at the top, the PV and AC terminal rows in the middle, and the EMS-C at the lower left.',
-        ),
-        image(
-          'images/inverter-pv-terminals-and-board.png',
-          [590, 443],
-          'Close-up of the PV terminal row labeled PV1+ to PV4+ and PV1- to PV4-, with three Ethernet cables plugged into the control board above it.',
-          'Close-up: the PV terminals are labeled PV1+ to PV4+ and PV1- to PV4-. Three Ethernet cables are plugged into ports on the control board above them.',
+          'images/rev4-wiring-compartment.webp',
+          [1017, 773],
+          'The Rev 4 inverter wiring compartment with the clear cover open: the control board along the top, PV1+ to PV4+ and PV1- to PV4- fuse holders and grid, generator and load terminal blocks in the middle, and an EMS-C at the lower left with lights labeled STATUS, CELLULAR, BLUETOOTH and POWER.',
+          'The Rev 4 inverter wiring compartment with the cover open. The PV terminals are labeled PV1+ to PV4+ and PV1- to PV4-. The AC terminal blocks are to their right, and the EMS-C is at the lower left.',
         ),
         {
           type: 'revisionDiff',
@@ -749,6 +798,41 @@ const mod: Module = {
         wrong: ['13.5kWh, up to 3 batteries', '14.3kWh, up to 6 batteries', '10kWh, up to 2 batteries'],
         explanation: 'The Rev 4 battery is 14.3kWh. Revs 1-3 have a 13.5kWh battery. Up to 3 batteries per inverter on all revisions.',
         sources: [src('manual', 44), src('san2_3', 39)],
+        revisions: ['rev4'],
+      }),
+      question({
+        id: 'm4-q-diagram-rsd',
+        lessonId: 'm4-diagram',
+        prompt: 'On the Rev 4 wiring diagram, which pins are the 12 VDC supply for the rapid shutdown transmitter?',
+        correct: ['+12V_COM and GND_COM'],
+        wrong: ['DRYO_1B and DRYO_1A', 'DRYI_1B and DRYI_1A', 'LEAD_NTC and NTC_GND'],
+        explanation: 'The Rapid Solar Shutdown (RSS) connector is +12V_COM and GND_COM, the built-in 12 VDC, 1A supply. The transmitter is polarity sensitive.',
+        sources: [AUTHOR, src('manual', 28)],
+        revisions: ['rev4'],
+      }),
+      question({
+        id: 'm4-q-diagram-generator',
+        lessonId: 'm4-diagram',
+        prompt: 'Which pins does a generator two-wire auto start connect to?',
+        correct: ['DRYO_1B and DRYO_1A'],
+        wrong: ['+12V_COM and GND_COM', 'DRYI_1B and DRYI_1A', 'BAT+ and BAT-'],
+        explanation: 'The generator (AGS) two-wire auto start goes to DRYO_1B and DRYO_1A. DRYI_1B and DRYI_1A are the remote shutdown connector.',
+        sources: [AUTHOR, src('manual', 35)],
+        revisions: ['rev4'],
+      }),
+      question({
+        id: 'm4-q-diagram-ports',
+        lessonId: 'm4-diagram',
+        prompt: 'On a Rev 4 inverter after commissioning, where do the battery BMS cables and the EMS-C connect?',
+        correct: ['The BMS cables go to BMS COMM and the EMS-C goes to the WiFi port'],
+        wrong: [
+          'The BMS cables go to Parallel A and the EMS-C goes to Parallel B',
+          'The BMS cables go to the WiFi port and the EMS-C goes to BMS COMM',
+          'Both go to CT1 & CT2',
+        ],
+        explanation:
+          'After commissioning the BMS cables are on the inverter BMS COMM port. The EMS-C connects to the inverter WiFi port, not a parallel port. CT1 & CT2 is for the CTs.',
+        sources: [src('emsc', 8), AUTHOR],
         revisions: ['rev4'],
       }),
     ],

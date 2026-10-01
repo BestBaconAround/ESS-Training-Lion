@@ -16,7 +16,10 @@ describe('computeStatus: Rev 4', () => {
     expect(s.pvAccepted.value).toBe(true)
     expect(s.commsOnline.value).toBe(true)
     expect(s.settingsFirmware.value).toBe(true)
-    expect(s.lights).toEqual([{ label: 'Light', color: 'green' }])
+    expect(s.lights).toEqual([
+      { label: 'Normal light', color: 'green' },
+      { label: 'Fault light', color: 'off' },
+    ])
   })
 
   it('PV Disconnect off: no solar accepted, loads still on', () => {
@@ -46,7 +49,10 @@ describe('computeStatus: Rev 4', () => {
     expect(s.fullyOff.value).toBe(true)
     expect(s.loadsPowered.value).toBe(false)
     expect(s.commsOnline.value).toBe(false)
-    expect(s.lights).toEqual([{ label: 'Light', color: 'off' }])
+    expect(s.lights).toEqual([
+      { label: 'Normal light', color: 'off' },
+      { label: 'Fault light', color: 'off' },
+    ])
   })
 
   it('PV only counts as a source while the PV switch is on', () => {
@@ -62,7 +68,7 @@ describe('computeStatus: Rev 4', () => {
   it('alarm blinks green and fault is red and shuts loads down', () => {
     expect(computeStatus(rev4({}, {}, 'alarm')).lights[0].color).toBe('green-blink')
     const f = computeStatus(rev4({}, {}, 'fault'))
-    expect(f.lights[0].color).toBe('red')
+    expect(f.lights[1].color).toBe('red')
     expect(f.loadsPowered.value).toBe(false)
     expect(f.pvAccepted.value).toBe(false)
   })

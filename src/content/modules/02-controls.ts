@@ -55,10 +55,10 @@ const mod: Module = {
           ],
         },
         image(
-          'images/inverter-left-side-controls.png',
-          [333, 436],
-          'The left side of an inverter: a warning label and fan grilles at the top, then a red rotary switch, a red round button and a green round button below it.',
-          'The left side of a Rev 4 inverter. From the top: fan grilles, the red rotary PV switch, then the AC/DC button (upper, red) and the Complete System Shutdown button (lower, green).',
+          'images/rev4-left-side-controls.webp',
+          [849, 797],
+          'The left side of a Rev 4 inverter: warning labels and fan grilles at the top, then a red rotary switch labeled PV Disconnect with OFF and ON positions, a red round button labeled AC/DC ON/OFF, and a green round button labeled Complete System Shutdown. Two antennas are mounted below the buttons.',
+          'The left side of a Rev 4 inverter. From the top: fan grilles, the PV Disconnect rotary switch (OFF/ON), the red AC/DC ON/OFF button, and the green Complete System Shutdown button. The two antennas are below the buttons.',
         ),
         {
           type: 'facts',
@@ -140,7 +140,7 @@ const mod: Module = {
       blocks: [
         {
           type: 'facts',
-          title: 'Rev 4: one light on the face of the system',
+          title: 'Rev 4 lights (manual p.10)',
           items: [
             fact('Solid green: the system has no alarms.', [MANUAL_CONTROLS], ['rev4']),
             fact(
@@ -154,22 +154,26 @@ const mod: Module = {
               ['rev4'],
             ),
             fact('No lights: the system is off.', [MANUAL_CONTROLS], ['rev4']),
+            fact(
+              'The lights are a normal light and a fault light, in a small window on the front of the inverter below the Lion logo.',
+              [AUTHOR],
+              ['rev4'],
+            ),
           ],
         },
         image(
-          'images/inverter-front.png',
-          [394, 527],
-          'The front of an inverter: a black panel with the Lion logo and a small rectangular window below the logo, above a wiring compartment with a clear cover.',
-          'The front of a Rev 4 inverter: the black panel with the Lion logo, a small rectangular window below the logo, and the clear-covered wiring compartment underneath.',
+          'images/rev4-front-lights.webp',
+          [663, 786],
+          'The front of a Rev 4 inverter: a black panel with the Lion logo and, below the logo, a small rectangular window that holds the normal and fault lights. A wiring compartment with a clear cover is below the panel.',
+          'The front of a Rev 4 inverter. The small window below the Lion logo holds the normal and fault lights. The clear-covered wiring compartment is underneath.',
         ),
-        todo('Confirm which part of the front panel is the status light (is it the small window below the logo?).'),
         {
           type: 'facts',
-          title: 'Revs 1-3: two lights',
+          title: 'Revs 1-3: the same two lights',
           items: [
             fact('The normal light is solid green when there are no alarms, and flashing green when there is an alert.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
             fact('The fault light is red when there is a fault.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
-            fact('Both lights are on the face of the inverter.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
+            fact('Both lights are on the face of the inverter, like Rev 4.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
             fact('The lights behave the same as Rev 4: no lights means the system is off.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
           ],
         },
@@ -274,9 +278,29 @@ const mod: Module = {
           'images/ems-c-in-inverter.png',
           [338, 440],
           'An EMS-C: a black module with status lights, Ethernet ports and a two-wire green power connector, mounted inside the inverter wiring compartment next to a red battery cable.',
-          'An EMS-C mounted inside the inverter wiring compartment. Its status lights show the connection state, and it is powered by a two-wire connection (see the EMS-C manual p.13).',
+          'An EMS-C mounted inside the inverter wiring compartment. Its four lights are labeled STATUS, CELLULAR, BLUETOOTH and POWER, and it is powered by a two-wire connection (see the EMS-C manual p.13).',
           ['rev4'],
-          [src('author'), src('emsc', 6, 13)],
+          [src('author'), src('emsc', 6, 8, 13)],
+        ),
+        {
+          type: 'facts',
+          title: 'WCM and EMS-C',
+          items: [
+            fact(
+              'The WCM (wireless communication module) is on Revs 1-3 and some Rev 4. The EMS-C replaced it and does the same job, plus a built-in cellular data plan (50 MB) that sends very basic data.',
+              [AUTHOR, src('emsc', 13)],
+            ),
+            fact('When a system is on cellular, the homeowner sees only a blue Wi-Fi icon and no system information.', [AUTHOR]),
+            fact('A WCM that still works should be kept when it is replaced with an EMS-C.', [src('emsc', 12)]),
+          ],
+        },
+        image(
+          'images/wcm.webp',
+          [230, 430],
+          'The WCM: a small green circuit board with a QR code on its radio module, two small buttons along the top, and RS485 and ETH ports at the bottom.',
+          'The WCM: a small green circuit board with a QR code, two buttons along the top, and RS485 and ETH ports at the bottom. In the training unit it is at the top left of the wiring compartment, above the EMS-C.',
+          ['rev4'],
+          [src('author', ), src('emsc', 12, 13)],
         ),
         {
           type: 'facts',

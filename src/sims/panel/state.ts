@@ -67,12 +67,10 @@ export function computeStatus(s: PanelState): PanelStatus {
       pvAccepted: off('The system is fully off.'),
       commsOnline: off('The system is fully off.'),
       settingsFirmware: off('The system is fully off.'),
-      lights: rev4
-        ? [{ label: 'Light', color: 'off' }]
-        : [
-            { label: 'Normal light', color: 'off' },
-            { label: 'Fault light', color: 'off' },
-          ],
+      lights: [
+        { label: 'Normal light', color: 'off' },
+        { label: 'Fault light', color: 'off' },
+      ],
     }
   }
 
@@ -111,13 +109,11 @@ export function computeStatus(s: PanelState): PanelStatus {
     settings = unknown
   }
 
-  const lights: PanelLight[] = rev4
-    ? [{ label: 'Light', color: fault ? 'red' : s.condition === 'alarm' ? 'green-blink' : 'green' }]
-    : [
-        // Normal light while in a fault is not described in the sources.
-        { label: 'Normal light', color: fault ? 'unknown' : s.condition === 'alarm' ? 'green-blink' : 'green' },
-        { label: 'Fault light', color: fault ? 'red' : 'off' },
-      ]
+  // All revisions have a normal light and a fault light (author). The normal light while in a fault is not described.
+  const lights: PanelLight[] = [
+    { label: 'Normal light', color: fault ? 'unknown' : s.condition === 'alarm' ? 'green-blink' : 'green' },
+    { label: 'Fault light', color: fault ? 'red' : 'off' },
+  ]
 
   return {
     externalSource: external,
