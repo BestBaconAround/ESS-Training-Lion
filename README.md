@@ -36,6 +36,8 @@ All 7 modules are on the dashboard. Modules 2 and 4 are fully built; the rest sh
 
 Progress (lessons, quiz scores, simulator attempts and best scores) can be downloaded and restored from the **Progress backup** page.
 
+The **Troubleshooting** page (top navigation) is a searchable reference for battery, inverter and power problems: the 24 fault codes plus guided steps, filterable by area and by revision, each step with its source. Add entries in `src/content/troubleshooting.ts`.
+
 ## Adding content
 
 Content is data, not UI code. See `CLAUDE.md` for the rules (sources, revision tags, corrections).

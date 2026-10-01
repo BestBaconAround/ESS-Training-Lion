@@ -6,6 +6,7 @@ import LessonPage from './pages/LessonPage'
 import ModulePage from './pages/ModulePage'
 import QuizPage from './pages/QuizPage'
 import SimPage from './pages/SimPage'
+import TroubleshootingPage from './pages/TroubleshootingPage'
 
 // HashRouter keeps deep links working on GitHub Pages with no server rewrites.
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="module/:moduleId/lesson/:lessonId" element={<LessonPage />} />
           <Route path="module/:moduleId/quiz" element={<QuizPage />} />
           <Route path="module/:moduleId/sim" element={<SimPage />} />
+          <Route path="troubleshooting" element={<TroubleshootingPage />} />
           <Route path="backup" element={<BackupPage />} />
           <Route path="*" element={<Dashboard />} />
         </Route>

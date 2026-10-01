@@ -157,6 +157,7 @@ Track unresolved questions here until the author answers; then move the answer i
 - Layout: `src/content/` (types, labels, helpers, modules, `data/faults.ts`, `sims/` scenario data and thresholds), `src/sims/` (seeded RNG and engines: `panel/`, `bench/`), `src/sims-ui/` (simulator UIs and `registry.tsx`), `src/progress/` (versioned localStorage store, tested), `src/quiz/` (grading, shuffling), `src/pages/` and `src/components/` (UI).
 - `src/content/content.test.ts` enforces the rules (explanations, sources, revision tags, unique ids) and runs as part of `npm run build`.
 - Simulator numbers (thresholds, voltage ranges) live in `src/content/sims/benchParams.ts` with sources, never hard-coded in engines.
+- **Troubleshooting page** (`/troubleshooting`): entries in `src/content/troubleshooting.ts` (guided entries plus one generated entry per fault code from `data/faults.ts`; `FAULT_AREA` assigns each code to Battery, Inverter or Power for navigation only). Every step needs a source and a revision tag; gaps are `todo` strings. Search and revision filtering are pure functions in `src/troubleshooting/filter.ts`. `src/content/troubleshooting.test.ts` enforces sources, unique ids, full fault-code coverage and valid lesson links.
 
 ## Conventions
 

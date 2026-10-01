@@ -19,6 +19,9 @@ export default function Layout() {
             <NavLink to="/" end className={linkClass}>
               Dashboard
             </NavLink>
+            <NavLink to="/troubleshooting" className={linkClass}>
+              Troubleshooting
+            </NavLink>
             <NavLink to="/backup" className={linkClass}>
               Progress backup
             </NavLink>
