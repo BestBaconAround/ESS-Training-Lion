@@ -18,13 +18,24 @@ Training platform for new Lion Energy tech support specialists on the **Sanctuar
 
 Keep this list current. Any new correction from the author goes here first, then into content.
 
+## Author field knowledge (not in the manual)
+
+Knowledge supplied by the author from field experience. It is authoritative for teaching, but tag it in content as `source: 'author'` (not a manual page) so it stays distinguishable from the manual.
+
+- **Battery below 51 VDC:** the battery BMS goes to sleep below 51 VDC (this is why the acceptable range is 51-55.6). If it does not recover after the second attempt, charge the battery with a 60V variable DC power supply. That supply is also often used to charge individual cells. TODO(author): what are the first two attempts?
+- **0.5V rule:** within 0.5V of each other is the *recommendation*, and the manual warns of high current between batteries. In practice it is not a big deal if they differ more: the battery cables are designed to be disconnected without touching the breaker, and most installers do not check battery voltage and there have been no issues. Teach the recommendation, then the field reality. TODO(author): how should sims grade a spread above 0.5V?
+- **LED color:** the LED appears orange or red depending on the LED type and the viewer. Teach "orange or red = fault / failed PV insulation test".
+- **Support phone:** (435) 244-3352 is correct (manual p.21). The number on p.46 (385.375.8191) is the general company line.
+- **Gen 2 inverter revisions:** there are 4 revisions. Rev 4 has two power buttons: top = AC/DC, bottom = Complete System Shutdown. Above them is a rotary switch for PV (PV Disconnect).
+- **Inverter stays on while it has a source of power.** It turns off only when every power source other than the battery is off *and* those sources are turned off. TODO(author): clarify exactly (see open items).
+
 ## Open items / known manual inconsistencies
 
-Track unresolved questions here until the author answers; then move the answer into Corrections or content.
+Track unresolved questions here until the author answers; then move the answer into Corrections, field knowledge, or content.
 
-- p.10 lists only green/red LED states; p.42 step 7 mentions the LED turning "orange or red" on PV insulation test failure.
-- p.21 gives support phone (435) 244-3352; p.46 gives 385.375.8191. Do not hard-code either until confirmed.
-- Escalation path for support specialists (manual only says "contact your installer").
+- "Light off with button pushed in" (p.10): which button, what the learner should do, and the real escalation path (manual says "contact your installer").
+- Inverter power-source behavior (see field knowledge): does it change the Module 2 switch/status rules?
+- Which of the 4 inverter revisions the manual (updated 12/20/24) describes, and whether lessons should call out revision differences.
 - Cold-temperature Voc derating: manual defers to the tech specs, which contain no temperature coefficient. The sim must not compute Voc corrections without author-supplied data.
 - PV wire "recommended cable size table" (p.27) is not present in the PDF text.
 
