@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { modules } from './index'
+import { FAULT_CODES } from './data/faults'
 import { REVISIONS, SOURCE_LABELS } from './labels'
 import type { Block, RevisionTag, SourceRef } from './types'
 
@@ -112,6 +113,18 @@ describe('content', () => {
           checkRevisions(qw, q.revisions, errors)
         })
       }
+    }
+    expect(errors).toEqual([])
+  })
+
+  it('fault table has unique codes with solutions and sources', () => {
+    const codes = FAULT_CODES.map((f) => f.code)
+    expect(new Set(codes).size).toBe(codes.length)
+    expect(codes).toHaveLength(24)
+    const errors: string[] = []
+    for (const f of FAULT_CODES) {
+      if (!f.name.trim() || !f.description.trim() || !f.solutions.length) errors.push(`${f.code}: incomplete`)
+      checkSources(f.code, f.sources, errors)
     }
     expect(errors).toEqual([])
   })
