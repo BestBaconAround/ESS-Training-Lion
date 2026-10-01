@@ -147,7 +147,10 @@ Track unresolved questions here until the author answers; then move the answer i
 - `src/content/modules/<nn>-<slug>.ts` exports one `Module` (see `src/content/types.ts`).
 - Every quiz question has an explanation and `sourcePages`.
 - Simulators are **data + engine**: parameters, symptom text, and ranges live in content; scenario generation and grading are pure, seeded functions in `src/sims/`, unit-tested.
-- Modules 1, 3, 5, 6, 7 are `status: 'coming-soon'` with a planned `outline`. Modules 2 and 4 are fully built in v1.
+- Modules 1, 3, 5, 6, 7 are `status: 'coming-soon'` with a planned `outline`. Modules 2 and 4 are fully built in v1 (`status: 'ready'`).
+- Layout: `src/content/` (types, labels, helpers, modules, `data/faults.ts`, `sims/` scenario data and thresholds), `src/sims/` (seeded RNG and engines: `panel/`, `bench/`), `src/sims-ui/` (simulator UIs and `registry.tsx`), `src/progress/` (versioned localStorage store, tested), `src/quiz/` (grading, shuffling), `src/pages/` and `src/components/` (UI).
+- `src/content/content.test.ts` enforces the rules (explanations, sources, revision tags, unique ids) and runs as part of `npm run build`.
+- Simulator numbers (thresholds, voltage ranges) live in `src/content/sims/benchParams.ts` with sources, never hard-coded in engines.
 
 ## Conventions
 

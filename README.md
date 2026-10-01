@@ -1,0 +1,59 @@
+# ESS Training - Lion Energy Sanctuary 2
+
+Training platform for new Lion Energy tech support specialists on the Sanctuary 2 Energy Storage System.
+Static site (Vite + React + TypeScript + Tailwind). No backend, no API keys. Progress is saved in this browser's `localStorage`.
+
+## Run it
+
+Requires Node 22 or newer.
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+```
+
+Other commands:
+
+```bash
+npm run build      # checks content, type-checks, builds to ./dist
+npm run preview    # serves ./dist locally to check the production build
+npm test           # unit tests (content rules, progress, quiz, simulator engines)
+```
+
+## What is built (v1)
+
+All 7 modules are on the dashboard. Modules 2 and 4 are fully built; the rest show "Coming soon" with a planned outline.
+
+| # | Module | Status |
+|---|---|---|
+| 1 | System Fundamentals | Coming soon |
+| 2 | Inverter Controls and Indicators | Lessons, 16-question quiz, inverter panel simulator |
+| 3 | Installation Location and Mounting | Coming soon |
+| 4 | DC Wiring and Batteries | Lessons, 24-question quiz, battery check and PV leakage simulator |
+| 5 | AC Wiring, CTs, Generator, AC Solar | Coming soon |
+| 6 | Continuity Testing and Phasing | Coming soon |
+| 7 | First-Time Power-Up | Coming soon |
+
+Progress (lessons, quiz scores, simulator attempts and best scores) can be downloaded and restored from the **Progress backup** page.
+
+## Adding content
+
+Content is data, not UI code. See `CLAUDE.md` for the rules (sources, revision tags, corrections).
+
+- A module is one file in `src/content/modules/`, registered in `src/content/index.ts`.
+- Every fact, call example and quiz question carries `sources` (manual page, EMS-C manual, video, or author) and a `revisions` tag.
+- Every quiz question needs an `explanation`. `npm run build` fails if content breaks the rules (`src/content/content.test.ts`).
+- Simulator scenarios live in `src/content/sims/` (data); the generators and graders are pure, seeded, tested functions in `src/sims/`.
+- Ids (modules, lessons, questions, sims) are stable: progress is keyed by them. Never rename or reuse one.
+- A new kind of simulator needs an engine in `src/sims/`, a UI in `src/sims-ui/`, and one line in `src/sims-ui/registry.tsx`.
+
+## Deploy to GitHub Pages
+
+The build uses relative asset paths and hash routing, so it works from any Pages sub-path with no server rewrites.
+
+1. In the repo: Settings > Pages > Source: **GitHub Actions**.
+2. Actions tab > **Deploy to GitHub Pages** > Run workflow.
+
+To serve from a specific base path instead, build with `VITE_BASE=/ESS-Training-Lion/ npm run build`.
+
+The source manuals are Lion Energy documents. Check the repository's visibility before publishing anything built from them.
