@@ -29,13 +29,32 @@ Knowledge supplied by the author from field experience. It is authoritative for 
 - **Gen 2 inverter revisions:** there are 4 revisions. Rev 4 has two power buttons: top = AC/DC, bottom = Complete System Shutdown. Above them is a rotary switch for PV (PV Disconnect).
 - **Inverter stays on while it has a source of power.** It turns off only when every power source other than the battery is off *and* those sources are turned off. TODO(author): clarify exactly (see open items).
 
+## Commissioning walkthrough (video transcript, `source: 'video'`)
+
+Source: author-supplied transcript of a Lion Energy training video, "commissioning a Gen 2 Sanctuary with an EMSC" (1 inverter, 2 batteries). It is a **pre-commissioning** (bench) demo done in the Lion Energy app. The transcript has no timestamps beyond minute marks and the narrator sometimes refers to things on screen ("this one"), so anything ambiguous below is a TODO, not a fact.
+
+Flow, as stated:
+1. Choose total number of inverters and batteries (demo: 1 inverter, 2 batteries, black). The app checks spacing, asks WCM vs EMSC installed (demo: EMSC), asks about split phase and "advanced" (demo: next).
+2. Antennas: confirm they are installed and the cellular and Bluetooth/Wi-Fi antennas match their labels. Internal wires connect to the external antennas; if there are connectivity problems, check these first.
+3. Both power buttons must be on, "not just one" (see open items: conflicts with manual p.42 step 3).
+4. Power on the EMSC with its switch; a blue light appears under "power". App finds the EMSC over Bluetooth, then connects it to Wi-Fi (enter the Wi-Fi password). Can take several tries. App then checks for and installs EMSC updates (a couple of minutes).
+5. EMSC connects to the inverter's WiFi port (back middle). Typically comes with this cable.
+6. Address the batteries so the EMS knows which is which: plug the Ethernet cable from the EMSC battery port into battery 1 and address it; move the cable to battery 2 and address it. Then daisy chain: move the EMSC cable to the BMS COM port (back left of the board), and run another Ethernet cable from battery 1 to battery 2. Checklist: addressing cable removed, battery 1 connected to BMS port, all batteries linked.
+7. Power sources screen (depends on the customer): grid, AC solar, generator (demo: grid + AC solar, no generator). Breaker size (demo: 100A; ask the installer). Sell back to grid (demo: yes). SoC at which AC solar stops charging the battery (demo: 100%). Emergency mode (demo: no). CTs: read the rating on the CTs themselves (demo: 200A / 100mA). A "30%" setting is typically recommended and is customer preference (unclear which setting, see open items).
+8. Confirm the product, enter customer info (address, full name) and the installer name. Because it is pre-commissioning, CTs are not installed yet; CT placement is checked manually when the installers arrive. Finish.
+
 ## Open items / known manual inconsistencies
 
 Track unresolved questions here until the author answers; then move the answer into Corrections, field knowledge, or content.
 
-- "Light off with button pushed in" (p.10): which button, what the learner should do, and the real escalation path (manual says "contact your installer").
-- Inverter power-source behavior (see field knowledge): does it change the Module 2 switch/status rules?
-- Which of the 4 inverter revisions the manual (updated 12/20/24) describes, and whether lessons should call out revision differences.
+- **Power buttons during commissioning:** video says both power buttons must be on. Manual p.42 step 3 says turn Complete System Shutdown on and leave AC/DC **off** until after commissioning. Is the video a bench/pre-commission case, or has the procedure changed?
+- **Emergency mode:** the commissioning app has an "emergency mode" setting. Correction 3 says the paralleling procedure uses battery priority mode, not emergency mode. Are these two different settings (so teach both, distinctly), or the same setting renamed?
+- **EMSC vs WCM:** manual p.40 mentions only WCM. Define EMSC (and WCM) before teaching them.
+- **"30%"** in the power-sources step: which setting is it (min/reserve SoC?). Do not guess.
+- **"Light off with button pushed in"** (p.10): which button, what the learner should do, and the real escalation path (manual says "contact your installer").
+- **Inverter power-source behavior** (see field knowledge): is the battery a source that keeps the inverter on? How does it interact with Complete System Shutdown?
+- **Battery below 51 V:** what are the "first two attempts" before using the 60V supply? How should sims grade a battery spread above 0.5V?
+- Which of the 4 inverter revisions the manual (updated 12/20/24) and the video describe, and whether lessons should call out revision differences.
 - Cold-temperature Voc derating: manual defers to the tech specs, which contain no temperature coefficient. The sim must not compute Voc corrections without author-supplied data.
 - PV wire "recommended cable size table" (p.27) is not present in the PDF text.
 
