@@ -172,6 +172,7 @@ const mod: Module = {
           title: 'Revs 1-3: the same two lights',
           items: [
             fact('The normal light is solid green when there are no alarms, and flashing green when there is an alert.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
+            fact('A flashing green normal light means an active alarm or standby with the AC power button off. Check the app for alarms, and check whether the AC/DC button is pushed in.', [src('tsm', 13, 19, 35)], ['rev4']),
             fact('The fault light is red when there is a fault.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
             fact('Both lights are on the face of the inverter, like Rev 4.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
             fact('The lights behave the same as Rev 4: no lights means the system is off.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
@@ -268,8 +269,8 @@ const mod: Module = {
             ),
             fact('Settings and firmware can be updated as long as the EMS-C has power.', [AUTHOR], ['rev4']),
             fact(
-              'Note: the 12/20/24 manual (p.10) says the controller can still communicate with AC/DC off. On an EMS-C system the author and the EMS-C manual say comms go offline, so teach that.',
-              [AUTHOR, src('emsc', 8), MANUAL_CONTROLS],
+              'Both statements are true: the inverter controller stays on with AC/DC off (the green LED flashes and you can still communicate with the inverter), but the EMS-C loses its 12V and goes offline, so nothing reaches the app. On Rev 4 the 12V for the EMS-C and the rapid shutdown transmitter comes through the top (AC/DC) button.',
+              [MANUAL_CONTROLS, src('emsc', 8), src('tsm', 35, 39), AUTHOR],
               ['rev4'],
             ),
           ],

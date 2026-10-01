@@ -33,12 +33,15 @@ describe('Ask the notes: finds the right passage', () => {
     ['no light on the inverter but the buttons are in', 'ts-no-light'],
     ['how do I power cycle the inverter', 'ts-power-cycle'],
     ['shutdown button pressed but still running', 'ts-shutdown-still-on'],
-    ['grid over voltage', 'ts-grid-overvoltage'],
     ['sell back stuck frequency watt', 'ts-sellback-stuck'],
     ['solar drops to zero in daylight', 'ts-pv-reverse'],
     ['first call what should I ask', 'ts-first-call'],
     ['which pins are the CTs on', 'ts-ct-check'],
   ]
+  // Two passages are right for this one: the guided entry and the generated A1_7 fault entry. Either may lead.
+  it('"grid over voltage" -> the guided entry is in the top two', () => {
+    expect(top('grid over voltage').slice(0, 2).map((h) => h.chunk.id)).toContain('ts-grid-overvoltage')
+  })
   for (const [q, id] of cases) {
     it(`"${q}" -> ${id}`, () => {
       const hits = top(q)

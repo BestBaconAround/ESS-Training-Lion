@@ -28,6 +28,10 @@ describe('computeStatus: Rev 4', () => {
     expect(s.loadsPowered.value).toBe(true)
   })
 
+  it('AC/DC off: the normal light flashes green (standby, Technical Service Manual pp.13, 35)', () => {
+    expect(computeStatus(rev4({ power: false })).lights[0].color).toBe('green-blink')
+  })
+
   it('AC/DC off: loads off, no PV, controller on, EMS-C comms and settings offline', () => {
     const s = computeStatus(rev4({ power: false }))
     expect(s.loadsPowered.value).toBe(false)

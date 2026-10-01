@@ -7,6 +7,7 @@ export const SOURCE_LABELS: Record<SourceTag, string> = {
   emsc: 'EMS-C Manual 4/13/25',
   video: 'Commissioning video',
   author: 'Course author (field knowledge)',
+  tsm: 'Sanctuary Technical Service Manual (9/30/2026)',
   settings: 'Settings Guide for Sanctuary 2 and 3 (rev 1.1, 6/4/2026)',
   notes: 'Author\'s ESS support notes',
 }

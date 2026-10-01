@@ -36,6 +36,7 @@ export const hasExternalSource = (s: PanelState): boolean =>
  *   external source is on; with one on, the system works as normal.
  * - Rev 4 AC/DC off: loads off, no PV used (manual p.10). The EMS-C is powered from the 12V supply that turns
  *   off with AC power, so comms and settings/firmware go offline (EMS-C manual p.8, author).
+ * - Rev 4 AC/DC off: the controller stays on and the normal light flashes green (standby), Technical Service Manual pp.13, 35.
  * - A fault shuts the inverter down to protect itself (manual p.10).
  */
 export function computeStatus(s: PanelState): PanelStatus {
@@ -111,7 +112,8 @@ export function computeStatus(s: PanelState): PanelStatus {
 
   // All revisions have a normal light and a fault light (author). The normal light while in a fault is not described.
   const lights: PanelLight[] = [
-    { label: 'Normal light', color: fault ? 'unknown' : s.condition === 'alarm' ? 'green-blink' : 'green' },
+    // Rev 4 AC/DC off: the controller is on in standby and the green LED flashes (Technical Service Manual pp.13, 35).
+    { label: 'Normal light', color: fault ? 'unknown' : s.condition === 'alarm' || (rev4 && !acdcOn) ? 'green-blink' : 'green' },
     { label: 'Fault light', color: fault ? 'red' : 'off' },
   ]
 
