@@ -342,6 +342,10 @@ const mod: Module = {
           title: 'Same on every revision',
           items: [
             fact(
+              'Only one communication module (WCM or EMS-C) is used per system, and it stays in the parent inverter.',
+              [AUTHOR, src('emsc', 13), src('san2_2', 29), src('san2_3', 36)],
+            ),
+            fact(
               'When connecting multiple batteries, check the voltage on each battery first. Batteries must be within 0.5V in order to connect in parallel.',
               [src('san2_2', 13, 14), src('san2_3', 19, 20)],
               ['rev1', 'rev2', 'rev3'],

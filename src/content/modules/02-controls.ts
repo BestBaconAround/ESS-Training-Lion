@@ -292,13 +292,17 @@ const mod: Module = {
             ),
             fact('When a system is on cellular, the homeowner sees only a blue Wi-Fi icon and no system information.', [AUTHOR]),
             fact('A WCM that still works should be kept when it is replaced with an EMS-C.', [src('emsc', 12)]),
+            fact(
+              'A system uses only one communication module (WCM or EMS-C), and it stays in the parent inverter. With several inverters, a single EMS-C goes in the designated parent inverter.',
+              [AUTHOR, src('emsc', 13)],
+            ),
           ],
         },
         image(
           'images/wcm.webp',
           [230, 430],
           'The WCM: a small green circuit board with a QR code on its radio module, two small buttons along the top, and RS485 and ETH ports at the bottom.',
-          'The WCM: a small green circuit board with a QR code, two buttons along the top, and RS485 and ETH ports at the bottom. In the training unit it is at the top left of the wiring compartment, above the EMS-C.',
+          'The WCM: a small green circuit board with a QR code, two buttons along the top, and RS485 and ETH ports at the bottom. This Rev 4 training unit was upgraded to an EMS-C, so its WCM (top left of the wiring compartment, above the EMS-C) is not used.',
           ['rev4'],
           [src('author', ), src('emsc', 12, 13)],
         ),
@@ -504,6 +508,15 @@ const mod: Module = {
           'The EMS-C is powered by the inverter\'s 12V supply, which turns off when AC power is turned off. Its integrated backup battery is only mentioned for keeping it on while parallel inverters are power-cycled during commissioning. Settings and firmware updates work only while the EMS-C has power.',
         sources: [src('emsc', 5, 8), AUTHOR],
         revisions: ['rev4'],
+      }),
+      trueFalse({
+        id: 'm2-q-one-comm-module',
+        lessonId: 'm2-shutdown',
+        prompt: 'In a system with several inverters, every inverter has its own communication module (WCM or EMS-C).',
+        answer: false,
+        explanation:
+          'A system uses only one communication module, and it stays in the parent inverter. With several inverters, a single EMS-C goes in the designated parent inverter.',
+        sources: [AUTHOR, src('emsc', 13)],
       }),
       question({
         id: 'm2-q-remote-shutdown',
