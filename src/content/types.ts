@@ -16,6 +16,7 @@ export type SourceTag =
   | 'emsc' // EMS-C Manual, updated 4/13/25
   | 'video' // Commissioning walkthrough video transcript
   | 'author' // Field knowledge supplied by the course author
+  | 'settings' // Settings for Sanctuary 2 and Sanctuary 3, rev1.1 6/4/2026 (user and installer level only)
   | 'notes' // The author's own ESS support notes (personal details and internal-only items removed)
 
 export interface SourceRef {

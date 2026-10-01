@@ -40,6 +40,7 @@ export interface TroubleshootingEntry {
 
 const AUTHOR = src('author')
 const NOTES = src('notes')
+const SETTINGS = (...pages: number[]) => src('settings', ...pages)
 const step = (text: string, sources: SourceRef[], revisions: RevisionTag = 'all'): TroubleshootingStep => ({ text, sources, revisions })
 
 /** Where support goes when a problem cannot be fixed on the call. */
@@ -283,6 +284,7 @@ const guided: TroubleshootingEntry[] = [
     steps: [
       step('Check the PV Disconnect. It controls whether the inverter accepts solar power. (On Revs 1-3 the DC switch is the PV disconnect.)', [src('manual', 10), AUTHOR]),
       step('With AC/DC off (Rev 4), no PV power is used.', [src('manual', 10)], ['rev4']),
+      step('Settings Guide: the PV Insulation Detection setting is installer level and its default is disabled. When it is enabled, the first check runs 2 minutes after the inverter turns on. On-grid it repeats every 24 hours with about 30 seconds in internal bypass (loads stay on the grid). Off-grid only the first check runs.', [SETTINGS(35)]),
       step('At first power-up the inverter runs a PV insulation check. If the front LED turns orange or red, it failed: there is a path from PV(+) or PV(-) to ground. Do not proceed until the PV wiring is fixed.', [src('manual', 42), AUTHOR], ['rev4']),
       step('For leakage, run the PV-to-GND test: PV Disconnect off, voltage and continuity from PV(-) to GND, then from PV(+) to GND. With MLPE the test may miss leakage if rapid shutdown is not turning the panels on.', [src('manual', 27), AUTHOR], ['rev4']),
       step('Fault A2_15 (ARC Fault Detected): check the solar wiring for correct connections.', [src('san2_2', 35)]),
@@ -291,6 +293,7 @@ const guided: TroubleshootingEntry[] = [
       { moduleId: 'dc-wiring-batteries', lessonId: 'm4-leakage' },
       { moduleId: 'inverter-controls', lessonId: 'm2-controls' },
     ],
+    todo: ['The manual (p.42) describes the PV insulation check at first power-up, but the Settings Guide (p.35) lists PV Insulation Detection as disabled by default. Confirm with the author whether commissioning turns it on.'],
   },
   {
     id: 'ts-remote-shutdown',
@@ -312,6 +315,7 @@ const guided: TroubleshootingEntry[] = [
       step('The CT arrows must point away from the main panel and toward the grid power source.', [src('manual', 34)]),
       step('In a system with several inverters, only the parent inverter has the CTs.', [src('manual', 34)]),
       step('Read the rating on the CTs themselves (the commissioning example showed 200A / 100mA).', [src('video')]),
+      step('Two CT sizes have shipped. 90A / 90mA (1000:1 ratio) is used on Sanctuary 2 Rev 1 and Rev 2 hardware. 200A / 100mA (2000:1 ratio) is used on Rev 3, Rev 4 and Sanctuary 3. The Current Transducer Ratio setting has to match the CTs that are installed.', [SETTINGS(31, 32)]),
       step('Fault A1_12 (Grid CT is Reversed) means the CTs were installed improperly: switch the CT direction.', [src('san2_2', 33)]),
     ],
     related: [{ moduleId: 'inverter-controls', lessonId: 'm2-faults' }],
@@ -340,6 +344,7 @@ const guided: TroubleshootingEntry[] = [
       step('Possible cause: worn-out insulation on the wire.', [NOTES]),
       step('Individual solar panels can cause this issue.', [NOTES]),
       step('Fault A1_10 (Leakage Current, GFCI Fault) is a ground fault. Check that neutral and ground bonding follow NEC, check the neutral wiring, and make sure the load output panel is not bonded.', [src('san2_2', 33)]),
+      step('How the inverter decides: with Leakage Current Detection enabled (the default), normal PV-to-ground leakage reads around 10 mA or less. A jump of 30 mA, or a slow rise past 300 mA, raises the GFCI over alarm (A1_10). With the setting disabled, the inverter does not shut down for ground-fault leakage.', [SETTINGS(35)]),
     ],
     ordered: false,
     related: [{ moduleId: 'dc-wiring-batteries', lessonId: 'm4-leakage' }],
@@ -373,6 +378,53 @@ const guided: TroubleshootingEntry[] = [
       step('When a generator has auto-start and is then started manually, the inverter ignores the generator until the inverter calls for it.', [NOTES]),
       step('While the generator is connected, the inverter status reads on-grid.', [NOTES]),
     ],
+  },
+  {
+    id: 'ts-operating-modes',
+    area: 'power',
+    title: 'Operating mode and battery reserve (what the homeowner can change)',
+    customerSays: 'I want to keep my battery full for an outage. / My battery is not being used.',
+    steps: [
+      step('The homeowner (and anyone the product is shared with) can change only three things: the Wi-Fi (internet), the operating mode, and the battery reserve percentage. Everything else is installer or Lion Energy level.', [SETTINGS(10, 11)]),
+      step('Settings changes go through the communicator (WCM or EMS-C), so the system must be online to change them.', [SETTINGS(10)]),
+      step('Normal mode (default) minimizes power bought from the grid. It is "Limit Grid Consumption" with Battery Priority disabled.', [SETTINGS(11)]),
+      step('Emergency mode keeps the battery full and ready for an outage. Solar cannot be stored or used from the battery while it is on. It is "Limit Grid Consumption" with Battery Priority enabled.', [SETTINGS(12)]),
+      step('Battery Priority (installer level): when the grid is on, the grid charges the battery and holds it at 100% SoC. Lion Energy recommends not using it for more than a week at a time; leave it disabled except for short-term use.', [SETTINGS(37)]),
+      step('Battery Sell Mode sells to the grid down to the battery reserve percentage, then only excess solar can be sold. It is rarely advantageous. If it is used, set Grid Sell Power Limit to the power to sell and use the time-of-use slots to say when and how much.', [SETTINGS(12)]),
+      step('The Battery Reserve Percentage setting writes the same percentage into all six time-of-use slots. To have a different reserve per slot, do not change it; change the time-of-use settings in Advanced Settings instead.', [SETTINGS(12)]),
+      step('30% battery reserve is typically recommended. It is customer preference.', [AUTHOR]),
+    ],
+    ordered: false,
+  },
+  {
+    id: 'ts-time-wrong',
+    area: 'inverter',
+    title: 'Time is wrong, or time-of-use runs at the wrong times',
+    customerSays: 'The battery is charging or discharging at the wrong time of day.',
+    steps: [
+      step('The correct time is needed for time-of-use settings to work at the right times, and for the right times to show in the alarm history.', [SETTINGS(12)]),
+      step('The EMS-C sets the inverter clock from internet time every minute, so the Sync System Date/Time button is essentially obsolete.', [SETTINGS(12)]),
+      step('For any time sync problem, check the time zone setting first. It is installer level and is set during commissioning.', [SETTINGS(12, 41)]),
+      step('Then make sure the EMS-C can connect to the internet.', [SETTINGS(12)]),
+      step('If the clock is right, check the time-of-use slots: there are six, they must be sequential and not overlap, slot 1 should start at 12:00 AM and slot 6 should end at 11:59 PM. Overlapping slots make time-of-use not work correctly or be effectively disabled.', [SETTINGS(21, 22)]),
+    ],
+  },
+  {
+    id: 'ts-battery-dod',
+    area: 'battery',
+    title: 'Low-battery alarms A1_3 and A1_4 and depth of discharge',
+    customerSays: 'The system shut off the loads because the battery is low.',
+    steps: [
+      step('Depth of discharge (DoD) is how far the battery may be discharged. SoC = 100 - DoD, so at 90% DoD the battery is at 10% SoC.', [SETTINGS(14)]),
+      step('On-Grid Depth of Discharge (installer, default 90): once SoC drops below 100 - on-grid DoD, the inverter stops using the battery and uses the grid. It can override time-of-use settings.', [SETTINGS(14)]),
+      step('Off-Grid Depth of Discharge (installer, default 90): how far the battery can be discharged off-grid before load power is turned off.', [SETTINGS(14)]),
+      step('Off-grid DoD should be at least as much as on-grid DoD. If on-grid DoD is set higher, the inverter treats it as a mistake and uses the higher value off-grid and the lower one on-grid.', [SETTINGS(14)]),
+      step('When SoC drops below 100 - off-grid DoD, the inverter raises the low battery alarm (A1_4). If on-grid DoD is the same as or less than off-grid DoD, it also raises the battery under capacity alarm (A1_3).', [SETTINGS(14)]),
+      step('Off-Grid Battery Restart Percent (installer, default 10): after the loads were turned off for low battery, the battery has to charge back up by this much before the loads come back. At the default settings the loads return at 20% SoC.', [SETTINGS(14)]),
+      step('On-Grid Battery Restart Percent (installer, default 0): when SoC falls to the target, the inverter charges from solar up to this percent above the target, then allows discharging again.', [SETTINGS(13, 14)]),
+      step('A1_3 in the fault table: if the inverter does not charge, use a power supply to charge the battery to at least 10% SoC.', [src('san2_2', 32)]),
+    ],
+    todo: ['The Settings Guide describes A1_3 two ways (p.14: raised together with A1_4 when on-grid DoD is the same or less than off-grid DoD; p.14: raised after A1_4 when on-grid DoD is higher). Confirm with the author which one the specialist should expect.'],
   },
 
 ]
