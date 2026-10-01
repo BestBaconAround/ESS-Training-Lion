@@ -9,7 +9,7 @@ const mod: Module = {
   number: 2,
   title: 'Inverter Controls and Indicators',
   summary: 'The switches, lights and shutdown behavior a customer will describe on a support call.',
-  status: 'coming-soon',
+  status: 'ready',
   outline: [
     { text: 'PV Disconnect, AC/DC Power, and Complete System Shutdown', sources: [MANUAL_CONTROLS] },
     { text: 'What the LED lights mean (solid green, blinking green, red, off)', sources: [MANUAL_CONTROLS] },

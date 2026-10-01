@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SourceNote from '../components/SourceNote'
 import { getModule } from '../content'
@@ -41,18 +41,11 @@ function QuizRunner({ module }: { module: Module }) {
   const [selected, setSelected] = useState<string[]>([])
   const [submitted, setSubmitted] = useState(false)
   const [answers, setAnswers] = useState<Answer[]>([])
-  const recorded = useRef(false)
 
   const finished = answers.length === questions.length
   const score = answers.filter((a) => a.correct).length
 
-  if (finished && !recorded.current) {
-    recorded.current = true
-    progressActions.recordQuizAttempt(module.id, score, questions.length)
-  }
-
   const restart = () => {
-    recorded.current = false
     setRound((r) => r + 1)
     setIndex(0)
     setSelected([])
@@ -121,7 +114,12 @@ function QuizRunner({ module }: { module: Module }) {
   // The answer is recorded on "Next", so the learner can read the explanation first.
   const submit = () => setSubmitted(true)
   const next = () => {
-    setAnswers((cur) => [...cur, { question: q, selected, correct: gradeQuestion(q, selected) }])
+    const updated = [...answers, { question: q, selected, correct: gradeQuestion(q, selected) }]
+    setAnswers(updated)
+    // Saved here, in the click handler, not during render.
+    if (updated.length === questions.length) {
+      progressActions.recordQuizAttempt(module.id, updated.filter((a) => a.correct).length, questions.length)
+    }
     setSelected([])
     setSubmitted(false)
     setIndex((i) => i + 1)

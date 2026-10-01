@@ -18,7 +18,7 @@ export default function BlockRenderer({ block }: { block: Block }) {
                 <span>
                   <RevisionBadge revisions={f.revisions} />
                   {f.text}
-                  <SourceNote sources={f.sources} revisions={f.revisions} />
+                  <SourceNote sources={f.sources} />
                 </span>
               </li>
             ))}
@@ -39,7 +39,7 @@ export default function BlockRenderer({ block }: { block: Block }) {
             {block.answer}
           </p>
           <div className="mt-1">
-            <SourceNote sources={block.sources} revisions={block.revisions} />
+            <SourceNote sources={block.sources} />
           </div>
         </section>
       )
@@ -60,7 +60,7 @@ export default function BlockRenderer({ block }: { block: Block }) {
             {block.text}
           </p>
           <div className="mt-1 opacity-80">
-            <SourceNote sources={block.sources} revisions={block.revisions} />
+            <SourceNote sources={block.sources} />
           </div>
         </aside>
       )
