@@ -66,6 +66,11 @@ const mod: Module = {
           items: [
             fact('The power button controls the on and off state.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
             fact('The DC switch is the PV disconnect. "DC" stands for DC voltage.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
+            fact(
+              'A Revs 1-3 inverter looks like a Rev 4 inverter, but without the second button and the second antenna. The controls are in the same place, on the left side of the inverter.',
+              [AUTHOR],
+              ['rev1', 'rev2', 'rev3'],
+            ),
           ],
         },
         {
@@ -92,6 +97,26 @@ const mod: Module = {
               },
               sources: [AUTHOR, src('san2_3', 9)],
             },
+            {
+              label: 'Where the controls are',
+              values: {
+                rev1: 'Left side of the inverter',
+                rev2: 'Left side of the inverter',
+                rev3: 'Left side of the inverter',
+                rev4: 'Left side of the inverter',
+              },
+              sources: [AUTHOR],
+            },
+            {
+              label: 'Antennas',
+              values: {
+                rev1: 'One (no second antenna)',
+                rev2: 'One (no second antenna)',
+                rev3: 'One (no second antenna)',
+                rev4: 'Two: cellular and Bluetooth/Wi-Fi',
+              },
+              sources: [AUTHOR, src('video')],
+            },
           ],
         },
         {
@@ -103,7 +128,7 @@ const mod: Module = {
           revisions: ['rev4'],
         },
         todo('Revs 1-3: confirm whether the WCM keeps communicating with the power button off.'),
-        todo('Revs 1-3: where the power button and the DC switch are on the inverter. Add photos of the Revs 1-3 controls.'),
+        todo('Add a photo of a Revs 1-3 inverter showing its single power button and DC switch.'),
       ],
     },
 
