@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { sourceText } from '../content/labels'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
@@ -30,6 +30,14 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
   const [input, setInput] = useState('')
   const nextId = useRef(1)
   const history = useHistory()
+  const lastQuestion = useRef<HTMLDivElement | null>(null)
+
+  // After each new answer, bring the question and the start of its reply into view. Not on first render.
+  useEffect(() => {
+    if (messages.length <= 1) return
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    lastQuestion.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  }, [messages.length])
 
   const ask = (question: string) => {
     const q = question.trim()
@@ -61,10 +69,10 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
         This searches the reference material. It does not use AI to write answers, so it cannot make anything up.
       </p>
 
-      <div className="mt-3 max-h-[28rem] space-y-3 overflow-y-auto pr-1" role="log" aria-live="polite" aria-label="Conversation">
-        {messages.map((m) =>
+      <div className="mt-3 space-y-3" role="log" aria-live="polite" aria-label="Conversation">
+        {messages.map((m, i) =>
           m.from === 'user' ? (
-            <div key={m.id} className="ml-auto max-w-[85%] rounded-xl bg-slate-900 px-3 py-2 text-sm text-white dark:bg-slate-100 dark:text-slate-900">
+            <div key={m.id} ref={i === messages.length - 2 ? lastQuestion : undefined} className="scroll-mt-20 ml-auto max-w-[85%] rounded-xl bg-slate-900 px-3 py-2 text-sm text-white dark:bg-slate-100 dark:text-slate-900">
               {m.text}
             </div>
           ) : (
