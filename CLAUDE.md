@@ -5,10 +5,42 @@ Training platform for new Lion Energy tech support specialists on the **Sanctuar
 ## Source of truth
 
 - **Primary source (v1):** *Sanctuary Installation Guide & Manual, Gen2 12K* (updated 12/20/24), https://support.lionenergy.com/files/manuals/Sanctuary%20Installation%20Guide%20and%20Manual%20Gen2%2012K.pdf
-- Page numbers cited in content (`sourcePages`) are **PDF page numbers**, which equal the printed page numbers (cover = 1).
+- **Other source documents in the repo (committed by the author):**
+  - `LION- SAN2_2 - Sanctuary Installation Guide- 042525.pdf` (Updated 4/25/25 (2), 40 pp, 13.5kWh variant, includes a fault-code table on pp.32-35)
+  - `LION- SAN2_3- Sanctuary Installation Guide-042525.pdf` (Updated 4/25/25 (3), 44 pp, 13.5kWh variant)
+  - `Lion_Energy_EMS-C_Manual_7-compressed.pdf` (EMS-C manual, Updated 4/13/25, 16 pp, for Sanctuary 2 and Sanctuary 3)
+  - Source tags in content: `manual` (12/20/24 (4), the 14.3kWh manual), `san2_2`, `san2_3`, `emsc`, `video`, `author`.
+- Page numbers cited in content (`sourcePages`) are **PDF page numbers**, which equal the printed page numbers (cover = 1) in all four PDFs.
 - Later: Confluence-sourced content may be added as additional modules/lessons. Technical content must come from lionenergy.com or the author's Confluence, never from general knowledge.
 - **Never invent specs, fault codes, or procedures.** If something is not in the source, leave a `TODO(source): ...` in the content file and, if it affects the learner, ask the author.
 - **Ignore the manual's internal page cross-references** (e.g. "see page 41", "pages 40-41", "page 18"); several are wrong.
+
+## Hardware variants and manual differences (verified by reading the PDFs)
+
+The manuals do **not** describe the same hardware. TODO(author): confirm which manual covers which Sanctuary 2 revision. Facts below are what each document literally says.
+
+| Item | `manual` (12/20/24 (4)) | `san2_3` (4/25/25 (3)); `san2_2` (4/25/25 (2)) matches except where noted |
+|---|---|---|
+| Battery | 14.3kWh, 40-58.4 VDC, 290 lb | 13.5kWh model (13,875.2Wh), 40-55.6 VDC, 277 lb (p.39) |
+| Battery charge / discharge temp | 32-131 F / -4 to 131 F; derate below 50 F and above 104 F | 32-86 F / -4 to 86 F (p.39) |
+| Install temperature | 32-131 F (p.15) | 32-86 F (p.39 caution) |
+| PV per MPPT | 14A x4, Isc 22A | 12A x4, Isc 15A (p.39) |
+| Grid passthrough | 100A | 90A (p.39) |
+| Controls / indicators | PV Disconnect, AC/DC, Complete System Shutdown, LED states (p.10) | Inverter overview labels a "High Voltage DC Switch" and "Power" (p.9); no LED/controls text found |
+| Comms module | EMS-C / WCM wording (p.40) | "WCM WiFi Control Module" (p.9) |
+| Fault-code table | none | `san2_2` only, pp.32-35 (A1_0 ...); not in `san2_3` |
+| Battery voltage check, "battery priority mode" / "emergency mode" text | p.20 | same text, `san2_3` p.17 |
+
+**Specs in the project brief (14.3kWh, 14A/22A MPPT, 100A passthrough) match `manual` only.** Module 2 controls content (PV Disconnect / AC-DC / Complete System Shutdown / LED) comes from `manual` and the author, and applies to Rev 4 (the author confirmed Rev 4 has two power buttons). Content must be tagged per variant/revision and never mixed.
+
+### EMS-C manual facts (`emsc`, source tag for content)
+
+- Written for Sanctuary 2 and Sanctuary 3. The EMS-C comes standard on **Sanctuary 2 rev4** and Sanctuary 3; **revs 1-3 shipped with a WCM** and can be retrofitted (p.13). Commissioning on revs 1-3 **must be done using a WCM** (p.12).
+- **ESS Support: (435) 244-3352, Monday-Friday 8:00 AM-5:00 PM Mountain Time** (p.16). Troubleshooting resources: info.lionenergy.com, lionenergy.com/pages/installers. The app is the **Lion Technician app**; end users use the Lion Smart app or smart.lionenergy.com (pp.5, 15).
+- EMS-C LED indicators (p.6): no lights = not commissioned; 1s blink yellow = connecting; solid yellow = EMS-C or inverter updating; solid blue = connected; 100ms blink blue = uploading/downloading data; solid red = disconnected (or EMS has faulted).
+- Wiring by revision: **Rev 4:** EMS-C connects to the inverter's **WiFi port**; battery BMS cables go directly to the parent inverter's BMS port; the EMS-C battery port is **only used during commissioning to set each battery's address**, after which the BMS cables move to the inverter's BMS port (p.8). **Rev 3:** EMS-C inverter port connects to the inverter's **meter port (front right)** with a specially wired Ethernet cable (p.9). **Revs 1 & 2:** EMS-C inverter port connects to the **RJ-45 dongle near the battery terminals** (p.10). Sanctuary 3: via the inverter's Parallel A port (p.7).
+- On all Sanctuary 2 models the EMS-C is powered by the 12V RSS supply. When the **AC Power button or the remote shutdown switch turns off AC power on the inverter, the RSS 12V supply also turns off, removing power from the EMS-C** (p.8).
+- Commissioning (p.16): only for new installs or when changing the number of inverters or batteries. **"Re-commissioning is not a troubleshooting tool."** It sets inverter settings to default, sets parallel settings and inverter addresses, addresses batteries (Sanctuary 2 only), and registers the communicator. Replacing a WCM/EMS-C does not require recommissioning.
 
 ## Corrections (these override the manual)
 
@@ -73,7 +105,10 @@ Track unresolved questions here until the author answers; then move the answer i
 
 - **"External power source" definition** for the Module 2 sim: grid, generator, AC solar, PV? (PV Disconnect off means PV is not connected.)
 - **"Light off with button pushed in"** (manual p.10): confirmed to mean power buttons on (pushed in) and no light. Possible causes per the author: internal inverter damage, or a bad LED if fan and relay noise are heard. Specialist next step / escalation path still unknown (TODO).
-- Rev 1-3 differences and which revisions the manual describes (p.10 shows PV disconnect, AC/DC, Complete System Shutdown).
+- **Which manual covers which Sanctuary 2 revision** (see Hardware variants). The author said "SAN2 is the same for SAN1": confirm the SAN1/SAN2_1/SAN2_2/SAN2_3 naming.
+- **EMS-C vs manual p.10 on AC/DC off:** manual p.10 says with AC/DC off the controller stays on and can communicate; `emsc` p.8 says turning off AC power also removes 12V from the EMS-C. Which does the Module 2 status panel teach for "controller/comms online" on Rev 4?
+- **"Restart commissioning" vs `emsc` p.16:** the author's dead-battery ladder ends with restarting commissioning and power-cycling; the EMS-C manual says re-commissioning is not a troubleshooting tool. Is the author's step only for a system that never finished its first commissioning?
+- **Fault-code table** exists in `san2_2` only (pp.32-35). Which hardware does it apply to, and may Module 2 scenarios use it?
 - EMS-C manual (149 MB) not yet available; EMS-C content is limited to what the author stated.
 - Cold-temperature Voc derating: manual defers to the tech specs, which contain no temperature coefficient. The sim must not compute Voc corrections without author-supplied data.
 - PV wire "recommended cable size table" (p.27) is not present in the PDF text.
