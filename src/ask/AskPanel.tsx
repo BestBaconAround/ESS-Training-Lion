@@ -2,6 +2,8 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { sourceText } from '../content/labels'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
+import { useHistory } from '../history/HistoryContext'
+import { snapshotAnswer } from '../history/entries'
 import type { RevisionChoice } from '../troubleshooting/filter'
 import { buildCorpus, type Chunk } from './corpus'
 import { SearchIndex, type Hit } from './search'
@@ -27,11 +29,14 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
   ])
   const [input, setInput] = useState('')
   const nextId = useRef(1)
+  const history = useHistory()
 
   const ask = (question: string) => {
     const q = question.trim()
     if (!q) return
     const hits = getIndex().search(q, 3)
+    // Saved only while the private history is unlocked; otherwise nothing is kept.
+    history.recordAsk(q, snapshotAnswer(hits))
     const reply: Message =
       hits.length > 0
         ? { id: nextId.current + 1, from: 'bot', text: 'Here is what the reference material says.', hits }
@@ -51,9 +56,8 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
   }
 
   return (
-    <section aria-label="Ask the notes" className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-      <h2 className="font-semibold">Ask the notes</h2>
-      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+    <section aria-label="Ask the notes">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         This searches the reference material. It does not use AI to write answers, so it cannot make anything up.
       </p>
 

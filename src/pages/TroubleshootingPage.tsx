@@ -5,7 +5,7 @@ import { FAULT_FOOTNOTE } from '../content/data/faults'
 import { REVISIONS, REVISION_LABELS, sourceText } from '../content/labels'
 import { AREA_LABELS, ESCALATION, TROUBLESHOOTING, type TroubleshootingArea, type TroubleshootingEntry } from '../content/troubleshooting'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
-import AskPanel from '../ask/AskPanel'
+import AssistantPanel from '../ask/AssistantPanel'
 import { filterEntries, stepsFor, type RevisionChoice } from '../troubleshooting/filter'
 
 const AREAS = Object.keys(AREA_LABELS) as TroubleshootingArea[]
@@ -55,7 +55,7 @@ export default function TroubleshootingPage() {
         <p className="mt-1 text-xs opacity-80">Source: {[...ESCALATION.sources, ...ESCALATION.ruleSources].map(sourceText).join('; ')}</p>
       </aside>
 
-      <AskPanel onOpenEntry={openEntry} rev={rev} />
+      <AssistantPanel onOpenEntry={openEntry} rev={rev} />
 
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Area">

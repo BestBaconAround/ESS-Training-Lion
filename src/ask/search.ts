@@ -50,7 +50,8 @@ export class SearchIndex {
     for (const [t, c] of df) this.idf.set(t, Math.log(1 + n / c))
   }
 
-  search(query: string, limit = 3): Hit[] {
+  /** `minScore` filters weak matches: real matches score well above it, loosely related text scores near 1. */
+  search(query: string, limit = 3, minScore = 2.5): Hit[] {
     const qTokens = [...new Set(tokenize(query, { stop: true, synonyms: true }))]
     if (!qTokens.length) return []
     const qPairs = pairsOf(tokenize(query, { stop: true }))
@@ -88,7 +89,8 @@ export class SearchIndex {
     // Drop weak tails: keep only results reasonably close to the best, and require the best to cover enough of the question.
     const bestCoverage = this.coverageOf(best.chunk, qTokens, totalWeight)
     if (qTokens.length >= 2 && bestCoverage < 0.5) return []
-    return hits.filter((h) => h.score >= best.score * 0.25).slice(0, limit)
+    if (best.score < minScore) return []
+    return hits.filter((h) => h.score >= Math.max(best.score * 0.25, minScore)).slice(0, limit)
   }
 
   private coverageOf(chunk: Chunk, qTokens: string[], totalWeight: number): number {

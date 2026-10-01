@@ -40,6 +40,10 @@ The **Troubleshooting** page (top navigation) is a searchable reference for batt
 
 **Ask the notes** (on the Troubleshooting page) is a chatbot that answers only from the reference material, with sources. It searches the troubleshooting entries, the lessons, and any markdown files you drop into `src/content/reference/` (each `#` heading becomes a searchable section). It is a search, not generative AI, so it cannot make things up and needs no server or API key. If nothing matches, it says so.
 
+**Call notes** (second tab) is for typing notes during a call. It suggests ideas from the reference material: fault codes, battery voltages checked against the bench thresholds, matching troubleshooting entries, detected revision, and questions to ask next. Same search engine, no AI. The draft lives in `sessionStorage` (gone when the tab closes) unless you save it.
+
+**History** (third tab) keeps your Ask questions and saved call notes. It is **private by passphrase, not an account**: the history is encrypted in your browser (AES-GCM, key from PBKDF2-SHA-256, 600,000 iterations) and stored only in this browser's `localStorage`. There is no server, so there is **no password recovery** (forget it and the only option is Erase), it does not follow you to another browser or device, and it locks when you leave the page, press Lock now, or after 15 minutes idle. A real login would need a backend, which this static site does not have. Do not put customer names or addresses in call notes.
+
 ## Adding content
 
 Content is data, not UI code. See `CLAUDE.md` for the rules (sources, revision tags, corrections).

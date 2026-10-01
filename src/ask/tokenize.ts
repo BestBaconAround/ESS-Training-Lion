@@ -2,7 +2,7 @@
 
 const STOP = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'do', 'does', 'for', 'from', 'how', 'i', 'if', 'in', 'is', 'it', 'its', 'me', 'my', 'of', 'on', 'or',
-  'so', 'that', 'the', 'then', 'this', 'to', 'was', 'what', 'when', 'which', 'with', 'you', 'your', 'can', 'should', 'would', 'about', 'tell', 'there',
+  'so', 'that', 'the', 'then', 'this', 'to', 'was', 'what', 'when', 'which', 'with', 'you', 'your', 'can', 'should', 'would', 'about', 'tell', 'there', 'will', 'not', 'also', 'just', 'any', 'out',
 ])
 
 /** A few spoken-language shortcuts mapped to the words the notes use. Keep this small and obvious. */
