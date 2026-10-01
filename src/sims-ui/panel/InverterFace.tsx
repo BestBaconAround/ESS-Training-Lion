@@ -121,7 +121,7 @@ export default function InverterFace({
       className="space-y-3 rounded-2xl border-4 border-slate-400 bg-slate-200 p-4 shadow dark:border-slate-600 dark:bg-slate-800"
     >
       <h3 className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-        {rev4 ? 'Rev 4 inverter' : 'Revs 1-3 inverter'}
+        {rev4 ? 'Rev 4 inverter (controls are on its left side)' : 'Revs 1-3 inverter'}
       </h3>
       {rev4 ? (
         <>

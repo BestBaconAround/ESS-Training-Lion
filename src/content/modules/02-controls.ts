@@ -33,7 +33,7 @@ const mod: Module = {
           'images/training-wall.png',
           [591, 437],
           'A training wall with two inverters, each mounted above a battery, and two more batteries between them, with electrical panels on either side. The top panel of each inverter carries the Lion logo.',
-          'A training wall: two inverters, each mounted above a battery, with two more batteries between them. The front of each inverter is the black panel with the Lion logo.',
+          'A training wall: two inverters, each mounted above a battery, with two more batteries between them. The front of each inverter is the black panel with the Lion logo. On Rev 4 the buttons and the PV switch are on the left side of the inverter, visible in this photo.',
         ),
         {
           type: 'facts',
@@ -47,7 +47,7 @@ const mod: Module = {
             ),
             fact('Complete System Shutdown turns off all components of the inverter.', [MANUAL_CONTROLS], ['rev4']),
             fact(
-              'The top button is AC/DC and the bottom button is Complete System Shutdown. The rotary PV switch is above the two buttons.',
+              'The top button is AC/DC and the bottom button is Complete System Shutdown. The rotary PV switch is above the two buttons. All three are on the left side of the inverter.',
               [AUTHOR],
               ['rev4'],
             ),
@@ -97,7 +97,7 @@ const mod: Module = {
           revisions: ['rev4'],
         },
         todo('Revs 1-3: confirm whether the WCM keeps communicating with the power button off.'),
-        todo('Where the buttons, the rotary PV switch and the lights are on the inverter (front, side, or bottom). The manual heading on p.10 is "Inverter Side Controls". Add a close-up photo once confirmed.'),
+        todo('Revs 1-3: where the power button and the DC switch are on the inverter. Add close-up photos of the Rev 4 left side and the Revs 1-3 controls.'),
       ],
     },
 
@@ -131,6 +131,7 @@ const mod: Module = {
           items: [
             fact('The normal light is solid green when there are no alarms, and flashing green when there is an alert.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
             fact('The fault light is red when there is a fault.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
+            fact('Both lights are on the face of the inverter.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
             fact('The lights behave the same as Rev 4: no lights means the system is off.', [AUTHOR], ['rev1', 'rev2', 'rev3']),
           ],
         },
