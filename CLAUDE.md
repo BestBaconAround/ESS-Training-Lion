@@ -17,9 +17,18 @@ Training platform for new Lion Energy tech support specialists on the **Sanctuar
 
 ## Hardware variants and manual differences (verified by reading the PDFs)
 
-The manuals do **not** describe the same hardware. TODO(author): confirm which manual covers which Sanctuary 2 revision. Facts below are what each document literally says.
+The platform teaches **several hardware variants** (Sanctuary 2 Revs 1-4). The Gen 2s are very similar but a few things differ and **must be taught** (author). Author: in `SAN2_3` "the 3 means revision", i.e. **Sanctuary 2 Rev 3**; `SAN2_2` is Rev 2, and "SAN2 is the same for SAN1" (Rev 1 uses the Rev 2 manual). The 12/20/24 manual is numbered (4) and matches Rev 4 (two power buttons, EMS-C). TODO(author): confirm that mapping.
 
-| Item | `manual` (12/20/24 (4)) | `san2_3` (4/25/25 (3)); `san2_2` (4/25/25 (2)) matches except where noted |
+| Revision | Manual (`source` tag) | Comms module |
+|---|---|---|
+| Rev 1 | `san2_2` (author: same as Rev 2) | WCM (EMS-C retrofit possible) |
+| Rev 2 | `san2_2` | WCM |
+| Rev 3 | `san2_3` | WCM |
+| Rev 4 | `manual` | EMS-C standard (some Rev 4 shipped with WCM) |
+
+Verified by reading the PDFs: `san2_2` and `san2_3` have **identical specs** (p.36 vs p.39). `san2_3` has a Battery Voltage Check page (p.17) and a "Meter Port" on the inverter overview (p.9) that `san2_2` does not; `san2_2` has the fault table that `san2_3` does not. Facts below are what each document literally says.
+
+| Item | Rev 4: `manual` (12/20/24 (4)) | Revs 2-3: `san2_3` (4/25/25 (3)) and `san2_2` (4/25/25 (2)); same specs |
 |---|---|---|
 | Battery | 14.3kWh, 40-58.4 VDC, 290 lb | 13.5kWh model (13,875.2Wh), 40-55.6 VDC, 277 lb (p.39) |
 | Battery charge / discharge temp | 32-131 F / -4 to 131 F; derate below 50 F and above 104 F | 32-86 F / -4 to 86 F (p.39) |
@@ -28,10 +37,12 @@ The manuals do **not** describe the same hardware. TODO(author): confirm which m
 | Grid passthrough | 100A | 90A (p.39) |
 | Controls / indicators | PV Disconnect, AC/DC, Complete System Shutdown, LED states (p.10) | Inverter overview labels a "High Voltage DC Switch" and "Power" (p.9); no LED/controls text found |
 | Comms module | EMS-C / WCM wording (p.40) | "WCM WiFi Control Module" (p.9) |
-| Fault-code table | none | `san2_2` only, pp.32-35 (A1_0 ...); not in `san2_3` |
+| Fault-code table | none | `san2_2` only, pp.32-35: A1_0-A1_15 and A2_8-A2_15 (24 codes). **Author: all fault/alarm codes apply to all Sanctuaries** |
 | Battery voltage check, "battery priority mode" / "emergency mode" text | p.20 | same text, `san2_3` p.17 |
 
-**Specs in the project brief (14.3kWh, 14A/22A MPPT, 100A passthrough) match `manual` only.** Module 2 controls content (PV Disconnect / AC-DC / Complete System Shutdown / LED) comes from `manual` and the author, and applies to Rev 4 (the author confirmed Rev 4 has two power buttons). Content must be tagged per variant/revision and never mixed.
+**Specs in the project brief (14.3kWh, 14A/22A MPPT, 100A passthrough) are Rev 4 specs.** Module 2 controls content (PV Disconnect / AC-DC / Complete System Shutdown / LED) comes from `manual` and the author, and applies to Rev 4 (the author confirmed Rev 4 has two power buttons). TODO(author): Rev 1-3 controls and LED behavior (the Rev 2/3 manuals have no controls/LED text).
+
+**Content rule:** every revision-specific fact carries a `revisions` tag (e.g. `['rev4']`, `['rev2','rev3']`, or `'all'`) and a source tag; never mix revision facts. Lessons have a "Revision differences" panel; quizzes and sims take a revision where behavior differs.
 
 ### EMS-C manual facts (`emsc`, source tag for content)
 
@@ -105,10 +116,10 @@ Track unresolved questions here until the author answers; then move the answer i
 
 - **"External power source" definition** for the Module 2 sim: grid, generator, AC solar, PV? (PV Disconnect off means PV is not connected.)
 - **"Light off with button pushed in"** (manual p.10): confirmed to mean power buttons on (pushed in) and no light. Possible causes per the author: internal inverter damage, or a bad LED if fan and relay noise are heard. Specialist next step / escalation path still unknown (TODO).
-- **Which manual covers which Sanctuary 2 revision** (see Hardware variants). The author said "SAN2 is the same for SAN1": confirm the SAN1/SAN2_1/SAN2_2/SAN2_3 naming.
+- **Confirm Rev 4 = the 12/20/24 manual** (see Hardware variants).
 - **EMS-C vs manual p.10 on AC/DC off:** manual p.10 says with AC/DC off the controller stays on and can communicate; `emsc` p.8 says turning off AC power also removes 12V from the EMS-C. Which does the Module 2 status panel teach for "controller/comms online" on Rev 4?
 - **"Restart commissioning" vs `emsc` p.16:** the author's dead-battery ladder ends with restarting commissioning and power-cycling; the EMS-C manual says re-commissioning is not a troubleshooting tool. Is the author's step only for a system that never finished its first commissioning?
-- **Fault-code table** exists in `san2_2` only (pp.32-35). Which hardware does it apply to, and may Module 2 scenarios use it?
+- **Fault-code table** (`san2_2` pp.32-35) applies to all Sanctuaries (author); Module 2 scenarios may use it. Needs a source-tagged data file when built.
 - EMS-C manual (149 MB) not yet available; EMS-C content is limited to what the author stated.
 - Cold-temperature Voc derating: manual defers to the tech specs, which contain no temperature coefficient. The sim must not compute Voc corrections without author-supplied data.
 - PV wire "recommended cable size table" (p.27) is not present in the PDF text.
