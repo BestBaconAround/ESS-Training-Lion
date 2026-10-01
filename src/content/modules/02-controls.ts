@@ -32,8 +32,8 @@ const mod: Module = {
         image(
           'images/training-wall.png',
           [591, 437],
-          'A training wall with two inverters, each mounted above a battery, and two more batteries between them, with electrical panels on either side.',
-          'A training wall: two inverters, each mounted above a battery, with two more batteries between them.',
+          'A training wall with two inverters, each mounted above a battery, and two more batteries between them, with electrical panels on either side. The top panel of each inverter carries the Lion logo.',
+          'A training wall: two inverters, each mounted above a battery, with two more batteries between them. The front of each inverter is the black panel with the Lion logo.',
         ),
         {
           type: 'facts',
@@ -47,7 +47,7 @@ const mod: Module = {
             ),
             fact('Complete System Shutdown turns off all components of the inverter.', [MANUAL_CONTROLS], ['rev4']),
             fact(
-              'On the face of the inverter, the top button is AC/DC and the bottom button is Complete System Shutdown. The rotary PV switch is above the two buttons.',
+              'The top button is AC/DC and the bottom button is Complete System Shutdown. The rotary PV switch is above the two buttons.',
               [AUTHOR],
               ['rev4'],
             ),
@@ -97,6 +97,7 @@ const mod: Module = {
           revisions: ['rev4'],
         },
         todo('Revs 1-3: confirm whether the WCM keeps communicating with the power button off.'),
+        todo('Where the buttons, the rotary PV switch and the lights are on the inverter (front, side, or bottom). The manual heading on p.10 is "Inverter Side Controls". Add a close-up photo once confirmed.'),
       ],
     },
 
