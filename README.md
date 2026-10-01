@@ -38,6 +38,8 @@ Progress (lessons, quiz scores, simulator attempts and best scores) can be downl
 
 The **Troubleshooting** page (top navigation) is a searchable reference for battery, inverter and power problems: the 24 fault codes plus guided steps, filterable by area and by revision, each step with its source. Add entries in `src/content/troubleshooting.ts`.
 
+**Ask the notes** (on the Troubleshooting page) is a chatbot that answers only from the reference material, with sources. It searches the troubleshooting entries, the lessons, and any markdown files you drop into `src/content/reference/` (each `#` heading becomes a searchable section). It is a search, not generative AI, so it cannot make things up and needs no server or API key. If nothing matches, it says so.
+
 ## Adding content
 
 Content is data, not UI code. See `CLAUDE.md` for the rules (sources, revision tags, corrections).

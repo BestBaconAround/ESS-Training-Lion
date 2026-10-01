@@ -16,6 +16,7 @@ export type SourceTag =
   | 'emsc' // EMS-C Manual, updated 4/13/25
   | 'video' // Commissioning walkthrough video transcript
   | 'author' // Field knowledge supplied by the course author
+  | 'notes' // The author's own ESS support notes (personal details and internal-only items removed)
 
 export interface SourceRef {
   source: SourceTag

@@ -33,10 +33,16 @@ describe('troubleshooting filter', () => {
   })
 
   it('shows only steps that apply to the chosen revision', () => {
-    const e = TROUBLESHOOTING.find((x) => x.id === 'ts-app-offline')!
-    expect(stepsFor(e, 'all')).toHaveLength(e.steps.length)
-    expect(stepsFor(e, 'rev4')).toHaveLength(e.steps.length)
-    expect(stepsFor(e, 'rev3')).toHaveLength(0)
+    const cycle = TROUBLESHOOTING.find((x) => x.id === 'ts-power-cycle')!
+    expect(stepsFor(cycle, 'all')).toHaveLength(cycle.steps.length)
+    expect(stepsFor(cycle, 'rev4')).toHaveLength(cycle.steps.length)
+    expect(stepsFor(cycle, 'rev3')).toHaveLength(0)
+    // Mixed entry: Rev 4-only steps are hidden on Rev 3, steps for every revision stay.
+    const app = TROUBLESHOOTING.find((x) => x.id === 'ts-app-offline')!
+    const rev3 = stepsFor(app, 'rev3')
+    expect(rev3.length).toBeGreaterThan(0)
+    expect(rev3.length).toBeLessThan(app.steps.length)
+    expect(rev3.every((x) => x.revisions === 'all')).toBe(true)
   })
 
   it('keeps steps that apply to every revision', () => {

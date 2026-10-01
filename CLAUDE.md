@@ -96,6 +96,19 @@ Knowledge supplied by the author from field experience. It is authoritative for 
 - **Restart commissioning (author: yes):** the dead-battery ladder's "restart the commissioning process" applies only to a system that never finished its first commissioning; re-commissioning a commissioned system is not a troubleshooting tool (`emsc` p.16).
 - **Battery reserve:** 30% battery reserve percentage is typically recommended; it is customer preference.
 
+## Author support notes (`source: 'notes'`) and what is deliberately left out
+
+The author's own ESS support notes (OneNote) are used as reference material: first-call approach, precheck, connectivity steps, PV reverse and grounded-solar causes, grid over-voltage and sell-back settings, generator behavior, and CT checks. **The repo and the deployed site are public, so these rules apply to anything taken from the notes:**
+
+- **Never include** personal contact details (phone numbers, emails), other people's names, screenshots of chats or of internal tools, or links that need a login (internal wiki pages).
+- **Hex register addresses and register-read procedures are held back** (internal). Settings are described by name and value only (for example "grid allowable voltage, default 105%, raise to 107% for high grid voltage").
+- **Gen 3 / Sanctuary 3 items are held back** until the platform has a tag for them (battery master-swap during commissioning, the Gen 3 battery checklist, the Gen 3 CT test).
+- Items with an uncertain original order or meaning keep a visible `todo` (first-call order and the "they are certified or the homeowner" wording, the precheck grouping, which connector the CT pin numbers refer to).
+
+## "Ask the notes" chatbot (Troubleshooting page)
+
+A search-based assistant, not generative AI: a static site cannot hold an API key. It matches the question against the troubleshooting entries, the lessons, and markdown files in `src/content/reference/*.md` (each heading becomes a searchable section, sourced as `notes`), and answers only with passages that exist, each with its sources. If nothing matches well it says so instead of guessing. Code: `src/ask/` (tokenizer, TF-IDF search with a phrase and fault-code boost, corpus builder, chat panel). `src/ask/search.test.ts` covers questions it must answer and ones it must refuse. To give it more information, add a `.md` file under `src/content/reference/`. A generative chatbot would need a small server (or proxy) to keep the API key secret.
+
 ## Photos (`public/images/`, author's training setup, tagged Rev 4 unless noted)
 
 `training-wall.png` (two inverters on batteries), `rev4-left-side-controls.webp` (PV Disconnect, AC/DC, Complete System Shutdown, antennas), `rev4-front-lights.webp` (Lion logo panel and the lights window), `rev4-wiring-compartment.webp`, `rev4-board-ports.webp` (port labels: FRONT Parallel A / BACK BMS COMM, FRONT Parallel B / BACK WIFI PORT, FRONT NOT USED / BACK CT1 & CT2), `rev4-wire-box-cover-diagram.webp` (the Rev 4 diagram inside the wire box cover, labeled "Sanctuary Installation Guide Rev 4"), `ems-c-in-inverter.png`, `wire-box-cables.webp`, `wcm.webp` (the small green board at the top left of the Rev 4 training unit's wiring compartment is the **WCM**; **author: this unit was upgraded to an EMS-C and the WCM is not used**; the USB-C port is at the top left of the control board). Captions state only what is visible or what the author said. The Rev 4 diagram labels the front-right port "Meter Port"; the board label says "NOT USED". **Author: the Meter Port is unused on Rev 4** (on Rev 3 it carries inverter communication, `emsc` p.9, `san2_3` p.36). Rev 2/3 guide pages used as images: `san2_2` pp.12-14, 16, 30; `san2_3` pp.18-20, 22, 37 (`public/images/rev2-*`, `rev3-*`).

@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getModule } from '../content'
 import { FAULT_FOOTNOTE } from '../content/data/faults'
 import { REVISIONS, REVISION_LABELS, sourceText } from '../content/labels'
 import { AREA_LABELS, ESCALATION, TROUBLESHOOTING, type TroubleshootingArea, type TroubleshootingEntry } from '../content/troubleshooting'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
+import AskPanel from '../ask/AskPanel'
 import { filterEntries, stepsFor, type RevisionChoice } from '../troubleshooting/filter'
 
 const AREAS = Object.keys(AREA_LABELS) as TroubleshootingArea[]
@@ -19,8 +20,23 @@ export default function TroubleshootingPage() {
   const [area, setArea] = useState<TroubleshootingArea | 'all'>('all')
   const [query, setQuery] = useState('')
   const [rev, setRev] = useState<RevisionChoice>('all')
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set())
+  const [scrollTo, setScrollTo] = useState<string | null>(null)
   const entries = useMemo(() => filterEntries(TROUBLESHOOTING, area, query), [area, query])
   const count = (a: TroubleshootingArea | 'all') => filterEntries(TROUBLESHOOTING, a, query).length
+
+  // From the chat: show the whole list, open that entry and scroll to it.
+  const openEntry = (id: string) => {
+    setArea('all')
+    setQuery('')
+    setOpenIds((s) => new Set(s).add(id))
+    setScrollTo(id)
+  }
+  useEffect(() => {
+    if (!scrollTo) return
+    document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setScrollTo(null)
+  }, [scrollTo, entries])
 
   return (
     <div className="space-y-5">
@@ -38,6 +54,8 @@ export default function TroubleshootingPage() {
         <p className="mt-1">{ESCALATION.rule}</p>
         <p className="mt-1 text-xs opacity-80">Source: {[...ESCALATION.sources, ...ESCALATION.ruleSources].map(sourceText).join('; ')}</p>
       </aside>
+
+      <AskPanel onOpenEntry={openEntry} rev={rev} />
 
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Area">
@@ -86,7 +104,20 @@ export default function TroubleshootingPage() {
       ) : (
         <ul className="space-y-3" aria-label="Troubleshooting entries">
           {entries.map((e) => (
-            <Entry key={e.id} entry={e} rev={rev} />
+            <Entry
+              key={e.id}
+              entry={e}
+              rev={rev}
+              open={openIds.has(e.id)}
+              onToggle={(isOpen) =>
+                setOpenIds((s) => {
+                  const next = new Set(s)
+                  if (isOpen) next.add(e.id)
+                  else next.delete(e.id)
+                  return next
+                })
+              }
+            />
           ))}
         </ul>
       )}
@@ -96,11 +127,15 @@ export default function TroubleshootingPage() {
   )
 }
 
-function Entry({ entry, rev }: { entry: TroubleshootingEntry; rev: RevisionChoice }) {
+function Entry({ entry, rev, open, onToggle }: { entry: TroubleshootingEntry; rev: RevisionChoice; open: boolean; onToggle: (open: boolean) => void }) {
   const steps = stepsFor(entry, rev)
   return (
-    <li>
-      <details className="group rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <li id={entry.id}>
+      <details
+        open={open}
+        onToggle={(e) => onToggle((e.currentTarget as HTMLDetailsElement).open)}
+        className="group rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+      >
         <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 p-4 font-medium">
           <span className="rounded bg-slate-200 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-slate-700 dark:bg-slate-700 dark:text-slate-200">
             {AREA_LABELS[entry.area]}
@@ -111,15 +146,27 @@ function Entry({ entry, rev }: { entry: TroubleshootingEntry; rev: RevisionChoic
           {entry.customerSays && <p className="border-l-4 border-amber-400 pl-3 italic">&ldquo;{entry.customerSays}&rdquo;</p>}
           {entry.description && <p className="text-sm">{entry.description}</p>}
           {steps.length > 0 ? (
-            <ol className="list-decimal space-y-3 pl-5">
-              {steps.map((s, i) => (
-                <li key={i}>
-                  <RevisionBadge revisions={s.revisions} />
-                  {s.text}
-                  <SourceNote sources={s.sources} />
-                </li>
-              ))}
-            </ol>
+            entry.ordered === false ? (
+              <ul className="list-disc space-y-3 pl-5">
+                {steps.map((s, i) => (
+                  <li key={i}>
+                    <RevisionBadge revisions={s.revisions} />
+                    {s.text}
+                    <SourceNote sources={s.sources} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <ol className="list-decimal space-y-3 pl-5">
+                {steps.map((s, i) => (
+                  <li key={i}>
+                    <RevisionBadge revisions={s.revisions} />
+                    {s.text}
+                    <SourceNote sources={s.sources} />
+                  </li>
+                ))}
+              </ol>
+            )
           ) : (
             <p className="text-sm text-slate-600 dark:text-slate-400">No steps for {rev === 'all' ? 'this entry' : REVISION_LABELS[rev]} yet.</p>
           )}

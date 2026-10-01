@@ -7,6 +7,7 @@ export const SOURCE_LABELS: Record<SourceTag, string> = {
   emsc: 'EMS-C Manual 4/13/25',
   video: 'Commissioning video',
   author: 'Course author (field knowledge)',
+  notes: 'Author\'s ESS support notes',
 }
 
 export const REVISIONS: Revision[] = ['rev1', 'rev2', 'rev3', 'rev4']

@@ -45,8 +45,8 @@ describe('troubleshooting content', () => {
     expect(errors).toEqual([])
   })
 
-  it('covers all three areas', () => {
-    expect(new Set(TROUBLESHOOTING.map((e) => e.area))).toEqual(new Set(['battery', 'inverter', 'power']))
+  it('covers every area', () => {
+    expect(new Set(TROUBLESHOOTING.map((e) => e.area))).toEqual(new Set(['general', 'battery', 'inverter', 'power']))
   })
 
   it('has an escalation contact with a source', () => {

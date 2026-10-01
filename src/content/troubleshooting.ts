@@ -4,9 +4,10 @@ import type { RevisionTag, SourceRef } from './types'
 
 // Reference page for support calls. Every step carries a source and a revision tag; anything not in a source is a TODO.
 
-export type TroubleshootingArea = 'battery' | 'inverter' | 'power'
+export type TroubleshootingArea = 'general' | 'battery' | 'inverter' | 'power'
 
 export const AREA_LABELS: Record<TroubleshootingArea, string> = {
+  general: 'First call',
   battery: 'Battery',
   inverter: 'Inverter',
   power: 'Power',
@@ -29,6 +30,8 @@ export interface TroubleshootingEntry {
   description?: string
   faultCode?: string
   steps: TroubleshootingStep[]
+  /** False when the items are a checklist, not a sequence. Default true. */
+  ordered?: boolean
   /** Lessons that teach the background. */
   related?: { moduleId: string; lessonId: string }[]
   /** Visible gaps. Never guess. */
@@ -36,6 +39,7 @@ export interface TroubleshootingEntry {
 }
 
 const AUTHOR = src('author')
+const NOTES = src('notes')
 const step = (text: string, sources: SourceRef[], revisions: RevisionTag = 'all'): TroubleshootingStep => ({ text, sources, revisions })
 
 /** Where support goes when a problem cannot be fixed on the call. */
@@ -75,6 +79,38 @@ export const FAULT_AREA: Record<string, TroubleshootingArea> = {
 }
 
 const guided: TroubleshootingEntry[] = [
+  // ------------------------------------------------------------------ first call
+  {
+    id: 'ts-first-call',
+    area: 'general',
+    title: 'First call approach',
+    ordered: false,
+    steps: [
+      step('Is the concern intermittent or consistent?', [NOTES]),
+      step('Grab the system name and view the graph and alerts.', [NOTES]),
+      step('The alert or fault is what to focus your plan of attack on.', [NOTES]),
+      step('What is the reason for the call, and what is the concern?', [NOTES]),
+      step('Check that all batteries are working.', [NOTES]),
+      step('Are they certified to work on Lion Energy Sanctuary systems, or are they the homeowner\'s?', [NOTES]),
+      step('Check solar and make sure all strings are producing.', [NOTES]),
+    ],
+    todo: ['Confirm the order, and whether "they" in the certified-or-homeowner question means the batteries or the caller.'],
+  },
+  {
+    id: 'ts-remote-precheck',
+    area: 'general',
+    title: 'Precheck before troubleshooting a system remotely',
+    ordered: false,
+    steps: [
+      step('Look at the alerts and the alert history.', [NOTES]),
+      step('Look at the battery voltages on every inverter.', [NOTES]),
+      step('Look at all the solar strings.', [NOTES]),
+      step('Plot battery SOC, state, and cell minimum and maximum.', [NOTES]),
+      step('Make sure both inverters are on the correct firmware.', [NOTES]),
+    ],
+    todo: ['Confirm this list is grouped correctly in the original notes.'],
+  },
+
   // ------------------------------------------------------------------ battery
   {
     id: 'ts-battery-wont-address',
@@ -177,7 +213,7 @@ const guided: TroubleshootingEntry[] = [
   {
     id: 'ts-app-offline',
     area: 'inverter',
-    title: 'The customer cannot reach the system in the app (Rev 4, EMS-C)',
+    title: 'The customer cannot reach the system in the app',
     customerSays: 'I cannot see my system in the app.',
     steps: [
       step('Check that the AC/DC button is pushed in. With AC/DC off, the 12V supply that powers the EMS-C turns off and comms go offline.', [src('emsc', 8), AUTHOR], ['rev4']),
@@ -185,6 +221,10 @@ const guided: TroubleshootingEntry[] = [
       step('On cellular, the homeowner sees only a blue Wi-Fi icon and no system information.', [AUTHOR], ['rev4']),
       step('If there are connectivity problems, check that the antennas are installed, that the cellular and Bluetooth/Wi-Fi antennas are on the matching ports, and that the antenna wires inside are connected.', [src('video')], ['rev4']),
       step('Power cycle the inverter. Then check that the EMS-C status light turns solid. That can take a minute or two after the inverter is back.', [AUTHOR], ['rev4']),
+      step('Power cycle the communicator.', [NOTES]),
+      step('Check whether the communicator can connect to a hotspot or a different internet connection.', [NOTES]),
+      step('Make sure the Bluetooth connection is established.', [NOTES]),
+      step('Check inverter communication with the communicator.', [NOTES]),
     ],
     related: [
       { moduleId: 'inverter-controls', lessonId: 'm2-shutdown' },
@@ -263,6 +303,78 @@ const guided: TroubleshootingEntry[] = [
     ],
     related: [{ moduleId: 'dc-wiring-batteries', lessonId: 'm4-diagram' }],
   },
+  {
+    id: 'ts-ct-check',
+    area: 'inverter',
+    title: 'CT check (grid CT problems)',
+    steps: [
+      step('On a Rev 4, the L1 CT is on pins 3 and 6 and the L2 CT is on pins 1 and 2.', [NOTES], ['rev4']),
+      step('The CT arrows must point away from the main panel and toward the grid power source.', [src('manual', 34)]),
+      step('In a system with several inverters, only the parent inverter has the CTs.', [src('manual', 34)]),
+      step('Read the rating on the CTs themselves (the commissioning example showed 200A / 100mA).', [src('video')]),
+      step('Fault A1_12 (Grid CT is Reversed) means the CTs were installed improperly: switch the CT direction.', [src('san2_2', 33)]),
+    ],
+    related: [{ moduleId: 'inverter-controls', lessonId: 'm2-faults' }],
+    todo: ['Confirm which connector the CT pin numbers refer to. A photo of the CT wires spliced to Cat5 is still to be added.'],
+  },
+
+  // ------------------------------------------------------------------ more power
+  {
+    id: 'ts-pv-reverse',
+    area: 'power',
+    title: 'PV reverse warning: solar drops to 0 V in daylight',
+    steps: [
+      step('Check the polarity at the MPPT port.', [NOTES]),
+      step('If the solar voltage drops to 0 V during solar hours, the PV is reversed.', [NOTES]),
+      step('Plot the solar voltages to see it.', [NOTES]),
+    ],
+    related: [{ moduleId: 'dc-wiring-batteries', lessonId: 'm4-pv' }],
+  },
+  {
+    id: 'ts-gfci-solar',
+    area: 'power',
+    title: 'Grounded solar: GFCI alert',
+    steps: [
+      step('Possible cause: water or corrosion damage.', [NOTES]),
+      step('Possible cause: a short circuit in the system.', [NOTES]),
+      step('Possible cause: worn-out insulation on the wire.', [NOTES]),
+      step('Individual solar panels can cause this issue.', [NOTES]),
+      step('Fault A1_10 (Leakage Current, GFCI Fault) is a ground fault. Check that neutral and ground bonding follow NEC, check the neutral wiring, and make sure the load output panel is not bonded.', [src('san2_2', 33)]),
+    ],
+    ordered: false,
+    related: [{ moduleId: 'dc-wiring-batteries', lessonId: 'm4-leakage' }],
+  },
+  {
+    id: 'ts-grid-overvoltage',
+    area: 'power',
+    title: 'Grid over-voltage alert',
+    steps: [
+      step('Plot the grid voltages.', [NOTES]),
+      step('Enable HVRT.', [NOTES]),
+      step('Raise the grid allowable voltage setting. The default is 105%. Adjust it to 107% for a high grid voltage.', [NOTES]),
+      step('Fault A1_7 (Grid Over-Voltage): ensure the grid input voltage is within range, and check the grid input type on the inverter (default is US).', [src('san2_2', 33)]),
+    ],
+  },
+  {
+    id: 'ts-sellback-stuck',
+    area: 'power',
+    title: 'Grid sell-back does not resume when it is enabled',
+    customerSays: 'Sell-back is turned on but the system is not selling.',
+    steps: [
+      step('The Frequency-Watt function can get stuck. Disable Power Frequency Response, then re-enable it.', [NOTES]),
+      step('Make sure the overfrequency recovery deadband is set to 1. At the default of 100, the grid frequency has to recover to 0.1 Hz below the frequency where sell-back is disabled. At 1, it only has to recover 0.001 Hz.', [NOTES]),
+    ],
+  },
+  {
+    id: 'ts-generator-manual',
+    area: 'power',
+    title: 'Generator started manually after auto-start',
+    steps: [
+      step('When a generator has auto-start and is then started manually, the inverter ignores the generator until the inverter calls for it.', [NOTES]),
+      step('While the generator is connected, the inverter status reads on-grid.', [NOTES]),
+    ],
+  },
+
 ]
 
 const faultEntries: TroubleshootingEntry[] = FAULT_CODES.map((f) => ({
