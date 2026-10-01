@@ -49,12 +49,12 @@ export function detectRevisions(text: string): Revision[] {
   return [...found]
 }
 
-/** "A2_10", "a2-10" and "A2 10" all become A2_10. Only codes that exist in the fault table are returned. */
+/** "A2_10", "a2-10" and "A2 10" all become A2_10 (also B, E and F codes). Only codes that exist in the fault table are returned. */
 export function detectFaultCodes(text: string): string[] {
   const known = new Set(FAULT_CODES.map((f) => f.code))
   const out: string[] = []
-  for (const m of text.matchAll(/\bA([12])[\s_-]?(\d{1,2})\b/gi)) {
-    const code = `A${m[1]}_${m[2]}`
+  for (const m of text.matchAll(/\b([ABEF])([1-4])[\s_-]?(\d{1,2})\b/gi)) {
+    const code = `${m[1].toUpperCase()}${m[2]}_${m[3]}`
     if (known.has(code) && !out.includes(code)) out.push(code)
   }
   return out

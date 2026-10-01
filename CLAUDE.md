@@ -9,7 +9,9 @@ Training platform for new Lion Energy tech support specialists on the **Sanctuar
   - `LION- SAN2_2 - Sanctuary Installation Guide- 042525.pdf` (Updated 4/25/25 (2), 40 pp, 13.5kWh variant, includes a fault-code table on pp.32-35)
   - `LION- SAN2_3- Sanctuary Installation Guide-042525.pdf` (Updated 4/25/25 (3), 44 pp, 13.5kWh variant)
   - `Lion_Energy_EMS-C_Manual_7-compressed.pdf` (EMS-C manual, Updated 4/13/25, 16 pp, for Sanctuary 2 and Sanctuary 3)
-  - Source tags in content: `manual` (12/20/24 (4), the 14.3kWh manual), `san2_2`, `san2_3`, `emsc`, `video`, `author`.
+  - `Lion- Sanctuary Technical Service Manual.pdf` (Updated 9/30/2026, 101 pp, Sanctuary 2 and 3; source tag `tsm`). The newest document: alarm/fault/status table (pp.67-96, 88 codes), power button tests, relay and IGBT checks, firmware recovery, solar and generator troubleshooting. **Where it disagrees with the 4/25/25 guides, it wins** (newer), but record the conflict as a `todo`.
+  - `Lion Sanctuary 2 & 3 Settings Guide` (rev1.1 6/4/2026, 53 pp, tag `settings`). **Not committed** (do not commit it). Only user (U) and installer (I) level settings are used in content. **Lion-internal (LE) settings, the "Settings Requiring Lion Energy Support" section and register/bit names are held back** (public repo).
+  - Source tags in content: `manual` (12/20/24 (4), the 14.3kWh manual), `san2_2`, `san2_3`, `emsc`, `tsm`, `settings`, `video`, `author`, `notes`.
 - Page numbers cited in content (`sourcePages`) are **PDF page numbers**, which equal the printed page numbers (cover = 1) in all four PDFs.
 - Later: Confluence-sourced content may be added as additional modules/lessons. Technical content must come from lionenergy.com or the author's Confluence, never from general knowledge.
 - **Never invent specs, fault codes, or procedures.** If something is not in the source, leave a `TODO(source): ...` in the content file and, if it affects the learner, ask the author.
@@ -149,9 +151,9 @@ Track unresolved questions here until the author answers; then move the answer i
 - **"Light off with button pushed in"** (manual p.10): confirmed to mean power button(s) on (pushed in) and no light. Possible causes per the author: internal inverter damage, or a bad LED if fan and relay noise are heard. Specialist next step / escalation path still unknown (TODO).
 - **Confirm Rev 4 = the 12/20/24 manual** (see Hardware variants).
 - **WCM revs (1-3) comms/settings with the power button off.**
-- **Fault-code table** (`san2_2` pp.32-35) applies to all Sanctuaries (author); Module 2 scenarios may use it. Needs a source-tagged data file when built.
+- **Fault-code table** is now `src/content/data/faults.ts` from the TSM (88 codes, applies to all Sanctuaries per the author). The sim only asks "first step" for codes whose first line is short.
 - EMS-C manual (149 MB) not yet available; EMS-C content is limited to what the author stated.
-- Cold-temperature Voc derating: manual defers to the tech specs, which contain no temperature coefficient. The sim must not compute Voc corrections without author-supplied data.
+- Cold-temperature Voc derating: method is in `tsm` pp.61-63 (see below). The datasheet temperature coefficient comes from the panel, never from us.
 - PV wire "recommended cable size table" (p.27) is referenced but not present in any PDF (checked the page image).
 
 ## Stack
@@ -187,3 +189,25 @@ Track unresolved questions here until the author answers; then move the answer i
 - **Call notes** (`src/ask/notes.ts`): pure `analyzeNotes(text, index)` detects revisions, fault codes and battery voltages (35-60 V with a unit; ignores PV/solar/grid context), classifies readings with `benchParams.ts` thresholds (never invent new ones), matches topics (`NOTES_MIN_SCORE = 4`), and asks first-call questions from `ts-first-call`. Draft is in sessionStorage (`ess-training:call-notes`).
 - **History** (`src/history/`): AES-GCM + PBKDF2 vault in localStorage key `ess-training:history-vault`. This is encryption at rest, **not a login**: no account, no recovery, per-browser, locks on leave/Lock now/15 min idle, capped at 500 entries. Ask questions auto-save while unlocked; call notes save only on "Save to private history". Do not describe it as a login or as secure against someone who knows the passphrase or can run code on the page.
 - The repo is public: never commit real history, customer data, or passphrases.
+
+## Technical Service Manual and Settings Guide: what they settled and what conflicts
+
+Settled (now in content, tagged `tsm` / `settings`):
+- **CT pins** (`tsm` p.9): RJ45 pins 3 and 6 = L1 CT (3 = N, 6 = P); pins 1 and 2 = L2 CT (1 = N, 2 = P) on Rev 4 and Sanctuary 3. CT plugged into the meter port reads only L2, backwards. **CT sizes** (`settings` p.31): 90A/90mA (1000:1) on Rev 1-2, 200A/100mA (2000:1) on Rev 3, Rev 4, Sanctuary 3.
+- **Rev 4 AC/DC off** (`tsm` pp.13, 35, 39): the inverter controller stays on and the green LED **flashes** (standby), but the 12V for the EMS-C and RSD comes through the top button, so the EMS-C goes offline. Manual p.10 and the author/EMS-C manual are both right (controller vs communicator). The panel sim shows the normal light flashing green for Rev 4 AC/DC off.
+- **Rev 4 buttons** (`tsm` p.35): AC/DC has two switches (AC power, 12V RSD); Complete System Shutdown has three (AC power, control board, battery power to the control board). The remote shutdown switch is in series with the AC/DC button; in parallel systems any one open turns all inverters off.
+- **Cold-weather Voc** (`tsm` pp.61-63): method and worked example are now sourced (entry `ts-voc-calc`). The sim may use a panel's own datasheet coefficient; never invent one.
+- **Version identification** (`tsm` pp.14-15): Rev 1 six black plastic RJ45 on the I/O board; Rev 2 six metallic RJ45; Rev 3 adds a black plastic RJ45 to the left plus a second row of push connectors; Rev 4 plug-in screw terminals and two power buttons. Sanctuary 3 is white with two power buttons.
+- **Grid reconnect voltage** (`tsm` p.33): the "grid allowable voltage 105%" in the author's notes is the default maximum grid reconnect voltage (126 V).
+- **Emergency mode** (`settings` pp.11-12, `tsm` p.13) = Limit Grid Consumption with Battery Priority enabled; solar cannot be stored or used from the battery. Battery Priority is meant for short-term use (not more than a week).
+- **Fault table is now the TSM's 88 codes.** The 4/25/25 Installation Guide table (24 codes) is superseded.
+
+Conflicts and open questions (each is a visible `todo` in content where it affects a learner):
+- Older guide vs TSM: **A1_12** (older: CTs installed improperly; TSM: does not detect improper CT installation), **A2_8** (check inverter temperature and fans vs cold battery), **A2_9** ("Battery Cell Unbalanced" vs "Relay open"), **A2_10** (reverse polarity vs a place-holder alarm). TSM used.
+- **A1_3** is described two ways in the Settings Guide (p.14) about when it appears with A1_4.
+- **PV Insulation Detection** is disabled by default (`settings` p.35) while manual p.42 describes a check at first power-up. Does commissioning enable it?
+- **Complete System Shutdown with an external source on:** author says the system works as normal; TSM p.35 says if the switches behind that button fail, the LED does not turn on and you cannot communicate. Not necessarily a conflict (a failed switch vs a switched-off button) but unconfirmed.
+- **"BMS goes to sleep below 51 V" (author)** vs TSM p.21: the Sanctuary 2 BMS goes to minimum power mode when the battery is discharged below 0% and any cell is under 2300 mV, and a 0 V terminal usually means the battery breaker is off (red = on, green = off on the breaker window). TSM p.24 charges a low battery from a 60V/5A supply set to **54V/5A at the inverter's battery terminals**; the author's procedure is 52 V/5 A at the battery, stop at 51.5 V. Different scenarios (uncommissioned vs commissioned), but confirm.
+- **Rev 1 and the power button** (`settings` p.32): "Inverter Shutdown SOC" was added because on Sanctuary 2 Rev 1 the controller stayed on with the power button off and drained the batteries to 0%. This is a hint for the open WCM-comms question; not confirmed.
+- **Revs 1-2 PV minimum**: TSM p.61 says the MPPT needs at least 120 V to start (all Sanctuary), which supports 120 V over `san2_2` p.16's 150 V. Still confirm.
+- **Power cycle wait**: TSM p.56 says wait 30 s until the relays click; the author's procedure says ten seconds. Rev 1 also needs the batteries unplugged (TSM).

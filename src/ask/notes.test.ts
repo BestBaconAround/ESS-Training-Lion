@@ -18,7 +18,8 @@ const ideaIds = (t: string) => run(t).ideas.map((i) => i.id)
 describe('detectors', () => {
   it('reads fault codes written several ways, only real ones', () => {
     expect(detectFaultCodes('shows A2_10 and a1-2, also A2 11')).toEqual(['A2_10', 'A1_2', 'A2_11'])
-    expect(detectFaultCodes('A2_99 and B1_1')).toEqual([])
+    expect(detectFaultCodes('A2_99 and B1_99')).toEqual([])
+    expect(detectFaultCodes('B1_1, e3 3 and f1-9')).toEqual(['B1_1', 'E3_3', 'F1_9'])
   })
 
   it('detects revisions', () => {

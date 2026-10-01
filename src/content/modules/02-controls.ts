@@ -340,31 +340,34 @@ const mod: Module = {
           type: 'facts',
           title: 'Fault codes',
           items: [
-            fact('The Installation Guide lists fault codes (A1_0 to A1_15 and A2_8 to A2_15). Each has a name, a description, and solutions.', [src('san2_2', 32, 33, 34, 35)]),
+            fact('The Technical Service Manual (9/30/2026) lists 88 alarm, fault and status codes (A1, A2, B1, B4, E1, E3 and F1). Each has a name, a description and troubleshooting. The older Installation Guide table listed only 24 (A1_0 to A1_15 and A2_8 to A2_15) and is out of date for some codes.', [src('tsm', 67, 96), src('san2_2', 32, 33, 34, 35)]),
+            fact('In general, an alarm means the system has limited capability, and a fault means the system has shut down to protect itself.', [src('tsm', 67)]),
             fact('All fault and alarm codes apply to all Sanctuaries.', [AUTHOR]),
-            fact('If you are unable to clear the fault, restart the system. If the fault still shows, contact Lion Energy for assistance.', [src('san2_2', 35)]),
+            fact('If an alarm or fault does not clear after the cause has been fixed, power-cycle the inverter(s). For persistent alarms, contact the Lion Energy ESS Support team.', [src('tsm', 67)]),
           ],
         },
         {
           type: 'call',
           customer: 'The app shows A1_2 and my battery says disconnected.',
           answer:
-            'A1_2 is Battery Disconnected. Check the battery terminals and the battery cables to the inverter, and send a wake up command so the BMS is awake. If it is connected, the fault persists and the voltage is in range, power cycle the inverter.',
-          sources: [src('san2_2', 32)],
+            'A1_2 is Battery Disconnected. Check the battery terminals and the battery cables to the inverter, and compare the battery voltage on the inverter against the batteries. If the inverter is around 11 V, try the battery wake-up function. If it is connected, the fault persists and the voltage is in range, power cycle the inverter.',
+          sources: [src('tsm', 67, 68), src('san2_2', 32)],
           revisions: 'all',
         },
         {
           type: 'call',
           customer: 'My install just finished and the app shows A1_12.',
-          answer: 'A1_12 is Grid CT is Reversed. The CTs were installed improperly: switch the CT direction.',
-          sources: [src('san2_2', 33)],
+          answer:
+            'A1_12 is named Grid CT is Reversed, but do not rely on it: the Technical Service Manual says the alarm does not detect improper CT installation. Check the CTs yourself. The arrow should point away from the inverter.',
+          sources: [src('tsm', 74)],
           revisions: 'all',
         },
         {
           type: 'call',
           customer: 'The installer just hooked up the batteries and I have A2_10.',
-          answer: 'A2_10 is Battery is Reverse Polarity: the battery cables are reversed on the inverter. Install them correctly, then power cycle the inverter.',
-          sources: [src('san2_2', 34)],
+          answer:
+            'A2_10 is named Battery is Reverse Polarity, but the Technical Service Manual calls it a place-holder: the inverter has no reverse polarity protection on the battery terminal. Check that battery positive goes to the positive terminal and negative to the negative terminal.',
+          sources: [src('tsm', 78)],
           revisions: 'all',
         },
         {
@@ -536,17 +539,17 @@ const mod: Module = {
         correct: ['Battery Disconnected: check that the battery terminals and cables to the inverter are connected'],
         wrong: ['Grid CT is Reversed: flip the CT', 'Battery is Reverse Polarity: swap the battery cables', 'Grid Low Voltage: check the grid input type'],
         explanation:
-          'A1_2 is Battery Disconnected. Ensure the battery terminals and cables are connected, send a wake up command so the BMS is awake, and power cycle if it is connected and in range but the fault persists.',
-        sources: [src('san2_2', 32)],
+          'A1_2 is Battery Disconnected. Ensure the battery terminals and cables are connected, compare the battery voltage on the inverter against the batteries (about 11 V means try the battery wake-up function), and power cycle if it is connected and in range but the fault persists.',
+        sources: [src('tsm', 67, 68), src('san2_2', 32)],
       }),
       question({
         id: 'm2-q-fault-a1-12',
         lessonId: 'm2-faults',
-        prompt: 'Fault A1_12 appears right after an installation. What does it mean?',
-        correct: ['Grid CT is Reversed: the CTs were installed improperly, so switch the CT direction'],
+        prompt: 'Fault A1_12 appears right after an installation. What should you know about it?',
+        correct: ['It is named Grid CT is Reversed, but it does not reliably detect improper CT installation, so check the CTs yourself'],
         wrong: ['The battery is disconnected', 'The inverters in a parallel system cannot communicate', 'The battery is too cold'],
-        explanation: 'A1_12 is Grid CT is Reversed. The fix is to switch the CT direction and check the installation guide.',
-        sources: [src('san2_2', 33)],
+        explanation: 'A1_12 is named Grid CT is Reversed, but the Technical Service Manual says not to rely on it: it does not detect improper CT installation. Check that the CT arrow points away from the inverter, and see the CT manual.',
+        sources: [src('tsm', 74)],
       }),
       question({
         id: 'm2-q-power-cycle-first',

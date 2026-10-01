@@ -6,7 +6,7 @@ import type {
   PanelTemplate,
   PanelWorld,
 } from '../../content/sims/panelTypes'
-import { FAULT_CODES, FAULT_FOOTNOTE, type FaultCode } from '../../content/data/faults'
+import { FAULT_CODES, FAULT_FOOTNOTE, faultStepText, type FaultCode } from '../../content/data/faults'
 import type { SourceRef } from '../../content/types'
 import { createRng, pick, shuffle, type Rng } from '../rng'
 import { computeStatus, defaultState, type PanelStatus } from './state'
@@ -81,6 +81,9 @@ function buildChoose(rng: Rng, t: Extract<PanelTemplate, { kind: 'choose' }>, n:
   }
 }
 
+/** Longest first troubleshooting line used as an answer option. */
+const SHORT_STEP = 140
+
 const sameText = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
 
 /**
@@ -89,16 +92,22 @@ const sameText = (a: string, b: string) => a.trim().toLowerCase() === b.trim().t
  * so exactly one option is right.
  */
 function buildFault(rng: Rng, t: Extract<PanelTemplate, { kind: 'fault' }>, n: number): ChooseScenario {
-  const fault: FaultCode = pick(rng, FAULT_CODES)
   const asName = rng() < 0.5
-  const correctText = asName ? fault.name : fault.solutions[0]
-  const pool = FAULT_CODES.filter((f) => f.code !== fault.code).flatMap((f) => (asName ? [f.name] : [f.solutions[0]]))
+  // "First step" questions only use codes whose first troubleshooting line is a short, single instruction.
+  const firstStep = (f: FaultCode): string | null => {
+    const first = f.solutions[0] === undefined ? null : faultStepText(f.solutions[0])
+    return first !== null && first.length <= SHORT_STEP ? first : null
+  }
+  const eligible = asName ? FAULT_CODES : FAULT_CODES.filter((f) => firstStep(f) !== null)
+  const fault: FaultCode = pick(rng, eligible)
+  const correctText = asName ? fault.name : firstStep(fault)!
+  const pool = eligible.filter((f) => f.code !== fault.code).map((f) => (asName ? f.name : firstStep(f)!))
   const taken = new Set([correctText.toLowerCase()])
   const distractors: string[] = []
   for (const text of shuffle(rng, pool)) {
     const lower = text.toLowerCase()
     if (taken.has(lower)) continue
-    if (!asName && fault.solutions.some((s) => sameText(s, text))) continue
+    if (!asName && fault.solutions.some((s) => sameText(faultStepText(s), text))) continue
     taken.add(lower)
     distractors.push(text)
     if (distractors.length === 3) break
@@ -120,7 +129,7 @@ function buildFault(rng: Rng, t: Extract<PanelTemplate, { kind: 'fault' }>, n: n
     customerSays: pick(rng, t.symptoms).replace('{code}', fault.code),
     prompt: asName ? `What is ${fault.code}?` : `What do you do first for ${fault.code}?`,
     explanation: `${fault.code}: ${fault.name}. ${fault.description} Solutions: ${fault.solutions
-      .map((s, i) => `${i + 1}) ${s}`)
+      .map((s, i) => `${i + 1}) ${faultStepText(s)}`)
       .join(' ')} ${FAULT_FOOTNOTE}`,
     sources: fault.sources.concat(t.sources.filter((s) => s.source === 'author')),
     options,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { PANEL_TEMPLATES } from '../../content/sims/panelScenarios'
-import { FAULT_CODES } from '../../content/data/faults'
+import { FAULT_CODES, faultStepText } from '../../content/data/faults'
 import type { PanelState } from '../../content/sims/panelTypes'
 import { generateRun, gradeChoice, gradeSet, runScore, type ChooseScenario, type SetScenario } from './scenarios'
 import { computeStatus } from './state'
@@ -37,7 +37,7 @@ describe('panel scenarios', () => {
       expect(code).toBeDefined()
       if (s.prompt.startsWith('What do you do first')) {
         for (const o of s.options.filter((x) => !x.correct)) {
-          expect(code.solutions.map((x) => x.toLowerCase())).not.toContain(o.text.toLowerCase())
+          expect(code.solutions.map((x) => faultStepText(x).toLowerCase())).not.toContain(o.text.toLowerCase())
         }
       }
     }

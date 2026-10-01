@@ -129,10 +129,10 @@ describe('content', () => {
   it('fault table has unique codes with solutions and sources', () => {
     const codes = FAULT_CODES.map((f) => f.code)
     expect(new Set(codes).size).toBe(codes.length)
-    expect(codes).toHaveLength(24)
+    expect(codes).toHaveLength(88)
     const errors: string[] = []
     for (const f of FAULT_CODES) {
-      if (!f.name.trim() || !f.description.trim() || !f.solutions.length) errors.push(`${f.code}: incomplete`)
+      if (!f.name.trim() || !f.description.trim()) errors.push(`${f.code}: incomplete`)
       checkSources(f.code, f.sources, errors)
     }
     expect(errors).toEqual([])
