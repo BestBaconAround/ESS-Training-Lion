@@ -41,32 +41,18 @@ describe('computeStatus: Rev 4', () => {
     expect(s.settingsFirmware.value).toBe(false)
   })
 
-  it('shutdown off with an external source on: works as normal', () => {
-    const s = computeStatus(rev4({ shutdown: false }, { grid: true }))
-    expect(s.fullyOff.value).toBe(false)
-    expect(s.loadsPowered.value).toBe(true)
-    expect(s.commsOnline.value).toBe(true)
-  })
-
-  it('shutdown off with no external source: fully off, no light', () => {
-    const s = computeStatus(rev4({ shutdown: false }, { grid: false, solar: false, other: false }))
-    expect(s.fullyOff.value).toBe(true)
-    expect(s.loadsPowered.value).toBe(false)
-    expect(s.commsOnline.value).toBe(false)
-    expect(s.lights).toEqual([
-      { label: 'Normal light', color: 'off' },
-      { label: 'Fault light', color: 'off' },
-    ])
-  })
-
-  it('PV only counts as a source while the PV switch is on', () => {
-    const sunOnly = { grid: false, solar: true, other: false }
-    expect(computeStatus(rev4({ shutdown: false, pv: true }, sunOnly)).fullyOff.value).toBe(false)
-    expect(computeStatus(rev4({ shutdown: false, pv: false }, sunOnly)).fullyOff.value).toBe(true)
-  })
-
-  it('the generator/AC solar/wind source keeps it running', () => {
-    expect(computeStatus(rev4({ shutdown: false, pv: false }, { grid: false, solar: false, other: true })).fullyOff.value).toBe(false)
+  it('shutdown off turns everything off, even with outside power on (Technical Service Manual p.35)', () => {
+    for (const world of [{ grid: true }, { grid: false, solar: true, other: false }, { grid: false, solar: false, other: true }]) {
+      const s = computeStatus(rev4({ shutdown: false }, world))
+      expect(s.fullyOff.value).toBe(true)
+      expect(s.controllerOn.value).toBe(false)
+      expect(s.loadsPowered.value).toBe(false)
+      expect(s.commsOnline.value).toBe(false)
+      expect(s.lights).toEqual([
+        { label: 'Normal light', color: 'off' },
+        { label: 'Fault light', color: 'off' },
+      ])
+    }
   })
 
   it('alarm blinks green and fault is red and shuts loads down', () => {
@@ -95,9 +81,13 @@ describe('computeStatus: Revs 1-3', () => {
     expect(computeStatus(r13(true, {}, true, 'fault')).lights[1].color).toBe('red')
   })
 
-  it('power button off behaves like Rev 4 shutdown', () => {
-    expect(computeStatus(r13(false, { grid: true })).fullyOff.value).toBe(false)
-    expect(computeStatus(r13(false, { grid: false, solar: false, other: false })).fullyOff.value).toBe(true)
+  it('power button off is standby: loads off, controller on, normal light flashing', () => {
+    const s = computeStatus(r13(false, { grid: true }))
+    expect(s.fullyOff.value).toBe(false)
+    expect(s.controllerOn.value).toBe(true)
+    expect(s.loadsPowered.value).toBe(false)
+    expect(s.pvAccepted.value).toBe(false)
+    expect(s.lights[0].color).toBe('green-blink')
   })
 
   it('leaves comms unknown until the author supplies Revs 1-3 behavior', () => {

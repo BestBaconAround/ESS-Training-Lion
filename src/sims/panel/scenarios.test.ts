@@ -55,18 +55,10 @@ describe('panel scenarios', () => {
     expect(gradeSet(s, fixed).correct).toBe(true)
   })
 
-  it('"fully off" needs outside power off too, not just the shutdown button', () => {
+  it('"fully off" is solved by Complete System Shutdown alone, whatever outside power is on', () => {
     for (const s of allScenarios.filter((x): x is SetScenario => x.type === 'set' && x.templateId.startsWith('fully-off'))) {
-      const shutdownOnly: PanelState = {
-        ...s.start,
-        switches: { ...s.start.switches, shutdown: false, power: s.family === 'rev4' ? s.start.switches.power : false },
-      }
-      expect(gradeSet(s, shutdownOnly).correct).toBe(false)
-      const solved: PanelState = {
-        ...shutdownOnly,
-        switches: { ...shutdownOnly.switches, pv: false },
-        world: { grid: false, solar: s.start.world.solar, other: false },
-      }
+      expect(gradeSet(s, s.start).correct).toBe(false)
+      const solved: PanelState = { ...s.start, switches: { ...s.start.switches, shutdown: false } }
       expect(computeStatus(solved).fullyOff.value).toBe(true)
       expect(gradeSet(s, solved).correct).toBe(true)
     }

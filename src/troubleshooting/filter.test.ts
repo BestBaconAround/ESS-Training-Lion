@@ -20,7 +20,7 @@ describe('troubleshooting filter', () => {
 
   it('requires every word to match', () => {
     const e = TROUBLESHOOTING.find((x) => x.id === 'ts-battery-wont-address')!
-    expect(matches(e, 'power supply 51.5')).toBe(true)
+    expect(matches(e, 'power supply 54V')).toBe(true)
     expect(matches(e, 'power supply zebra')).toBe(false)
   })
 
@@ -35,8 +35,10 @@ describe('troubleshooting filter', () => {
   it('shows only steps that apply to the chosen revision', () => {
     const cycle = TROUBLESHOOTING.find((x) => x.id === 'ts-power-cycle')!
     expect(stepsFor(cycle, 'all')).toHaveLength(cycle.steps.length)
-    expect(stepsFor(cycle, 'rev4')).toHaveLength(cycle.steps.length)
-    expect(stepsFor(cycle, 'rev3')).toHaveLength(0)
+    // One step is Rev 1 only (unplug the batteries), one applies to every revision (generator off).
+    expect(stepsFor(cycle, 'rev4')).toHaveLength(cycle.steps.length - 1)
+    expect(stepsFor(cycle, 'rev1')).toHaveLength(2)
+    expect(stepsFor(cycle, 'rev3').map((x) => x.revisions)).toEqual(['all'])
     // Mixed entry: Rev 4-only steps are hidden on Rev 3, steps for every revision stay.
     const app = TROUBLESHOOTING.find((x) => x.id === 'ts-app-offline')!
     const rev3 = stepsFor(app, 'rev3')

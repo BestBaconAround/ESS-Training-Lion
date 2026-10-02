@@ -7,7 +7,6 @@ const AUTHOR = src('author')
 
 const GRID_SUN: PanelWorld = { grid: true, solar: true, other: false }
 const GRID_ONLY: PanelWorld = { grid: true, solar: false, other: false }
-const GRID_SUN_GEN: PanelWorld = { grid: true, solar: true, other: true }
 
 const NOT_SAFE =
   ' Fully off is still not safe to work on: disconnect all power sources, including the AC and DC terminals, and use lockout/tagout.'
@@ -71,74 +70,20 @@ export const PANEL_TEMPLATES: PanelTemplate[] = [
     kind: 'set',
     family: 'rev4',
     symptoms: [
-      'I need the whole system off to check my wiring. I pushed Complete System Shutdown out, but it is still running.',
-      'I want the inverter completely off. Pushing Complete System Shutdown out did nothing.',
+      'I need the whole system off to check my wiring. How do I turn the inverter completely off?',
+      'I want the inverter completely off, with the lights off too. Which button does that?',
     ],
-    prompt: 'Set the switches and outside power so the system is fully off.',
+    prompt: 'Set the switches so the system is fully off.',
     start: { switches: {} },
-    worlds: [GRID_SUN, GRID_ONLY, GRID_SUN_GEN],
+    worlds: [GRID_SUN, GRID_ONLY],
     goal: { fullyOff: true },
     explanation:
-      'Complete System Shutdown tries to turn the system off, but it does not fully follow through while an external power source is on. To get fully off you need shutdown off and every external source off: the grid breaker, any generator/AC solar, and the PV switch if there is sun on the panels.' +
+      'Complete System Shutdown turns off all components of the inverter (manual p.10). It feeds the control board and the battery power to it, so with it off the front LED is off and you cannot communicate with the inverter (Technical Service Manual p.35). AC/DC alone only turns off the loads and PV.' +
       NOT_SAFE,
-    sources: [AUTHOR, MANUAL, src('manual', 2)],
-  },
-  {
-    id: 'fully-off-rev13',
-    kind: 'set',
-    family: 'rev1-3',
-    symptoms: [
-      'I need the whole system off to check my wiring. I turned the power button off, but it is still running.',
-      'I want the inverter completely off. Turning the power button off did nothing.',
-    ],
-    prompt: 'Set the switches and outside power so the system is fully off.',
-    start: { switches: {} },
-    worlds: [GRID_SUN, GRID_ONLY, GRID_SUN_GEN],
-    goal: { fullyOff: true },
-    explanation:
-      'On Revs 1-3 the power button behaves like Complete System Shutdown on Rev 4: it does not fully shut the system down while an external power source is on. Turn off the grid breaker, any generator/AC solar, and the DC switch if there is sun on the panels.' +
-      NOT_SAFE,
-    sources: [AUTHOR, src('san2_2', 2)],
+    sources: [MANUAL, src('tsm', 35)],
   },
 
   // ------------------------------------------------------------ choose the next step
-  {
-    id: 'shutdown-no-effect',
-    kind: 'choose',
-    symptoms: {
-      rev4: [
-        'I pushed Complete System Shutdown out but my lights and the inverter are still on.',
-        'The Complete System Shutdown button is out, but the inverter is still running my house.',
-      ],
-      'rev1-3': ['I turned the power button off but everything is still running.', 'The power button is out and the inverter still has lights on.'],
-    },
-    prompt: 'What is the most likely reason?',
-    options: [
-      {
-        text: 'An external power source, such as the grid, is still on, so the system keeps working as normal',
-        correct: true,
-        why: 'Shutdown tries to turn the system off but does not fully follow through while an external power source is on.',
-      },
-      {
-        text: 'The shutdown button has failed and the unit needs replacing',
-        correct: false,
-        why: 'Nothing is broken. Shutdown does not fully follow through while an external source is on.',
-      },
-      {
-        text: 'The battery alone keeps the inverter running',
-        correct: false,
-        why: 'The battery alone does not keep the inverter on. It is the external sources (grid, PV, AC solar, generator) that do.',
-      },
-      {
-        text: 'Shutdown only disconnects the app, not the inverter',
-        correct: false,
-        why: 'With no external source on, shutdown turns off all components of the inverter (manual p.10).',
-      },
-    ],
-    explanation:
-      'With an external power source on, turning shutdown off does not fully turn the system off, and the system works as normal. The inverter processors (DSP and ARM) stay on.',
-    sources: [AUTHOR, MANUAL],
-  },
   {
     id: 'blinking-green',
     kind: 'choose',

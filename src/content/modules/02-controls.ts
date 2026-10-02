@@ -226,24 +226,25 @@ const mod: Module = {
     {
       id: 'm2-shutdown',
       title: 'Shutdown, outside power, and the app',
-      summary: 'Why turning something off does not always turn the system off.',
+      summary: 'What each off control does, which one turns everything off, and what the app can still see.',
       blocks: [
         {
           type: 'facts',
-          title: 'Complete System Shutdown and outside power',
+          title: 'Complete System Shutdown',
           items: [
             fact(
-              'Turning Complete System Shutdown off tries to shut the system down, but it does not fully follow through if an external power source is on. The system works as normal.',
-              [AUTHOR, MANUAL_CONTROLS],
+              'Turning Complete System Shutdown off turns off all components of the inverter. It feeds the control board and the battery power to it, so the front LED goes off and you cannot communicate with the inverter, whatever outside power is connected. AC/DC is different: it only turns off the loads and PV.',
+              [MANUAL_CONTROLS, src('tsm', 35)],
+              ['rev4'],
             ),
-            fact('The inverter has two processors, DSP and ARM. With Complete System Shutdown off and an external source on, they stay on.', [AUTHOR]),
             fact(
-              'External power sources are grid, solar (PV), AC solar, generator, and wind (very, very rare). PV only counts while the PV Disconnect is on.',
+              'If a switch behind the Complete System Shutdown button fails, the LED does not turn on and you cannot communicate with the inverter. A failed button causes these problems.',
+              [src('tsm', 35)],
+              ['rev4'],
+            ),
+            fact(
+              'The inverter can draw on the grid, solar (PV, while the PV Disconnect is on), AC solar, a generator, or wind (very, very rare).',
               [AUTHOR],
-            ),
-            fact(
-              'With no external source (battery only), shutdown turns the inverter off fully. The battery alone does not keep the inverter on.',
-              [AUTHOR, MANUAL_CONTROLS],
             ),
             fact(
               'The battery cables are bolted to the inverter and plugged into the battery. By design they can stay plugged in while the inverter shuts down.',
@@ -322,11 +323,12 @@ const mod: Module = {
           type: 'call',
           customer: 'I pushed the Complete System Shutdown button out but all my lights are still on.',
           answer:
-            'With the grid or another outside source still on, the system works as normal. To shut it down fully, the outside sources also have to be off. Remember that is not the same as safe to work on.',
-          sources: [AUTHOR],
-          revisions: 'all',
+            'With the button really out, the inverter has no power to its control board and the front LED is off. Check that the button is out and which inverter it is, and ask whether a transfer (bypass) switch is in the grid position, which powers the backup loads from the grid instead of the inverter. Turning it off is not the same as safe to work on.',
+          sources: [MANUAL_CONTROLS, src('tsm', 32, 35)],
+          revisions: ['rev4'],
         },
-        todo('Revs 1-3: confirm WCM comms and settings with the power button off.'),
+        todo('What else to check when a customer says the system keeps working after Complete System Shutdown is out (the bypass-switch idea comes from the Technical Service Manual p.32; confirm).'),
+        todo('Revs 1-3: confirm what the power button does (the Technical Service Manual p.13 calls a flashing green light standby with the button off) and whether the WCM keeps comms with it off.'),
       ],
     },
 
@@ -378,7 +380,7 @@ const mod: Module = {
             fact('2. Turn off the PV switch.', [AUTHOR], ['rev4']),
             fact('3. Push out the AC/DC button.', [AUTHOR], ['rev4']),
             fact('4. Push out the Complete System Shutdown button.', [AUTHOR], ['rev4']),
-            fact('5. Wait ten seconds, until the normal light on the face of the inverter turns off.', [AUTHOR], ['rev4']),
+            fact('5. Wait about 30 seconds, until the relays click and the normal light on the face of the inverter turns off.', [AUTHOR, src('tsm', 56)], ['rev4']),
             fact('6. Repeat in reverse order.', [AUTHOR], ['rev4']),
             fact('It takes about two minutes for the inverter to fully power back on.', [AUTHOR], ['rev4']),
             fact(
@@ -483,14 +485,15 @@ const mod: Module = {
         sources: [MANUAL_CONTROLS, AUTHOR],
       }),
       question({
-        id: 'm2-q-shutdown-still-on',
+        id: 'm2-q-shutdown-off',
         lessonId: 'm2-shutdown',
-        prompt: 'A customer turned Complete System Shutdown off, but the system is still working normally. Why?',
-        correct: ['An external power source, such as the grid, is still on'],
-        wrong: ['The switch is broken', 'The battery alone keeps it running', 'Complete System Shutdown only affects the app'],
+        prompt: 'What does turning Complete System Shutdown off do on a Rev 4?',
+        correct: ['It turns off all components of the inverter: the control board is off, the LED is off, and you cannot communicate with it'],
+        wrong: ['It only turns off the loads and PV, like AC/DC', 'It turns off only the EMS-C', 'Nothing while the grid is on'],
         explanation:
-          'Shutdown tries to turn the system off but does not fully follow through while an external power source is on. The battery alone does not keep the inverter on.',
-        sources: [AUTHOR],
+          'Complete System Shutdown turns off all components of the inverter (manual p.10). The control board and battery power run through that button, so with it off the LED is off and the inverter cannot be reached (Technical Service Manual p.35). AC/DC only turns off the loads and PV.',
+        sources: [MANUAL_CONTROLS, src('tsm', 35)],
+        revisions: ['rev4'],
       }),
       question({
         id: 'm2-q-external-sources',
@@ -558,8 +561,8 @@ const mod: Module = {
         correct: ['Turn off the grid breaker'],
         wrong: ['Push out the Complete System Shutdown button', 'Turn the PV switch on', 'Push in the AC/DC button'],
         explanation:
-          'Order: grid breaker off, PV switch off, AC/DC out, Complete System Shutdown out, wait ten seconds, then repeat in reverse order.',
-        sources: [AUTHOR],
+          'Order: grid breaker off, PV switch off, AC/DC out, Complete System Shutdown out, wait about 30 seconds until the relays click and the light is off, then repeat in reverse order.',
+        sources: [AUTHOR, src('tsm', 56)],
         revisions: ['rev4'],
       }),
       question({

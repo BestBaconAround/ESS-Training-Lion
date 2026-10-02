@@ -31,31 +31,31 @@ export const hasExternalSource = (s: PanelState): boolean =>
 
 /**
  * Derives what the customer would see from the switch and power state.
- * Rules (see CLAUDE.md "Author field knowledge"):
- * - Complete System Shutdown (Rev 4) / power button off (Revs 1-3) fully turns the system off only when no
- *   external source is on; with one on, the system works as normal.
- * - Rev 4 AC/DC off: loads off, no PV used (manual p.10). The EMS-C is powered from the 12V supply that turns
- *   off with AC power, so comms and settings/firmware go offline (EMS-C manual p.8, author).
- * - Rev 4 AC/DC off: the controller stays on and the normal light flashes green (standby), Technical Service Manual pp.13, 35.
+ * Rules (manual p.10, Technical Service Manual pp.13, 35; the Technical Service Manual overrules the author):
+ * - Rev 4 Complete System Shutdown off turns off all components, whatever outside power is connected: the
+ *   control board and battery feed go through that button, so the LED is off and the inverter cannot be reached.
+ * - Rev 4 AC/DC off: loads off, no PV used (manual p.10), the controller stays on and the normal light flashes
+ *   (standby). The EMS-C is powered from the 12V supply that turns off with AC power, so comms and
+ *   settings/firmware go offline (EMS-C manual p.8, Technical Service Manual p.39).
+ * - Revs 1-3 power button off: standby with the normal light flashing (Technical Service Manual p.13). Whether it
+ *   turns everything off, and comms with it off, are not confirmed (TODO).
  * - A fault shuts the inverter down to protect itself (manual p.10).
  */
 export function computeStatus(s: PanelState): PanelStatus {
   const rev4 = s.family === 'rev4'
   const external = hasExternalSource(s)
-  const shutdownOn = rev4 ? s.switches.shutdown : s.switches.power
-  const fullyOff = !shutdownOn && !external
+  const fullyOff = rev4 && !s.switches.shutdown
   const fault = s.condition === 'fault'
-  // Rev 1-3 power-off behaves like Rev 4 shutdown (author), so "AC/DC" only exists on Rev 4.
-  const acdcOn = rev4 ? s.switches.power : true
-  const shutdownName = rev4 ? 'Complete System Shutdown' : 'The power button'
+  // The AC power button: AC/DC on Rev 4, the single power button on Revs 1-3.
+  const acdcOn = s.switches.power
 
   const fullyOffRow = {
     value: fullyOff,
     why: fullyOff
-      ? `${shutdownName} is off and no external power source is on, so the system is fully off.`
-      : shutdownOn
+      ? 'Complete System Shutdown is off. It turns off all components of the inverter, so the system is fully off whatever outside power is connected.'
+      : rev4
         ? 'The system is not shut down.'
-        : `${shutdownName} is off, but an external power source is on, so the system does not fully shut down and works as normal.`,
+        : 'The power button puts the inverter in standby (Technical Service Manual p.13). TODO(author): confirm whether it turns everything off on Revs 1-3.',
   }
 
   if (fullyOff) {
@@ -88,7 +88,7 @@ export function computeStatus(s: PanelState): PanelStatus {
       ? 'The inverter is in a fault, so no PV power is used.'
       : acdcOn
         ? 'The PV switch is on and the system is running, so solar power is accepted.'
-        : 'AC/DC is off, so no PV power is used.'
+        : `${rev4 ? 'AC/DC' : 'The power button'} is off, so no PV power is used.`
 
   let comms: StatusRow<boolean | null>
   let settings: StatusRow<boolean | null>
@@ -112,15 +112,15 @@ export function computeStatus(s: PanelState): PanelStatus {
 
   // All revisions have a normal light and a fault light (author). The normal light while in a fault is not described.
   const lights: PanelLight[] = [
-    // Rev 4 AC/DC off: the controller is on in standby and the green LED flashes (Technical Service Manual pp.13, 35).
-    { label: 'Normal light', color: fault ? 'unknown' : s.condition === 'alarm' || (rev4 && !acdcOn) ? 'green-blink' : 'green' },
+    // AC power button off: the controller is on in standby and the green LED flashes (Technical Service Manual pp.13, 35).
+    { label: 'Normal light', color: fault ? 'unknown' : s.condition === 'alarm' || !acdcOn ? 'green-blink' : 'green' },
     { label: 'Fault light', color: fault ? 'red' : 'off' },
   ]
 
   return {
     externalSource: external,
     fullyOff: fullyOffRow,
-    controllerOn: { value: true, why: 'The inverter processors (DSP and ARM) stay on while the system is not fully off.' },
+    controllerOn: { value: true, why: 'The controller stays on while the system is not shut down.' },
     loadsPowered: { value: loads, why: loadsWhy },
     pvAccepted: { value: pv, why: pvWhy },
     commsOnline: comms,

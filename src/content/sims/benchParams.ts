@@ -38,9 +38,9 @@ export const CLASS_INFO: Record<BatteryClass, Described> = {
     sources: [src('manual', 20), src('author')],
   },
   'dead-low': {
-    label: 'Below 51V: BMS asleep, charge it with the 60V power supply',
-    why: 'Below 51 VDC the BMS goes to sleep and the battery is out of the acceptable range. If it will not address and reads absent or below 51V, charge it with the 60V variable DC power supply at 52 VDC and 5A, and stop at 51.5 VDC. Battery awaken is not available before commissioning.',
-    sources: [src('author')],
+    label: 'Below 51V: out of range, recover the battery before wiring it',
+    why: 'Below 51 VDC the battery is out of the acceptable range. A battery that reads 0V usually has its circuit breaker off after a deep discharge (Technical Service Manual p.21). Turn the breaker on, charge it at a low current, and use the 60V/5A supply at 54V/5A if it will not charge by itself (p.24).',
+    sources: [src('tsm', 21, 24), src('author')],
   },
   'high-out': {
     label: 'Above 55.6V: out of range, do not wire, call ESS Support',

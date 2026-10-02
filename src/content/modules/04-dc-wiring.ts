@@ -45,7 +45,7 @@ const mod: Module = {
               'Below 51.2V resting voltage at room temperature, a battery is probably below 7% charged. It should be charged up to within 0.5V of the other batteries before connecting them in parallel.',
               [src('manual', 20)],
             ),
-            fact('The battery BMS goes to sleep below 51 VDC. That is why the acceptable range starts at 51.', [AUTHOR]),
+            fact('A battery below 51 VDC is outside the acceptable range. See "A battery that will not wake up" for what makes a battery drop out and how to recover it.', [AUTHOR, src('tsm', 21)]),
             fact('Check the battery voltage before installing the battery on the wall, in case it is faulty.', [AUTHOR]),
           ],
         },
@@ -429,24 +429,66 @@ const mod: Module = {
     {
       id: 'm4-dead-battery',
       title: 'A battery that will not wake up',
-      summary: 'The troubleshooting ladder for a battery that does not address, and why battery awaken is not the answer.',
+      summary: 'Why a Sanctuary 2 battery reads 0 V or will not connect, and the Technical Service Manual steps to recover it. Same steps whether or not the system is commissioned.',
       blocks: [
         {
           type: 'facts',
-          title: 'When the battery does not address',
+          title: 'Why a battery drops out',
           items: [
             fact(
-              'If the battery does not address during commissioning and its voltage is absent or below 51V, it needs to be charged. The system is not commissioned yet, so battery awaken is not available.',
-              [AUTHOR],
+              'Each Sanctuary 2 battery is sixteen 3.2V LiFePO4 cells in series (51.2V nominal) with a 250A circuit breaker inside. The BMS can turn that breaker off electronically, for example to prevent over-discharge.',
+              [src('tsm', 20)],
             ),
             fact(
-              'Remove the battery cover (16 screws, 4mm). Connect the alligator clips of the 60V variable DC power supply to the positive and negative terminals at the top of the battery, inside.',
-              [AUTHOR],
+              'The Sanctuary 2 BMS turns off the circuit breaker and goes to minimum power mode if the battery is discharged below 0% and any cell drops below 2300 mV. The breaker has to be turned on before the BMS wakes up with charging current.',
+              [src('tsm', 21)],
             ),
-            fact('Set the power supply to 52 VDC at 5A (5A because that is what the supply can deliver). Stop charging when the battery reaches 51.5 VDC.', [AUTHOR]),
+            fact('If the battery terminals read 0 V DC, the circuit breaker is probably off. If discharging is disabled but the breaker is on, the terminals may read a small DC voltage.', [src('tsm', 21, 22)]),
+            fact(
+              'If the inverter battery terminal is below 20V when a battery is connected, the inverter capacitors draw so much current that the battery sees a short circuit and disables discharging. The inverter then settles at about 11V when it has grid or solar. The battery needs a voltage greater than its own to re-enable.',
+              [src('tsm', 21)],
+            ),
+            fact(
+              'Battery awaken raises the voltage on the battery terminals, usually to 48.5V for a minute, if grid or solar power is available. Since the October 2023 firmware it may be done automatically. Disconnecting one power cable for 10 seconds usually re-enables a Sanctuary 2 battery that disabled both charging and discharging.',
+              [src('tsm', 21)],
+            ),
+          ],
+        },
+        {
+          type: 'facts',
+          title: 'One battery is low and its breaker is off (Sanctuary 2)',
+          items: [
+            fact('Unplug the battery power cables from the low battery and measure it. The one that reads 0V is the one with the breaker off.', [src('tsm', 24)]),
+            fact('Remove the front panel screws (4mm Allen; earlier Sanctuary 2 used #2 Phillips). Turn the breaker on. Its small window shows red = on and green = off.', [src('tsm', 24)]),
+            fact(
+              'Set the charge current to 20A so the cells do not charge too fast: "Inverter Max Charge Current" on a single inverter, "System Charge Current" on parallel inverters. Put the system in battery priority mode (aka Emergency Mode).',
+              [src('tsm', 24)],
+            ),
+            fact('Unplug one power cable from each of the other batteries so the low battery can charge by itself, then immediately plug in the low battery. This should wake the BMS and start charging.', [src('tsm', 24)]),
+            fact(
+              'If it does not start charging, send the "activate battery" command, or use a 60V/5A variable power supply: set it to 54V/5A and connect it to the inverter battery terminals to start charging the low battery.',
+              [src('tsm', 24)],
+            ),
+            fact('When the front panel green LED stops flashing and stays steady, the BMS alarm has cleared.', [src('tsm', 25)]),
+            fact('After the low battery minimum cell voltage is over 3.0V, put the charge current back (usually 140A).', [src('tsm', 25)]),
+            fact('Plug the next battery in when the inverter battery terminal is within 0.5V of it. Repeat until all batteries are plugged in. Then replace the battery front cover (about 29 inch-pounds) and the wire box covers, and change from emergency mode back to normal mode.', [src('tsm', 25)]),
+          ],
+        },
+        {
+          type: 'facts',
+          title: 'A battery does not answer "Read battery address"',
+          items: [
+            fact('In the Lion Technician app use Select Service > Read Battery Address. Each battery needs its own unique address, counting up from 1 with no gaps.', [src('tsm', 22, 79)]),
+            fact('If the terminal voltage is less than 40V, try charging it manually with 5A. If no charging current is accepted, check the battery circuit breaker and try 5A again.', [src('tsm', 80)]),
+            fact('If the battery terminals are above 50V, try a different BMS cable. Check cables and couplers with an Ethernet cable tester.', [src('tsm', 80), AUTHOR]),
+            fact(
+              'To charge a single low cell, set the power supply open-circuit voltage to no more than 3.65V. Most 60V supplies can deliver 5A. A cell charged too high can reduce the pack amp-hours. If any cell is below 1400 mV the battery needs to be replaced.',
+              [src('tsm', 26, 86)],
+            ),
+            fact('Probe the battery terminals through the small hole in the center. Do not put probes down the side: the outer part of the terminal is connected to the case and the probes can short the battery.', [src('tsm', 22)]),
             fact('Follow standard electrical safety for this voltage.', [AUTHOR]),
             fact(
-              'If it still will not address after charging: swap the BMS cable for another Cat5/6 cable and try again. If that does not work, restart the commissioning process and power cycle the system.',
+              'If it still will not address: restart the commissioning process and power cycle the system.',
               [AUTHOR],
             ),
           ],
@@ -462,11 +504,10 @@ const mod: Module = {
           type: 'call',
           customer: 'The installer says the app will not find battery 2 and it reads 0 volts.',
           answer:
-            'Below 51V the BMS is asleep, and battery awaken is not available before commissioning. Charge it with the power supply at 52V and 5A until it reaches 51.5V, then try to address it again. If it still will not address, swap the BMS cable, then restart commissioning and power cycle.',
-          sources: [AUTHOR],
+            'A 0 V reading usually means that battery\'s breaker is off after a deep discharge. Remove the battery front cover and turn the breaker on (red = on). Set the charge current to 20A, wake the BMS by itself, and if it does not charge use the 60V/5A supply at 54V/5A. Raise the charge current once the lowest cell is over 3.0V, and bring the other batteries back in within 0.5V.',
+          sources: [src('tsm', 21, 24, 25)],
           revisions: 'all',
         },
-        todo('What to do for a commissioned system with a battery below 51V (not covered by the sources). If it is still not working, contact ESS Support at (435) 244-3352.'),
       ],
     },
 
@@ -501,8 +542,8 @@ const mod: Module = {
           rows: [
             {
               label: 'Usable / minimum voltage',
-              values: { rev1: '150 VDC minimum (p.16)', rev2: '150 VDC minimum (p.16)', rev3: '120 V DC minimum', rev4: '120V to 500V usable' },
-              sources: [src('san2_2', 16), src('san2_3', 22), src('manual', 26)],
+              values: { rev1: '120 V DC minimum to start (the Rev 2 guide p.16 says 150)', rev2: '120 V DC minimum to start (the Rev 2 guide p.16 says 150)', rev3: '120 V DC minimum', rev4: '120V to 500V usable' },
+              sources: [src('tsm', 61), src('san2_2', 16, 36), src('san2_3', 22), src('manual', 26)],
             },
             {
               label: 'Max PV short circuit current (Isc)',
@@ -517,7 +558,7 @@ const mod: Module = {
           ],
         },
         todo(
-          'Revs 1-2: the Rev 2 guide gives 150 VDC minimum and 13A Isc on p.16, but its spec table (p.36) gives a 120-500V MPPT range and 15A Isc. Confirm which is right.',
+          'Revs 1-2: the Technical Service Manual (p.61, newest) says the MPPT needs at least 120 V DC to start, so that is taught. The Rev 2 guide says 150 VDC minimum and 13A Isc on p.16, but its spec table (p.36) gives 120-500V and 15A Isc. Confirm the Isc limit for Revs 1-2.',
         ),
         image(
           'images/rev2-p16-hv-dc-pv-wiring.webp',
@@ -744,7 +785,7 @@ const mod: Module = {
         prompt: 'What is the acceptable battery voltage before wiring?',
         correct: ['51 to 55.6 VDC'],
         wrong: ['45 to 55.6 VDC', '40 to 58.4 VDC', '53.5 to 55.6 VDC'],
-        explanation: 'The acceptable range is 51-55.6 VDC. The manual says 45-55.6, which is a typo. The BMS goes to sleep below 51 VDC. 40-58.4 VDC is the Rev 4 battery operating range, not the wiring check.',
+        explanation: 'The acceptable range is 51-55.6 VDC. The manual says 45-55.6, which is a typo. 40-58.4 VDC is the Rev 4 battery operating range, not the wiring check.',
         sources: [src('manual', 21, 44), AUTHOR],
       }),
       question({
@@ -804,29 +845,30 @@ const mod: Module = {
       question({
         id: 'm4-q-awaken',
         lessonId: 'm4-dead-battery',
-        prompt: 'A battery will not address during commissioning and reads 0V. Why can you not use battery awaken?',
-        correct: ['Battery awaken only works on a commissioned system'],
-        wrong: ['Battery awaken is only for batteries above 53.5V', 'Battery awaken needs the battery cover on', 'Battery awaken is only for Rev 4'],
-        explanation: 'The system is not commissioned yet, and battery awaken is only available after commissioning. Charge the battery with the 60V variable DC power supply instead.',
-        sources: [AUTHOR],
+        prompt: 'A Sanctuary 2 battery reads 0V at its terminals. What is the most likely cause?',
+        correct: ['The BMS turned the battery circuit breaker off after a deep discharge'],
+        wrong: ['The battery is over 55.6V', 'The BMS cable is reversed', 'The battery is a Rev 4 battery'],
+        explanation:
+          'The Sanctuary 2 BMS turns off the circuit breaker and goes to minimum power mode if the battery is discharged below 0% and a cell drops below 2300 mV. A 0V terminal reading usually means the breaker is off. Remove the front cover and turn it on (red = on, green = off).',
+        sources: [src('tsm', 21, 24)],
       }),
       question({
         id: 'm4-q-supply',
         lessonId: 'm4-dead-battery',
-        prompt: 'What are the power supply settings to charge a dead battery, and when do you stop?',
-        correct: ['52 VDC at 5A, and stop when the battery reaches 51.5 VDC'],
-        wrong: ['60 VDC at 20A, and stop at 58.4 VDC', '48 VDC at 1A, and stop at 40 VDC', '52 VDC at 5A, and stop at 55.6 VDC'],
-        explanation: 'Set the supply to 52 VDC at 5A (5A is what it can deliver). Stop charging at 51.5 VDC. Follow standard electrical safety for this voltage.',
-        sources: [AUTHOR],
+        prompt: 'The Technical Service Manual says to use a 60V/5A power supply to start charging a low battery. What is it set to?',
+        correct: ['54V at 5A, connected to the inverter battery terminals'],
+        wrong: ['60 VDC at 20A', '48 VDC at 1A', '54 VDC at 50A'],
+        explanation: 'If the battery does not start charging by itself, set the power supply to 54V/5A and connect it to the inverter battery terminals. 5A is what most 60V supplies can deliver. Follow standard electrical safety for this voltage.',
+        sources: [src('tsm', 24, 26), AUTHOR],
       }),
       question({
         id: 'm4-q-after-charge',
         lessonId: 'm4-dead-battery',
-        prompt: 'The battery is charged to 51.5V but still will not address. What is the next step?',
-        correct: ['Swap the BMS cable for another Cat5/6 cable and try again'],
+        prompt: 'A battery does not answer "Read battery address", but its terminals read above 50V. What is the next step?',
+        correct: ['Try a different BMS cable'],
         wrong: ['Replace the inverter', 'Charge it to 58.4V', 'Turn on emergency mode'],
-        explanation: 'After charging, if it still will not address, change the BMS cable and try again. If that does not work, restart the commissioning process and power cycle the system.',
-        sources: [AUTHOR],
+        explanation: 'Below 40V, try charging it manually with 5A. Above 50V, the battery is not the problem: try a different BMS cable and check the cables with an Ethernet cable tester. If that does not work, restart the commissioning process and power cycle the system.',
+        sources: [src('tsm', 80), AUTHOR],
       }),
       question({
         id: 'm4-q-order',
