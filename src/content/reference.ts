@@ -33,6 +33,22 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
     ],
   },
   {
+    id: 'registers',
+    title: 'Registers (short list from the author\'s notes)',
+    rows: [
+      row('What a register is', 'A register is a numbered place in the inverter that holds a reading or a setting. Support looks them up by number, written in hex (0x...). The numbers below are from the author\'s support notes, not from the manuals, so check them before relying on them.', [src('notes')]),
+      row('0x2322', 'Grid allowable voltage. Default 105% (1050). Raised to 107% for high grid voltage (see the grid over-voltage entry). The Technical Service Manual calls this the maximum grid reconnect voltage (126 V by default).', [src('notes')]),
+      row('0x3100 (12 registers)', 'The alarm and status block. Reading 12 registers starting at 0x3100 gives the alarms and status.', [src('notes')]),
+      row('0x3104 bits 0-4, 5-7, 8-10', 'Bits 0 to 4 are the system state, bits 5 to 7 the inverter state (INV), bits 8 to 10 the DC-DC state (DCDC). With the generator connected the system state shows on-grid.', [src('notes')]),
+      row('0x3104 bit 11', 'Generator on.', [src('notes')]),
+      row('0x3104 bits 12, 13, 14', 'BMS charge enable (12), BMS discharge enable (13), BMS force charge (14).', [src('notes')]),
+      row('0x3120, 0x3130, 0x3140', 'Battery 1, battery 2 and battery 3 voltage. Compare them with the battery data in the web app.', [src('notes')]),
+      row('0x3431, 0x3432', 'Generator start and generator stop (the start value is a percent).', [src('notes')]),
+      row('0x3434, 0x3435', 'Generator maximum operating time and generator cooldown time.', [src('notes')]),
+      row('0x3436 and 0x31FE', 'The two registers the author watches for generator problems. 0x3436 is the generator control register.', [src('notes')]),
+    ],
+  },
+  {
     id: 'revisions',
     title: 'Telling the revisions apart',
     rows: [

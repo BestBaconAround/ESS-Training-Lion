@@ -85,12 +85,12 @@ export const PROCEDURES: Procedure[] = [
       s('The WCM goes white first, then green when it is connected to the internet. It takes about 2 minutes to time out of pairing and try to connect. The Smart app will not update as soon as the WCM turns green.', [AUTH_WIFI], ['rev3']),
       s('Technician: open the cover below the LED, find the communicator and press the mode button. In the Technician app tap Select Service, then Change or Reconnect Network, and follow the procedure. When the connection succeeds, close the app, press the reset button, and wait a few minutes for the connection to initialize.', [AUTH_WIFI, TSM(61)]),
       s('A laptop with Bluetooth also works: go to smart.lionenergy.com, open the product page, then settings > change internet, and follow the prompts. The most reliable connection is an Ethernet cable from the router to the EMS-C Ethernet port.', [TSM(61), SET(11)]),
-      s('Lion Smart app on a phone: the Technical Service Manual says the Apple version can change the Wi-Fi and the Android version cannot yet. A mobile browser does not work on every device.', [TSM(60, 61)]),
+      s('Android: the Lion Smart app cannot change the Wi-Fi yet (confirmed by the author, 10/2/2026). Android users need a laptop with Bluetooth, or the Technician app. The Apple version of the Lion Smart app can. A mobile browser does not work on every device.', [TSM(60, 61), AUTHOR]),
     ],
     links: [{ type: 'entry', id: 'ts-change-wifi', label: 'Change the Wi-Fi network or password, and what to check if it will not connect (troubleshooting entry)' }],
     todo: [
       'Screenshots of the three Lion Smart app screens (System gear icon, Network Connection, the steps). The author named them Smart1, Smart2 and Smart3 but only the text was shared.',
-      'Conflict to confirm: the author\'s steps use the Lion Smart app on a phone, while the Technical Service Manual (9/30/2026) says the Android Lion Smart app cannot yet change the Wi-Fi. The manual is newer, so both are shown.',
+      'The app steps above are for Apple phones (the Android app cannot change the Wi-Fi yet).',
       'Gen 3 steps from the same procedure are held back (Gen 3 is not on the platform yet).',
     ],
   },
@@ -668,12 +668,21 @@ export const PROCEDURES: Procedure[] = [
     id: 'p-registers',
     group: 'Learning',
     title: 'What registers are, and how to use them for troubleshooting',
-    summary: 'Needs a decision before anything is published.',
+    summary: 'A register is a numbered reading or setting. A short list from the author\'s notes is on the Reference page.',
+    steps: [
+      s('A register is a numbered place in the inverter that holds a reading or a setting. Support looks them up by number, written in hex (0x...). The Settings Guide and the Technical Service Manual describe settings by name and range, not by number, so the numbers come from the author\'s notes.', [{ source: 'notes', note: 'author\'s ESS support notes (register numbers are not in the manuals)' }]),
+      s('Battery voltage by battery: 0x3120 is battery 1, 0x3130 battery 2 and 0x3140 battery 3. Compare them with the battery data and the compare tool in the web app when a battery will not address or the voltages look different.', [{ source: 'notes', note: 'author\'s ESS support notes' }, TSM(13, 25, 26, 68)]),
+      s('Status and alarms: read 12 registers starting at 0x3100. In 0x3104, bit 11 is generator on, and bits 12, 13 and 14 are BMS charge enable, BMS discharge enable and BMS force charge. A BMS flag that is off explains a battery that will not charge or discharge.', [{ source: 'notes', note: 'author\'s ESS support notes' }, TSM(32)]),
+      s('Grid over-voltage: 0x2322 is the grid allowable voltage, default 105% (1050), raised to 107% for high grid voltage. This is the maximum grid reconnect voltage (126 V by default).', [{ source: 'notes', note: 'author\'s ESS support notes' }, TSM(33)]),
+      s('Generator problems: look at 0x3431 (start %), 0x3432 (stop), 0x3434 (maximum operating time), 0x3435 (cooldown time), 0x3436 (generator control) and 0x31FE.', [{ source: 'notes', note: 'author\'s ESS support notes' }]),
+    ],
+    links: [{ type: 'page', to: '/reference', label: 'Reference page: Registers (short list)' }],
     todo: [
-      'Decision needed: the repo and the site are public. Earlier you asked that register addresses and register-read procedures stay out (internal). A general explanation (a register is a numbered setting or reading the inverter exposes over RS-485 or USB, and the communicator reads and writes them) can go in. Tell Claude whether that is enough, or whether register-level content may be published.',
-      'Then the source: the Settings Guide and the Technical Service Manual describe settings by name and range, not by address.',
+      'How to read or write a register (the tool or screen). Only the numbers were in the notes, so no read procedure is given.',
+      'Which revisions and firmware versions each register applies to, and what each system state value in 0x3104 means. Some entries in the notes were hard to read and are left out.',
     ],
   },
+
   {
     id: 'p-alerts-lesson',
     group: 'Learning',
@@ -687,7 +696,7 @@ export const PROCEDURES: Procedure[] = [
       s('A2_12, A2_19 and F1_13 need a power cycle to clear. A grid port or load port wiring error alarm also needs one.', [TSM(71, 81, 84, 96)]),
     ],
     links: [{ type: 'page', to: '/reference', label: 'Reference page: every code with its steps' }],
-    todo: ['The author\'s list of the alerts seen most often, and the registers part (see the registers item).'],
+    todo: ['The author\'s list of the alerts seen most often. The basic registers are in the registers item and on the Reference page.'],
   },
   {
     id: 'p-page-electricity',

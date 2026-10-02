@@ -315,7 +315,7 @@ const guided: TroubleshootingEntry[] = [
       step('Technician: press the mode button on the communicator. In the Technician app tap Select Service > Change or Reconnect Network and follow the procedure. When it succeeds, close the app, press the reset button and wait a few minutes.', [AUTH_WIFI, TSM(61)]),
       step('You have to be within Bluetooth range of the Sanctuary. The Wi-Fi network name (SSID) and password cannot be changed from a distance.', [TSM(60)]),
       step('Laptop with Bluetooth: open a browser and go to smart.lionenergy.com. Open the customer\'s product page, then go to settings > change internet, and follow the on-screen prompts.', [TSM(61), SETTINGS(11)]),
-      step('Lion Smart app: the Technical Service Manual says the Apple version can change the Wi-Fi and the Android version cannot yet (the author\'s steps above do not mention this: confirm). A mobile browser does not work on every device.', [TSM(60, 61)]),
+      step('Android: the Lion Smart app cannot change the Wi-Fi yet (confirmed by the author, 10/2/2026), so the app steps above work on Apple phones only. Android users need a laptop with Bluetooth, or the Technician app. A mobile browser does not work on every device.', [TSM(60, 61), src('author')]),
       step('Most reliable: connect an Ethernet cable from the customer\'s router to the EMS-C\'s Ethernet port.', [TSM(61)]),
       step('If it will not connect: press the communicator\'s reset button and wait 3 minutes. The web app should show online, and the phone app can take 5 to 10 minutes.', [AUTH_WIFI]),
       step('Make sure it is not a local only setup. Local only is Bluetooth only and does not do internet.', [AUTH_WIFI]),

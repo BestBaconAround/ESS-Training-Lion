@@ -29,22 +29,22 @@ export const HOMEOWNER_MESSAGES: HomeownerMessage[] = [
     group: 'Internet',
     title: 'Change your Wi-Fi name or password (EMS-C, Rev 4)',
     customerSays: 'I got a new router. / I changed my Wi-Fi password. / My system says it is offline.',
-    text: `Here is how to change the Wi-Fi on your Lion system. You can use a phone or a laptop.
+    text: `Here is how to change the Wi-Fi on your Lion system. Stand next to it.
 
-Stand next to your Lion system.
-
-1. Take off the cover under the lights on the front. It has 4 screws. You need a 4 mm hex key.
-2. Find the small box called the EMS-C. Press the Mode button under the network plug. A blue light should start to flash.
+1. Take off the cover under the lights. It has 4 screws (4 mm hex key).
+2. Find the small box called the EMS-C. Press the Mode button under the network plug. A blue light should flash.
 3. Open the Lion Smart app.
-4. Tap System, then tap the gear icon at the top right.
+4. Tap System, then the gear icon at the top right.
 5. Tap Network Connection. Follow the steps on the screen.
-6. When it says connected, close the app. Press the Reset button at the bottom of the box, next to the power switch.
-7. Wait 5 minutes. Your system should show online in the app.
+6. When it says connected, close the app. Press the Reset button at the bottom of the box.
+7. Wait 5 minutes. Your system should show online.
+
+Android phones cannot do this in the app yet. Use a laptop: go to smart.lionenergy.com, open your system, click Settings, then Change Internet.
 
 If it still will not connect, call us.`,
     sources: [{ source: 'author', note: 'Wi-Fi procedure, updated by the author' }, TSM(61)],
     revisions: ['rev4'],
-    todo: ['The Technical Service Manual says the Android Lion Smart app cannot yet change the Wi-Fi. Confirm whether this still applies, and what to tell Android users.', 'Screenshots of the app screens.'],
+    todo: ['Screenshots of the app screens.'],
   },
   {
     id: 'h-wifi-wcm',
