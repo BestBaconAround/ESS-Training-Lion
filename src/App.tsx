@@ -11,6 +11,7 @@ import ProceduresPage from './pages/ProceduresPage'
 import QuizPage from './pages/QuizPage'
 import ReferencePage from './pages/ReferencePage'
 import SimPage from './pages/SimPage'
+import WireBoxPage from './pages/WireBoxPage'
 import TopicPage from './pages/TopicPage'
 import TroubleshootingPage from './pages/TroubleshootingPage'
 
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="competitors" element={<TopicPage topicId="competitors" />} />
           <Route path="homeowner" element={<HomeownerPage />} />
           <Route path="learn" element={<KnowledgePage />} />
+          <Route path="wire-box" element={<WireBoxPage />} />
           <Route path="feedback" element={<FeedbackPage />} />
           <Route path="reference" element={<ReferencePage />} />
           <Route path="backup" element={<BackupPage />} />
