@@ -254,3 +254,9 @@ Conflicts and open questions (each is a visible `todo` in content where it affec
 - **Not graded and labeled as such:** the factory connectors (IGRID, NTC, DRMO, AC_240V, DRYO_2), pin-by-pin AGS and RSS wiring, which Parallel port goes to which inverter, and WCM wiring on Rev 4 (the installation manual is not in the repo). Wire colors in the sim are sim colors only (the documents give none). Never add a consequence that is not in a source.
 - Revs 1-3 would need their own diagram and sockets; the cover diagram is Rev 4.
 
+## LFP discharge graph (`/battery-curve`, v0.8.0)
+
+- Data `src/content/sims/lfpCurve.ts`, pure helpers `src/sims/lfp/curve.ts` (tested), page `src/pages/BatteryCurvePage.tsx` (SVG, hover/drag crosshair, slider, cell or 16-cell battery view, table view), linked from Learn more.
+- **Two kinds of facts, never mixed:** the typical resting-voltage curve is a third-party article (Wevolver, `official()` read in full, labeled "not a Lion curve", values vary by cell maker); the dashed limits are Lion's (`tsm` pp.20, 21, 26: sixteen 3.2 V cells = 51.2 V; stops charging above 3650 mV = 58.4 V; inverter stops discharge below 2650 mV = 42.4 V; battery stops below 2400 mV = 38.4 V; minimum power mode below 2300 mV when discharged below 0% = 36.8 V; 700 mV or 1000 mV cell spread) and the Rev 4 pack range 40-58.4 VDC (`manual` p.44). The Lion documents read do **not** publish a voltage-versus-state-of-charge table: do not invent one. If the author supplies a Lion curve, add it as a second series.
+- **Registers:** still pending the author's decision (see the `p-registers` item). Register addresses exist only in the author's private notes and are held back (public repo).
+

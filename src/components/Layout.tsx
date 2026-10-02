@@ -79,7 +79,7 @@ export default function Layout() {
             <NavLink to="/reference" className={tab}>
               Reference
             </NavLink>
-            <NavLink to="/learn" className={(o) => tab({ isActive: o.isActive || ['/electricity', '/solar', '/codes', '/competitors'].includes(pathname) })}>
+            <NavLink to="/learn" className={(o) => tab({ isActive: o.isActive || ['/electricity', '/solar', '/codes', '/competitors', '/battery-curve'].includes(pathname) })}>
               Learn more
             </NavLink>
             <NavLink to="/feedback" className={tab}>
