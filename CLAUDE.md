@@ -185,7 +185,7 @@ Track unresolved questions here until the author answers; then move the answer i
 
 ## Call notes and private History (Troubleshooting page)
 
-- `AssistantPanel` has three tabs: Ask the notes, Call notes, History. Panels stay mounted (hidden) so state survives tab switches.
+- `AssistantPanel` has four tabs: Ask the notes, Call notes, Reference, History. **Reference** (`src/ask/ReferenceTab.tsx`, data in `src/content/reference.ts`) is a searchable, sourced lookup (every row needs `sources` and `revisions`, enforced by `reference.test.ts`) plus the fault table. Panels stay mounted (hidden) so state survives tab switches.
 - **Call notes** (`src/ask/notes.ts`): pure `analyzeNotes(text, index)` detects revisions, fault codes and battery voltages (35-60 V with a unit; ignores PV/solar/grid context), classifies readings with `benchParams.ts` thresholds (never invent new ones), matches topics (`NOTES_MIN_SCORE = 4`), and asks first-call questions from `ts-first-call`. Draft is in sessionStorage (`ess-training:call-notes`).
 - **History** (`src/history/`): AES-GCM + PBKDF2 vault in localStorage key `ess-training:history-vault`. This is encryption at rest, **not a login**: no account, no recovery, per-browser, locks on leave/Lock now/15 min idle, capped at 500 entries. Ask questions auto-save while unlocked; call notes save only on "Save to private history". Do not describe it as a login or as secure against someone who knows the passphrase or can run code on the page.
 - The repo is public: never commit real history, customer data, or passphrases.

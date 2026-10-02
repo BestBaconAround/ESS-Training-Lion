@@ -4,12 +4,14 @@ import HistoryTab from '../history/HistoryTab'
 import type { RevisionChoice } from '../troubleshooting/filter'
 import AskPanel from './AskPanel'
 import CallNotes from './CallNotes'
+import ReferenceTab from './ReferenceTab'
 
-type Tab = 'ask' | 'notes' | 'history'
+type Tab = 'ask' | 'notes' | 'reference' | 'history'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'ask', label: 'Ask the notes' },
   { id: 'notes', label: 'Call notes' },
+  { id: 'reference', label: 'Reference' },
   { id: 'history', label: 'History' },
 ]
 
@@ -56,6 +58,9 @@ function Panel({ onOpenEntry, rev }: { onOpenEntry: (entryId: string) => void; r
         </div>
         <div role="tabpanel" id="panel-notes" aria-labelledby="tab-notes" hidden={tab !== 'notes'}>
           <CallNotes onOpenEntry={onOpenEntry} />
+        </div>
+        <div role="tabpanel" id="panel-reference" aria-labelledby="tab-reference" hidden={tab !== 'reference'}>
+          <ReferenceTab rev={rev} />
         </div>
         <div role="tabpanel" id="panel-history" aria-labelledby="tab-history" hidden={tab !== 'history'}>
           <HistoryTab />
