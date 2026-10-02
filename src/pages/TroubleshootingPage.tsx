@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { getModule } from '../content'
 import { FAULT_FOOTNOTE } from '../content/data/faults'
 import { REVISION_LABELS, sourceText } from '../content/labels'
@@ -34,6 +34,13 @@ export default function TroubleshootingPage() {
     setOpenIds((s) => new Set(s).add(id))
     setScrollTo(id)
   }
+  // Links from other pages arrive as /troubleshooting#entry-id.
+  const hash = useLocation().hash
+  useEffect(() => {
+    const id = hash.replace(/^#/, '')
+    if (id) openEntry(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash])
   useEffect(() => {
     if (!scrollTo) return
     document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' })

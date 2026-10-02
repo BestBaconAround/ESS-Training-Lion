@@ -1,4 +1,5 @@
 import { modules } from '../content'
+import { PROCEDURES } from '../content/procedures'
 import { REFERENCE_SECTIONS } from '../content/reference'
 import { TROUBLESHOOTING, AREA_LABELS, type TroubleshootingEntry } from '../content/troubleshooting'
 import type { Block, RevisionTag, SourceRef } from '../content/types'
@@ -7,6 +8,7 @@ import { parseMarkdownSections } from './markdown'
 export type ChunkLink =
   | { type: 'entry'; entryId: string }
   | { type: 'lesson'; moduleId: string; lessonId: string }
+  | { type: 'page'; to: string; label: string }
   | { type: 'none' }
 
 export interface Chunk {
@@ -70,6 +72,19 @@ function lessonChunks(): Chunk[] {
   return out
 }
 
+/** Procedures that have written steps, so the chat can answer "how do I ..." from them. */
+function procedureChunks(): Chunk[] {
+  return PROCEDURES.filter((p) => (p.steps?.length ?? 0) > 0).map((p) => ({
+    id: `proc:${p.id}`,
+    kind: 'troubleshooting' as const,
+    title: p.title,
+    where: `Procedures: ${p.group}`,
+    text: [p.title, p.summary, ...(p.steps ?? []).map((x) => x.text)].join(' '),
+    lines: (p.steps ?? []).map((x) => ({ text: x.text, sources: x.sources, revisions: x.revisions })),
+    link: { type: 'page' as const, to: '/procedures', label: 'Open the procedure' },
+  }))
+}
+
 /** The quick facts on the Reference page, one chunk per row, so the chat can answer from them too. */
 function referencePageChunks(): Chunk[] {
   return REFERENCE_SECTIONS.flatMap((sec) =>
@@ -112,5 +127,5 @@ export function referenceChunks(files: Record<string, string> = referenceFiles):
 }
 
 export function buildCorpus(extraReference: Record<string, string> = referenceFiles): Chunk[] {
-  return [...TROUBLESHOOTING.map(fromEntry), ...lessonChunks(), ...referencePageChunks(), ...referenceChunks(extraReference)]
+  return [...TROUBLESHOOTING.map(fromEntry), ...procedureChunks(), ...lessonChunks(), ...referencePageChunks(), ...referenceChunks(extraReference)]
 }

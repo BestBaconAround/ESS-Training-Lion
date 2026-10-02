@@ -127,6 +127,13 @@ function OpenLink({ chunk, onOpenEntry }: { chunk: Chunk; onOpenEntry: (id: stri
       </Link>
     )
   }
+  if (chunk.link.type === 'page') {
+    return (
+      <Link to={chunk.link.to} className={ui.link}>
+        {chunk.link.label}
+      </Link>
+    )
+  }
   return null
 }
 
@@ -184,6 +191,10 @@ function Answer({ hits, rev, onOpenEntry }: { hits: Hit[]; rev: RevisionChoice; 
               <button key={h.chunk.id} type="button" onClick={() => onOpenEntry((h.chunk.link as { entryId: string }).entryId)} className="rounded-full border border-slate-300 px-2.5 py-0.5 hover:bg-white dark:border-slate-600 dark:hover:bg-slate-700">
                 {h.chunk.title}
               </button>
+            ) : h.chunk.link.type === 'page' ? (
+              <Link key={h.chunk.id} to={h.chunk.link.to} className="rounded-full border border-slate-300 px-2.5 py-0.5 no-underline hover:bg-white dark:border-slate-600 dark:hover:bg-slate-700">
+                {h.chunk.title}
+              </Link>
             ) : h.chunk.link.type === 'lesson' ? (
               <Link key={h.chunk.id} to={`/module/${h.chunk.link.moduleId}/lesson/${h.chunk.link.lessonId}`} className="rounded-full border border-slate-300 px-2.5 py-0.5 no-underline hover:bg-white dark:border-slate-600 dark:hover:bg-slate-700">
                 {h.chunk.title}

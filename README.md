@@ -71,3 +71,5 @@ To serve from a specific base path instead, build with `VITE_BASE=/ESS-Training-
 The source manuals are Lion Energy documents. Check the repository's visibility before publishing anything built from them.
 
 The header has a day/night switch and shows the app version and when it was last built (deployed). Bump `version` in `package.json` for each release.
+
+**Procedures** (top menu) lists the jobs on a Sanctuary call and how much of each is written; gaps are listed as "Still needed". **Electricity, Solar, Codes and Competitors** are knowledge pages built only from the documents. **Feedback** opens a pre-filled GitHub issue (public) so other people can send corrections and ideas.

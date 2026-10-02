@@ -2,11 +2,14 @@ import { HashRouter, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import BackupPage from './pages/BackupPage'
 import Dashboard from './pages/Dashboard'
+import FeedbackPage from './pages/FeedbackPage'
 import LessonPage from './pages/LessonPage'
 import ModulePage from './pages/ModulePage'
+import ProceduresPage from './pages/ProceduresPage'
 import QuizPage from './pages/QuizPage'
 import ReferencePage from './pages/ReferencePage'
 import SimPage from './pages/SimPage'
+import TopicPage from './pages/TopicPage'
 import TroubleshootingPage from './pages/TroubleshootingPage'
 
 // HashRouter keeps deep links working on GitHub Pages with no server rewrites.
@@ -21,6 +24,12 @@ export default function App() {
           <Route path="module/:moduleId/quiz" element={<QuizPage />} />
           <Route path="module/:moduleId/sim" element={<SimPage />} />
           <Route path="troubleshooting" element={<TroubleshootingPage />} />
+          <Route path="procedures" element={<ProceduresPage />} />
+          <Route path="electricity" element={<TopicPage topicId="electricity" />} />
+          <Route path="solar" element={<TopicPage topicId="solar" />} />
+          <Route path="codes" element={<TopicPage topicId="codes" />} />
+          <Route path="competitors" element={<TopicPage topicId="competitors" />} />
+          <Route path="feedback" element={<FeedbackPage />} />
           <Route path="reference" element={<ReferencePage />} />
           <Route path="backup" element={<BackupPage />} />
           <Route path="*" element={<Dashboard />} />

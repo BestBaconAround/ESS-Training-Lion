@@ -49,6 +49,13 @@ export default function IdeaCard({ idea, onOpenEntry }: { idea: Idea; onOpenEntr
           </button>
         </p>
       )}
+      {idea.link?.type === 'page' && (
+        <p className="mt-2 text-xs">
+          <Link to={idea.link.to} className={ui.link}>
+            {idea.link.label}
+          </Link>
+        </p>
+      )}
       {idea.link?.type === 'lesson' && (
         <p className="mt-2 text-xs">
           <Link to={`/module/${idea.link.moduleId}/lesson/${idea.link.lessonId}`} className={ui.link}>

@@ -69,11 +69,29 @@ export default function Layout() {
             <NavLink to="/troubleshooting" className={tab}>
               Troubleshooting
             </NavLink>
+            <NavLink to="/procedures" className={tab}>
+              Procedures
+            </NavLink>
             <NavLink to="/reference" className={tab}>
               Reference
             </NavLink>
+            <NavLink to="/electricity" className={tab}>
+              Electricity
+            </NavLink>
+            <NavLink to="/solar" className={tab}>
+              Solar
+            </NavLink>
+            <NavLink to="/codes" className={tab}>
+              Codes
+            </NavLink>
+            <NavLink to="/competitors" className={tab}>
+              Competitors
+            </NavLink>
+            <NavLink to="/feedback" className={tab}>
+              Feedback
+            </NavLink>
             <NavLink to="/backup" className={tab}>
-              Progress backup
+              Backup
             </NavLink>
           </nav>
         </div>
