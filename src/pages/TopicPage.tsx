@@ -16,8 +16,7 @@ export default function TopicPage({ topicId }: { topicId?: string }) {
 
       {topic.sections.some((x) => x.fromWeb) && (
         <p className="rounded-lg border border-sky-300 bg-sky-50 p-3 text-sm text-sky-950 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100" role="note">
-          <strong>Sections marked "From the web" are not Lion material.</strong> They come from public web pages found by search on 10/2/2026 and were read as search summaries, not
-          the full pages. Open the source link and check it before you rely on it, especially codes, dates and numbers.
+          <strong>Sections marked "From the web" are not Lion material.</strong> Some were read in full from the official page (the source says "read in full"); the rest are search summaries. Open the source link and check it before you rely on it, especially codes, dates and numbers.
         </p>
       )}
 
@@ -39,6 +38,21 @@ export default function TopicPage({ topicId }: { topicId?: string }) {
                   </li>
                 ))}
               </ul>
+              {s.images && s.images.length > 0 && (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {s.images.map((im) => (
+                    <figure key={im.src} className="rounded-lg border border-slate-200 p-2 dark:border-slate-700">
+                      <a href={`${import.meta.env.BASE_URL}${im.src}`} target="_blank" rel="noreferrer">
+                        <img src={`${import.meta.env.BASE_URL}${im.src}`} alt={im.alt} loading="lazy" className="w-full rounded" />
+                      </a>
+                      <figcaption className="mt-2 text-xs">
+                        {im.caption}
+                        <SourceNote sources={im.sources} />
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              )}
             </Disclosure>
           ))}
         </div>

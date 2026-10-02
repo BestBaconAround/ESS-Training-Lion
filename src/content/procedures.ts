@@ -1,5 +1,6 @@
 import { src, web } from './helpers'
 import type { RevisionTag, SourceRef } from './types'
+import type { TopicImage } from './topics'
 
 // Procedures the author asked for. Each item is built only from the documents. Steps carry sources and revisions.
 // Anything the documents do not give is a visible `todo`, never a guess.
@@ -26,6 +27,8 @@ export interface Procedure {
   /** One or two lines: what this is and what is covered. */
   summary: string
   steps?: ProcedureStep[]
+  /** Photos and manual pages that show what the steps refer to. Alt text and caption say only what is visible. */
+  images?: TopicImage[]
   links?: ProcedureLink[]
   /** Visible gaps: what is still needed, and from whom. */
   todo?: string[]
@@ -79,6 +82,10 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-replace-wcm',
+    images: [
+      { src: 'images/wcm.webp', alt: 'The small green WCM board at the top left of the wiring compartment of the Rev 4 training unit.', caption: 'The WCM board (this unit was upgraded to an EMS-C and the WCM is not used).', sources: [src('author')] },
+      { src: 'images/ems-c-in-inverter.png', alt: 'An EMS-C mounted in an inverter.', caption: 'An EMS-C in an inverter (author training unit).', sources: [src('author')] },
+    ],
     group: 'Wi-Fi and communication',
     title: 'Replace a WCM with an EMS-C',
     summary: 'What the documents say about the swap. The hands-on steps are still needed.',
@@ -97,6 +104,9 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-comms-map',
+    images: [
+      { src: 'images/rev4-board-ports.webp', alt: 'Rev 4 control board ports with labels: Parallel A and BMS COMM, Parallel B and WIFI PORT, NOT USED and CT1 and CT2.', caption: 'Rev 4 board ports (author training unit).', sources: [src('author')] },
+    ],
     group: 'Wi-Fi and communication',
     title: 'Troubleshoot communication: inverters, batteries, WCM and EMS-C',
     summary: 'Four links can fail. Find which one, then use its alarm and steps.',
@@ -117,6 +127,9 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-emsc-connectivity',
+    images: [
+      { src: 'images/ems-c-in-inverter.png', alt: 'An EMS-C mounted in an inverter.', caption: 'An EMS-C in an inverter (author training unit).', sources: [src('author')] },
+    ],
     group: 'Wi-Fi and communication',
     title: 'Troubleshoot EMS-C connectivity',
     summary: 'The app cannot see the system, or the EMS-C will not stay connected.',
@@ -250,6 +263,10 @@ export const PROCEDURES: Procedure[] = [
   // ------------------------------------------------------------------ Installation and wiring
   {
     id: 'p-install',
+    images: [
+      { src: 'images/rev4-wiring-compartment.webp', alt: 'Inside the wiring compartment of a Rev 4 inverter.', caption: 'Rev 4 wiring compartment (author training unit).', sources: [src('author')] },
+      { src: 'images/wire-box-cables.webp', alt: 'Cables entering the wire box.', caption: 'Wire box cables (author training unit).', sources: [src('author')] },
+    ],
     group: 'Installation and wiring',
     title: 'Install a Sanctuary',
     summary: 'The installation guides are the source. Modules 3, 5, 6 and 7 are planned for it.',
@@ -261,6 +278,10 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-parallel-battery-cables',
+    images: [
+      { src: 'images/rev2-p14-lv-dc-multiple-inverters.webp', alt: 'Rev 2 installation guide page 14: low voltage DC wiring with multiple inverters.', caption: 'Rev 2 guide, p.14: multiple inverters.', sources: [src('san2_2', 14)] },
+      { src: 'images/rev3-p20-lv-dc-multiple-inverters.webp', alt: 'Rev 3 installation guide page 20: low voltage DC wiring with multiple inverters.', caption: 'Rev 3 guide, p.20: multiple inverters.', sources: [src('san2_3', 20)] },
+    ],
     group: 'Installation and wiring',
     title: 'Install battery cables to parallel batteries with two or more inverters',
     summary: 'Covered in Module 4, with the differences for each revision.',
@@ -277,6 +298,9 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-battery-cables',
+    images: [
+      { src: 'images/training-wall.png', alt: 'Two inverters mounted above stacked batteries on a training wall.', caption: 'Training wall: two inverters on batteries (author).', sources: [src('author')] },
+    ],
     group: 'Installation and wiring',
     title: 'What size the battery cables are',
     summary: 'One size is in the documents.',
@@ -327,6 +351,9 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-fix-port-wiring',
+    images: [
+      { src: 'images/rev4-wire-box-cover-diagram.webp', alt: 'The Rev 4 diagram inside the wire box cover.', caption: 'Rev 4 diagram inside the wire box cover, labeled Sanctuary Installation Guide Rev 4.', sources: [src('author')] },
+    ],
     group: 'Installation and wiring',
     title: 'Fix incorrect port wiring on the grid and the load',
     summary: 'The alarms tell you which side, then check phasing.',
@@ -343,6 +370,9 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-fix-cts',
+    images: [
+      { src: 'images/rev4-board-ports.webp', alt: 'Rev 4 control board ports, including the CT1 and CT2 port.', caption: 'Rev 4 board ports: CT1 and CT2 are labeled on the back (author training unit).', sources: [src('author')] },
+    ],
     group: 'Installation and wiring',
     title: 'Fix CTs',
     summary: 'Placement, direction, pins and size.',
@@ -356,6 +386,9 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-power-button',
+    images: [
+      { src: 'images/rev4-left-side-controls.webp', alt: 'Left side of a Rev 4 inverter showing the PV Disconnect rotary switch, the AC/DC button, the Complete System Shutdown button and the antennas.', caption: 'Rev 4 left side: PV Disconnect, AC/DC and Complete System Shutdown (author training unit).', sources: [src('author')] },
+    ],
     group: 'Installation and wiring',
     title: 'Fix a bad power button',
     summary: 'The meter tests are done. The replacement steps are not.',
@@ -459,6 +492,10 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-string-down',
+    images: [
+      { src: 'images/rev2-p16-hv-dc-pv-wiring.webp', alt: 'Rev 2 guide page 16: high voltage DC PV wiring.', caption: 'Rev 2 guide, p.16: PV wiring.', sources: [src('san2_2', 16)] },
+      { src: 'images/rev3-p22-hv-dc-pv-wiring.webp', alt: 'Rev 3 guide page 22: high voltage DC PV wiring.', caption: 'Rev 3 guide, p.22: PV wiring.', sources: [src('san2_3', 22)] },
+    ],
     group: 'Solar',
     title: 'Fix a solar string that is no longer producing',
     summary: 'A checklist built from the alarm table and the solar sections.',
@@ -570,6 +607,10 @@ export const PROCEDURES: Procedure[] = [
   // ------------------------------------------------------------------ Learning
   {
     id: 'p-how-sanctuary',
+    images: [
+      { src: 'images/training-wall.png', alt: 'Two inverters mounted above stacked batteries on a training wall.', caption: 'Training wall (author).', sources: [src('author')] },
+      { src: 'images/rev4-front-lights.webp', alt: 'Front of a Rev 4 inverter showing the Lion logo panel and the lights window.', caption: 'Rev 4 front: the lights are in the small window below the Lion logo.', sources: [src('author')] },
+    ],
     group: 'Learning',
     title: 'How the Sanctuary works',
     summary: 'The architecture, from the Technical Service Manual.',
@@ -683,6 +724,9 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'p-commission',
+    images: [
+      { src: 'images/rev4-board-ports.webp', alt: 'Rev 4 control board ports: Parallel A and BMS COMM, Parallel B and WIFI PORT.', caption: 'Rev 4 board ports used during commissioning (author training unit).', sources: [src('author')] },
+    ],
     group: 'Also in the manuals',
     title: 'Commission a Rev 4 system with an EMS-C (video)',
     summary: 'The walk-through from the commissioning video.',

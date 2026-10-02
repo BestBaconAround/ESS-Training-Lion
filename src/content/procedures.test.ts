@@ -71,7 +71,7 @@ describe('web sources', () => {
       for (const x of sources) {
         if (x.source !== 'web') continue
         if (!x.url?.startsWith('https://')) errors.push(`${where}: web source without an https url`)
-        if (!/searched \d/.test(x.note ?? '')) errors.push(`${where}: web source without the date searched`)
+        if (!/(searched|read in full) \d/.test(x.note ?? '')) errors.push(`${where}: web source without the date searched`)
       }
     }
     for (const t of TOPICS) for (const sec of t.sections) for (const f of sec.facts) check(`${t.id}/${sec.title}`, f.sources)
@@ -104,5 +104,18 @@ describe('knowledge pages', () => {
     }
     expect(errors).toEqual([])
     expect(TOPICS.map((t) => t.id)).toEqual(['electricity', 'solar', 'codes', 'competitors'])
+  })
+})
+
+describe('topic images', () => {
+  it('exist on disk and carry alt text, a caption and a source', async () => {
+    const fs = await import('node:fs')
+    const all = [...TOPICS.flatMap((t) => t.sections.flatMap((x) => x.images ?? [])), ...PROCEDURES.flatMap((p) => p.images ?? [])]
+    for (const im of all) {
+      expect(fs.existsSync(`public/${im.src}`), im.src).toBe(true)
+      expect(im.alt.length, im.src).toBeGreaterThan(10)
+      expect(im.caption.length, im.src).toBeGreaterThan(5)
+      expect(im.sources.length, im.src).toBeGreaterThan(0)
+    }
   })
 })

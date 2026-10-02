@@ -1,13 +1,23 @@
 import { src } from './helpers'
-import type { Fact } from './types'
-import { fact, web } from './helpers'
+import type { Fact, SourceRef } from './types'
+import { fact, official, web } from './helpers'
 
 // Knowledge pages: Electricity, Solar panels, Codes, Competitors. Built only from the documents. Whatever the author
 // wants covered that the documents do not give is listed under `needed`, never filled in from general knowledge.
 
+export interface TopicImage {
+  /** Path under public/, for example images/codes/x.webp */
+  src: string
+  alt: string
+  caption: string
+  sources: SourceRef[]
+}
+
 export interface TopicSection {
   title: string
   facts: Fact[]
+  /** Images of the pages or photos the facts come from. */
+  images?: TopicImage[]
   /** True when the facts come from public web pages, not Lion documents. Shown with a label and a verify note. */
   fromWeb?: boolean
 }
@@ -28,6 +38,14 @@ export interface Topic {
   needed: string[]
 }
 
+const TIGO = official('TS4-A with TAP and CCA Installation Manual, Rev 2.3, 10/1/2025, PN 002-00129-00 (Tigo Energy)', 'https://cdn.prod.website-files.com/5fad551d7419c7a0e9e4aba4/698b65573e1e53f5d116c80f_002-00129-00%202.3%20IO%26M%20TS4A%20with%20TAP%20and%20CCA%2020251001%20-%20EN.pdf')
+const CEC_SFR = official('2022 Energy Code: Solar PV, Solar Ready, Energy Storage Systems, Electric Ready - Single-Family (California Energy Commission)', 'https://www.energy.ca.gov/sites/default/files/2024-01/2022_SFR_Solar_PV,SR,ESS,eR_ADA.pdf')
+const CEC_GUIDE = official('California Energy Storage Permitting Guidebook, CEC-500-2023-059, January 2026 (California Energy Commission)', 'https://efiling.energy.ca.gov/GetDocument.aspx?tn=268282&DocumentContentId=105452')
+const UT_CODE = official('Utah Code 15A-2, Adoption of State Construction Code (Utah Legislature)', 'https://le.utah.gov/xcode/Title15A/Chapter2/C15A-2_1800010118000101.pdf')
+const RMP137 = official('Rocky Mountain Power Electric Service Schedule No. 137, Net Billing Service (Rocky Mountain Power)', 'https://www.rockymountainpower.net/content/dam/pcorp/documents/en/rockymountainpower/rates-regulation/utah/rates/137_Net_Billing_Service.pdf')
+const TDLR_GUIDE = official('Compliance Guide, Electricians (TDLR)', 'https://www.tdlr.texas.gov/electricians/compliance-guide.htm')
+const TDLR_NEWS = official('2023 National Electrical Code is Almost Here! (TDLR)', 'https://www.tdlr.texas.gov/news/2022/11/30/2023-national-electrical-code-is-almost-here')
+const PUCT = official('16 TAC §25.211, Interconnection of On-Site Distributed Generation (Public Utility Commission of Texas)', 'https://www.puc.texas.gov/agency/rulesnlaws/subrules/electric/25.211/25.211.pdf')
 const TSM = (...pages: number[]) => src('tsm', ...pages)
 const SET = (...pages: number[]) => src('settings', ...pages)
 
@@ -162,26 +180,41 @@ export const SOLAR: Topic = {
       ],
     },
     {
-      title: 'Tigo optimizers, the TAP and the CCA (from the web)',
+      title: 'Tigo TS4, TAP and CCA (Tigo installation manual)',
       fromWeb: true,
       facts: [
-        fact('The Tigo TS4 Flex is a family of module-level power electronics (MLPE). One is needed per solar panel. TS4-A-M monitors, TS4-A-S monitors and provides rapid shutdown, and TS4-A-O monitors, provides rapid shutdown and optimizes.', [web('TS4 Flex MLPE (Tigo Energy)', 'https://www.tigoenergy.com/ts4'), web('Installation Manual: TS4-A-O, TS4-A-S, TS4-A-M, CCA, TAP (Tigo Energy)', 'https://www.tigoenergy.com/downloads/installation-manual-ts4-cca-tap')]),
-        fact('The TS4-A-O is built around Predictive IV technology for higher output and better tolerance of shading and module mismatch. The TS4-A 725W version is rated up to 725 W with 16 A Imp and 22 A Isc input current ratings.', [web('Tigo TS4-A-O (Tigo Energy)', 'https://www.tigoenergy.com/product/ts4-a-o')]),
-        fact('The Cloud Connect Advanced (CCA) is the data hub for the TS4s and other metered devices. It connects by RS485 cable to the Tigo Access Point (TAP). The TAP talks wirelessly to the TS4s over a mesh network. The CCA also uploads data to the cloud.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
-        fact('Capacity: one TAP can talk to up to 300 TS4s, and one CCA can talk to up to 7 TAPs and 900 TS4s.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
-        fact('Rapid shutdown works by a keep-alive signal. The CCA sends it continuously through the TAP to every TS4. While a TS4 hears it, it lets full module voltage pass. When AC power is lost the CCA stops sending it and the TS4s go into rapid shutdown.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf'), web('FAQ - Optimizers (TS4-O) (Tigo support)', 'https://support.tigoenergy.com/hc/en-us/articles/35838437199507-FAQ-Optimizers-TS4-O')]),
-        fact('Tigo says rapid shutdown is only possible when the CCA is installed on the same breaker as the inverters. That setup is certified to shut down the output leads of every TS4 module in under 30 seconds.', [web('FAQ - Optimizers (TS4-O) (Tigo support)', 'https://support.tigoenergy.com/hc/en-us/articles/35838437199507-FAQ-Optimizers-TS4-O')]),
+        fact('Tigo TS4 Flex module level power electronics (MLPE) enable monitoring, rapid shutdown and optimization. TS4-A-M is monitoring, TS4-A-S is monitoring and rapid shutdown, and TS4-A-O is monitoring, rapid shutdown and optimization. They use the Tigo Access Point (TAP) and the Cloud Connect Advanced (CCA) to communicate with inverters and the cloud.', [TIGO]),
+        fact('TS4-A-O units used only to optimize performance do not need a TAP or a CCA.', [TIGO]),
+        fact('Installing a TS4: put the QR/barcode sticker on a map of the array. Clip the TS4 to the top of the module frame with the cable glands facing down, so the TS4, cables, glands and connectors never touch the roof.', [TIGO]),
+        fact('Connect the shorter TS4 input leads to the PV modules before connecting to neighboring TS4s. Failing to do so can damage the TS4 units. Then connect the longer output cables to the neighboring TS4 to make a string.', [TIGO]),
+        fact('Do not connect or disconnect TS4s under load. Do not apply an external voltage source to a module or string equipped with TS4s.', [TIGO]),
+        fact('To disconnect a TS4, activate rapid shutdown by turning off the CCA and the inverter, or with the PV rapid shutdown system initiator. Wait 30 seconds before disconnecting DC cables, disconnect the TS4 output cables before the input cables, and always assume TS4 units are on.', [TIGO]),
+        fact('The TAP talks wirelessly to the TS4s to collect monitoring data and enable rapid shutdown. It connects to the CCA with a ferruled 4-wire cable such as shielded RS-485. Finish all TAP connections before powering on the CCA.', [TIGO]),
+        fact('Capacity and range: one TAP can talk to up to 300 TS4s, and one CCA to up to seven TAPs and 900 TS4s. A TAP talks directly to any TS4 within 10 m (33 ft), and each TS4 can relay to another within 10 m, so the TAP reaches TS4s up to 35 m (115 ft) through relays. Place the TAP centrally with no obstructions.', [TIGO]),
+        fact('TAP wiring: run the cable from the CCA GATEWAY terminal to the first TAP. When chaining another TAP, remove the pre-installed 120 ohm terminating resistor from the right side terminals. At the last TAP leave the resistor in.', [TIGO]),
+        fact('The CCA should control all the TS4s on all strings connected to one inverter or MPPT, installed near that inverter with AC power and internet (Ethernet and Wi-Fi built in).', [TIGO]),
+        fact('For PV rapid shutdown compliance the CCA must be on the same AC branch circuit as the inverter or inverters it controls. The rapid shutdown initiator must turn off power to the CCA.', [TIGO]),
+        fact('CCA power: with two TAPs or fewer, a Tigo or third-party 12 to 24 V DC, 1 A supply. With three TAPs or more it must be 24 V DC, 1 A. Mount the CCA in a NEMA enclosure: at least NEMA 1 indoors and NEMA 4 outdoors.', [TIGO]),
+        fact('The CCA also has two three-pin RS-485 connections for up to 32 Modbus devices. Each needs a unique Modbus address, devices in series need the same baud rate, parity and stop bits, and a 120 ohm resistor goes across + and - on the last device.', [TIGO]),
+        fact('CCA LED: solid green is system OK. Blinking green/gray is Tigo SMART app activity. Blinking green/yellow is user PV-Off. Blinking yellow/gray is Discovery. Solid yellow is a warning (scanning incomplete or no connection to the Tigo server). Blinking red/yellow is automatic PV-Off. Solid red is an error (cannot find all TS4s or cannot reach the Tigo server).', [TIGO]),
+        fact('Commissioning is done at ei.tigoenergy.com or in the Tigo Energy Intelligence (EI) mobile app, which is required for final commissioning after all equipment and TS4 barcodes are entered.', [TIGO]),
+      ],
+    },
+    {
+      title: 'Tigo rapid shutdown details (from search summaries, not in that manual)',
+      fromWeb: true,
+      facts: [
+        fact('Rapid shutdown works with a keep-alive signal: the CCA sends it through the TAP to every TS4, and when the CCA loses AC power the keep-alive stops and the TS4s go into rapid shutdown.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
+        fact('Tigo states the setup is certified to shut down the output leads of every TS4 module in under 30 seconds.', [web('FAQ - Optimizers (TS4-O) (Tigo support)', 'https://support.tigoenergy.com/hc/en-us/articles/35838437199507-FAQ-Optimizers-TS4-O')]),
         fact('The CCA has an Aux port that can be used for rapid shutdown applications.', [web('Using the Cloud Connect Advanced Aux Port for Rapid Shutdown applications (Tigo support)', 'https://support.tigoenergy.com/hc/en-us/articles/115006973008-Using-the-Cloud-Connect-Advanced-Aux-Port-for-Rapid-Shutdown-applications')]),
-        fact('Common CCA/TAP problems are too much distance between the TAP and the TS4s, roof obstructions blocking the radio signal and poor TAP placement. Put the TAP centrally in the module layout, with a clear line of sight, within about 10 m (33 ft) of a TS4, and add another TAP for large or multi-level arrays.', [web('CCA/TAP Communication And TS4 MLPE Troubleshooting Guide (Tigo Energy)', 'https://www.instagroup.co.uk/wp-content/uploads/2025/09/CCATAP-Communication-Troubleshooting-Guide-1.pdf')]),
-        fact('Tigo\'s Energy Intelligence (EI) mobile app is used to commission and test the TS4, TAP and CCA.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
-        fact('On the Sanctuary, "PV Optimizer" is a setting that is harmless to leave enabled when there are no optimizers, and optimizers and rapid shutdown devices are both MLPE. The Sanctuary itself has no rapid shutdown transmitter.', [src('settings', 37), TSM(64, 98)]),
+        fact('On the Sanctuary, PV Optimizer is a setting that is harmless to leave enabled when there are no optimizers. The Sanctuary itself has no rapid shutdown transmitter.', [src('settings', 37), TSM(64, 98)]),
       ],
     },
   ],
   needed: [
     'How a solar cell works (the physics), cell and module construction, panel datasheet reading, and installation by roof type.',
-    'How to wire a Tigo system next to a Sanctuary (where the CCA gets its power, and what the Sanctuary expects). Not in the Lion documents or the pages found. Needs the author.',
-    'Tigo troubleshooting in the field: the Tigo support site and manuals could not be opened from here, so the Tigo section is from search summaries. Read the Tigo installation manual before relying on it.',
+    'How to wire a Tigo system next to a Sanctuary (where the CCA gets its power, and what the Sanctuary expects). Not in the Lion documents or the Tigo manual. Needs the author.',
+    'Tigo field troubleshooting: the installation manual has no troubleshooting section, and support.tigoenergy.com refused automated access (error 403).',
     'The web sections were read as search summaries, not the full pages. Check each source link and have the author review them.',
   ],
 }
@@ -207,36 +240,59 @@ export const CODES: Topic = {
       ],
     },
     {
-      title: 'California (from the web)',
+      title: 'California',
       fromWeb: true,
       facts: [
-        fact('The 2022 California Energy Code (Title 24, Part 6) took effect January 1, 2023. Newly constructed single-family homes need a PV system that meets the Joint Appendix JA11 requirements.', [web('2022 Energy Code Solar PV, Solar Ready, Battery Storage (California Energy Commission)', 'https://www.energy.ca.gov/sites/default/files/2024-01/2022_NR_Solar_PV,SR,B_ADA.pdf'), web('California Solar Mandate (GreenLancer)', 'https://www.greenlancer.com/post/california-solar-mandate')]),
-        fact('A battery is not required for a typical new low-rise single-family home under the 2022 code. A battery of at least 7.5 kWh that meets JA12 reduces the required PV size by 25%.', [web('Title 24 Solar Mandates and Requirements (secondary source)', 'https://simplysolar.com/blog/california-solar-mandates/')]),
-        fact('One source says the 2025 Energy Code took effect January 1, 2026 and replaced the 2022 cycle, changing how PV and battery storage are sized for new construction.', [web('California Solar Mandate (GreenLancer)', 'https://www.greenlancer.com/post/california-solar-mandate')]),
-        fact('The California Electrical Code, Part 3 of Title 24, governs the electrical side of energy storage systems for all building types. The NEC articles that matter for solar plus storage are 690 (PV), 705 (interconnected power sources) and 706 (energy storage).', [web('California Energy Storage Permitting Guidebook (California Energy Commission)', 'https://efiling.energy.ca.gov/GetDocument.aspx?tn=268282&DocumentContentId=105452'), web('Battery Storage (Powerwall) Permit Requirements in California (Permitio)', 'https://permitio.ai/blog/battery-storage-permit-california')]),
-        fact('Inverters must be tested to UL 1741 (with Supplement A) and meet Rule 21 for interconnection. The Sanctuary\'s Grid Standard setting has a "Rule21" profile.', [web('California Solar Mandate (GreenLancer)', 'https://www.greenlancer.com/post/california-solar-mandate'), src('settings', 25)]),
-        fact('SB 379 requires California cities and counties to adopt an automated permitting process for energy storage. SolarAPP+ meets it for standard residential systems. One source says the battery side does not go through SolarAPP+ today.', [web('SolarAPP+ Expansion (CEQAnet)', 'https://ceqanet.lci.ca.gov/2025100844'), web('Solar Battery Permit: What Most Installers Get Wrong (Solar Permit Solutions)', 'https://www.solarpermitsolutions.com/blog/solar-battery-permit-requirements')]),
-        fact('Installers apply NEC 690, 705 and 706 labels plus California Fire Code Chapter 12 signage for energy storage systems.', [web('Battery Storage (Powerwall) Permit Requirements in California (Permitio)', 'https://permitio.ai/blog/battery-storage-permit-california')]),
+        fact('The 2022 California Energy Code (Title 24, Part 6) is effective January 1, 2023, for building permit applications submitted on or after that date. The 2025 code applies to applications submitted on or after January 1, 2026 (the 2025 date is from a search summary: check it).', [CEC_SFR]),
+        fact('Single-family, 2022 code: every newly constructed single-family building must have a new solar PV system meeting Joint Appendix JA11. PV is a prescriptive requirement (150.1(c)14). There are no PV requirements for additions and alterations.', [CEC_SFR]),
+        fact('A battery is not required. New single-family buildings must be ESS ready (mandatory, 150.0(s)). A battery that is installed must meet JA12, and a JA12 battery of at least 7.5 kWh lets the required PV size (Equation 150.1-C) be reduced by 25%.', [CEC_SFR]),
+        fact('The system and its components, including inverters, must meet Rule 21. The Sanctuary Grid Standard setting has a Rule21 profile.', [CEC_SFR, src('settings', 25)]),
+        fact('SB 379 requires California cities and counties to adopt an automated permitting platform for solar systems under 38.4 kW AC, with or without an attached energy storage system also rated no more than 38.4 kW AC. As of October 8, 2025, 363 authorities (35 counties and 328 cities) had adopted automated permitting.', [CEC_GUIDE]),
+        fact('The California Electrical Code (Part 3 of Title 24) governs the electrical side of energy storage. Energy storage is covered in Article 706 for systems over 1 kWh. For one- and two-family dwellings an ESS must include an emergency shutdown function that stops the export of power.', [CEC_GUIDE]),
+        fact('Residential ESS of 1 kWh or more (R330 as the guidebook describes it for the 2025 code): listed to UL 9540 and installed to the manufacturer\'s instructions, at least 3 ft apart unless the listing allows less. Allowed in detached garages and accessory structures, attached garages, outdoors or exterior walls at least 3 ft from doors and windows into the dwelling, and enclosed utility closets, basements and storage spaces. Smoke or heat alarms are needed in those rooms. Each unit is limited to 20 kWh and the property total to 600 kWh, with 40 kWh in basements, closets and storage spaces and 80 kWh in garages or outdoors.', [CEC_GUIDE]),
+      ],
+      images: [
+        { src: 'images/codes/ca-2022-energy-code-effective.webp', alt: 'CEC slide: 2022 Energy Code effective January 1, 2023.', caption: 'CEC 2022 single-family fact sheet, p.5: effective date.', sources: [CEC_SFR] },
+        { src: 'images/codes/ca-2022-sfr-table-100-0-a.webp', alt: 'CEC Table 100.0-A: Solar PV is prescriptive 150.1(c)14; ESS ready is mandatory 150.0(s); battery not required, but must meet JA12 if used.', caption: 'CEC 2022 single-family fact sheet, p.13: Table 100.0-A.', sources: [CEC_SFR] },
+        { src: 'images/codes/ca-2022-sfr-battery-25-percent.webp', alt: 'CEC slide: reduce the solar PV size by 25% with a JA12 battery of at least 7.5 kWh.', caption: 'CEC 2022 single-family fact sheet, p.19: the 25% PV reduction.', sources: [CEC_SFR] },
+        { src: 'images/codes/ca-2022-sfr-rule-21.webp', alt: 'CEC slide: the system and components, including inverters, must meet Rule 21.', caption: 'CEC 2022 single-family fact sheet, p.25: Rule 21.', sources: [CEC_SFR] },
+        { src: 'images/codes/ca-sb379-automated-permitting.webp', alt: 'Guidebook page describing SB 379 and the automated permitting platform.', caption: 'Energy Storage Permitting Guidebook (January 2026), p.13: SB 379.', sources: [CEC_GUIDE] },
+        { src: 'images/codes/ca-ess-r330-locations.webp', alt: 'Guidebook page listing R330 locations and size limits for residential energy storage.', caption: 'Energy Storage Permitting Guidebook, p.17: R330.', sources: [CEC_GUIDE] },
+        { src: 'images/codes/ca-electrical-code-article-706.webp', alt: 'Guidebook page on the California Electrical Code and Article 706, with the emergency shutdown requirement.', caption: 'Energy Storage Permitting Guidebook, p.18: Article 706.', sources: [CEC_GUIDE] },
       ],
     },
     {
-      title: 'Utah (from the web)',
+      title: 'Utah',
       fromWeb: true,
       facts: [
-        fact('Utah adopts the NEC by state law. The sources found disagree on the current edition: one says the 2023 NEC for commercial work and the 2020 NEC for residential work, both effective July 1, 2025, and another says adoption of a newer edition is complete for new permit applications. Check with the Utah Division of Professional Licensing before quoting an edition.', [web('Utah Continuing Education Requirements and NEC Adoption (IAEI)', 'https://www.iaei.org/page/utah-electrical-ceus'), web('H.B. 313 State Construction and Electrical Standards Amendments (Utah Legislature)', 'https://le.utah.gov/Session/2025/bills/introduced/HB0313.pdf')]),
-        fact('Rocky Mountain Power\'s Schedule 137 is the net billing program for residential solar customers who applied for interconnection after October 30, 2020. Schedule 136 covers applications from November 14, 2017 to October 31, 2020, and Schedule 135 covers earlier ones.', [web('Connecting Solar to the Grid and Export Credit Rates (Utah Clean Energy)', 'https://hub.utahcleanenergy.org/solar-power/connect-to-the-grid/'), web('Net Metering in Utah 2026 (Gardner Energy)', 'https://gardner-energy.com/net-metering-in-utah-2026-how-rocky-mountain-power-net-billing-works/')]),
-        fact('Under net billing, solar used by the home as it is produced is worth the full retail rate, and only the surplus sent to the grid earns the lower export credit rate. One source lists the export credit from March 1, 2026 as 4.855 cents per kWh in summer (June to September) and 4.033 cents per kWh in winter (October to May). The rate is recalculated every March 1.', [web('Net Metering in Utah 2026 (Gardner Energy)', 'https://gardner-energy.com/net-metering-in-utah-2026-how-rocky-mountain-power-net-billing-works/')]),
-        fact('The Sanctuary Settings Guide gives Rocky Mountain Power in Utah as an example of a utility that requires specific grid interactive settings.', [src('settings', 43)]),
+        fact('Utah Code 15A-2-103 (current text, amended in the 2026 General Session) adopts the 2023 edition of the National Electrical Code, the 2021 International Residential Code and the 2024 International Energy Conservation Code. A version effective January 1, 2027 lists the same editions. Statewide and local amendments apply on top.', [UT_CODE]),
+        fact('Rocky Mountain Power Schedule 137 (net billing) applies to a renewable generating facility of up to 25 kW residential or 2 MW non-residential, interconnected in parallel with the company\'s system and controlled by an inverter.', [RMP137]),
+        fact('Export credit, effective March 1, 2026: 4.855 cents per kWh for exported energy in June through September, and 4.033 cents per kWh in October through May. Credits carry over within the Annualized Billing Period, which ends at the March meter reading, and unused credits expire at the end of it.', [RMP137]),
+        fact('Interconnection review fees (non-refundable): Level 1 is $60 per application, Level 2 is $75 plus $1.50 per kW, and Level 3 is $150 plus $3.00 per kW.', [RMP137]),
+        fact('An inverter-based system of 10 kW or less does not need a disconnect switch. Larger systems need a manual, lockable, load-break disconnect that shows open or closed, readily accessible to the company and within 10 feet of the company\'s meter.', [RMP137]),
+        fact('The customer provides, at their own expense, the equipment needed to meet local and national standards for electrical and fire safety, power quality and interconnection (NEC, IEEE, UL). The company may test and inspect an interconnection.', [RMP137]),
+        fact('The Sanctuary Settings Guide names Rocky Mountain Power in Utah as an example of a utility that requires specific grid interactive settings.', [src('settings', 43)]),
+      ],
+      images: [
+        { src: 'images/codes/ut-15a-2-103-nec-2023.webp', alt: 'Utah Code 15A-2-103 page listing the 2023 National Electrical Code.', caption: 'Utah Code 15A-2-103 (page 3): the 2023 NEC.', sources: [UT_CODE] },
+        { src: 'images/codes/ut-rmp-schedule-137-applicability.webp', alt: 'First page of Rocky Mountain Power Schedule 137.', caption: 'Schedule 137, p.1: who it applies to.', sources: [RMP137] },
+        { src: 'images/codes/ut-rmp-schedule-137-export-credit.webp', alt: 'Schedule 137 export credit rates.', caption: 'Schedule 137, p.3: export credit rates.', sources: [RMP137] },
+        { src: 'images/codes/ut-rmp-schedule-137-disconnect-switch.webp', alt: 'Schedule 137 special conditions: disconnect switch and customer responsibilities.', caption: 'Schedule 137, p.4: disconnect switch.', sources: [RMP137] },
       ],
     },
     {
-      title: 'Texas (from the web)',
+      title: 'Texas',
       fromWeb: true,
       facts: [
-        fact('The Texas Department of Licensing and Regulation (TDLR) adopted the 2023 NEC without amendments for electricians, effective September 1, 2023. Non-exempt electrical work started on or after that date follows the 2023 NEC.', [web('2023 National Electrical Code is almost here (TDLR)', 'https://www.tdlr.texas.gov/news/2022/11/30/2023-national-electrical-code-is-almost-here'), web('Compliance Guide (TDLR)', 'https://www.tdlr.texas.gov/ELECTRICIANS/compliance-guide.htm')]),
-        fact('Inside a city, electricians follow the city\'s permitting rules and any local amendments. Texas law lets municipalities amend the NEC locally.', [web('Compliance Guide (TDLR)', 'https://www.tdlr.texas.gov/ELECTRICIANS/compliance-guide.htm')]),
-        fact('PUCT Substantive Rule 25.211, "Interconnection of On-Site Distributed Generation", applies to transmission and distribution service providers in the competitive ERCOT areas. It includes a pro forma Agreement for Interconnection and Parallel Operation that the utility and the customer sign when a generator is installed.', [web('Public Utility Commission of Texas, Rule 25.211', 'https://www.puc.texas.gov/agency/rulesnlaws/subrules/electric/25.211/21220pub.pdf')]),
-        fact('Utilities publish their own distributed generation manuals. CPS Energy\'s manual is being revised to include battery energy storage systems, microgrids and ERCOT distributed generation resource interconnection.', [web('Distributed Generation Manual (CPS Energy)', 'https://www.cpsenergy.com/content/dam/corporate/en/Documents/Distributed%20Generation%20Manual.pdf')]),
+        fact('TDLR adopted the 2023 National Electrical Code, as it existed on August 25, 2022, effective September 1, 2023.', [TDLR_GUIDE]),
+        fact('Non-exempt electrical work started on or after September 1, 2023 must be installed to the 2023 NEC. Work starts the day the electrician begins installing electrical materials or equipment in the building.', [TDLR_NEWS]),
+        fact('Inside a city, electricians follow the city\'s permitting requirements and local amendments. Section 1305.201 of the Texas Electrical Safety and Licensing Act lets municipalities amend the 2023 NEC locally.', [TDLR_NEWS]),
+        fact('PUC of Texas rule 16 TAC 25.211, Interconnection of On-Site Distributed Generation, with 25.212 (technical requirements), applies to electric utilities. For cooperatives only subsection (o) applies. On-site distributed generation is generation at the customer\'s point of delivery of 10 MW or less, connected below 60 kV. The copy read shows an effective date of 1/5/17.', [PUCT]),
+      ],
+      images: [
+        { src: 'images/codes/tx-tdlr-compliance-guide-nec-2023.webp', alt: 'TDLR compliance guide: the 2023 NEC, effective September 1, 2023.', caption: 'TDLR compliance guide, 1.1.', sources: [TDLR_GUIDE] },
+        { src: 'images/codes/tx-tdlr-nec-2023-adoption-news.webp', alt: 'TDLR news: local amendments and the start rule.', caption: 'TDLR news, November 30, 2022.', sources: [TDLR_NEWS] },
+        { src: 'images/codes/tx-puct-25-211-page-1.webp', alt: 'First page of 16 TAC 25.211.', caption: 'PUCT 25.211, p.1.', sources: [PUCT] },
       ],
     },
   ],
@@ -271,9 +327,11 @@ export const CODES: Topic = {
     },
   ],
   needed: [
-    'Codes change and this is high stakes. The state sections were read as web search summaries, and the official sites (energy.ca.gov, energy.gov and others) could not be opened from here. Confirm each fact on the official page before quoting it on a call. Dates and NEC editions especially: the Utah results conflict, and one Texas result gave a second effective date that was not confirmed.',
-    'Still missing for each state: interconnection steps by utility, rapid shutdown and labeling rules as adopted, battery (NEC 706) and generator rules, permitting steps, and the deep links to the official code pages. These need the official pages or the author.',
-    'Check the official links. They are agency home pages and could not be opened from here.',
+    'Codes change. The three state sections come from official documents opened and read on 10/2/2026, with page images, but only for the points listed. Check the date on each before quoting it on a call.',
+    'California: the CPUC Rule 21 tariff text, net metering rules, contractor licensing (CSLB) and which NEC edition the California Electrical Code is based on. Not read yet.',
+    'Utah: Public Service Commission rules and DOPL licensing (both sites refused automated access, error 403) and the statewide amendments to the NEC.',
+    'Texas: each utility\'s own interconnection manual, retail buyback rules, and the 2023 NEC text itself (NFPA copyright: link, do not copy).',
+    'Rapid shutdown, labeling and battery (NEC 706) requirements as adopted in each state, and generator backup rules.',
     'Local rules are set by each city or county AHJ and can differ from the state.',
   ],
 }

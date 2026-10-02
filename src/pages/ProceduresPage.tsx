@@ -138,6 +138,21 @@ function Item({ p, rev, forceOpen }: { p: Procedure; rev: RevisionChoice; forceO
             ))}
           </ol>
         )}
+        {p.images && p.images.length > 0 && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {p.images.map((im) => (
+              <figure key={im.src} className="rounded-lg border border-slate-200 p-2 dark:border-slate-700">
+                <a href={`${import.meta.env.BASE_URL}${im.src}`} target="_blank" rel="noreferrer">
+                  <img src={`${import.meta.env.BASE_URL}${im.src}`} alt={im.alt} loading="lazy" className="w-full rounded" />
+                </a>
+                <figcaption className="mt-2 text-xs">
+                  {im.caption}
+                  <SourceNote sources={im.sources} />
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
         {(p.steps?.length ?? 0) > 0 && steps.length === 0 && <p className={ui.muted}>No steps for this revision.</p>}
 
         {p.links && p.links.length > 0 && (

@@ -85,3 +85,6 @@ export const image = (
 
 /** A public web page found by search. Not Lion material: always shown as such and never mixed with Lion facts. */
 export const web = (title: string, url: string, searched = '10/2/2026'): SourceRef => ({ source: 'web', note: `${title}, searched ${searched}`, url })
+
+/** A public or official page that was opened and read in full (not a search summary). Still not Lion material. */
+export const official = (title: string, url: string, read = '10/2/2026'): SourceRef => ({ source: 'web', note: `${title}, read in full ${read}`, url })
