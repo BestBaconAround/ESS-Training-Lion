@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import LessonPage from './pages/LessonPage'
 import ModulePage from './pages/ModulePage'
 import QuizPage from './pages/QuizPage'
+import ReferencePage from './pages/ReferencePage'
 import SimPage from './pages/SimPage'
 import TroubleshootingPage from './pages/TroubleshootingPage'
 
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="module/:moduleId/quiz" element={<QuizPage />} />
           <Route path="module/:moduleId/sim" element={<SimPage />} />
           <Route path="troubleshooting" element={<TroubleshootingPage />} />
+          <Route path="reference" element={<ReferencePage />} />
           <Route path="backup" element={<BackupPage />} />
           <Route path="*" element={<Dashboard />} />
         </Route>

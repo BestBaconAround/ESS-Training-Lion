@@ -16,7 +16,7 @@ export default function ModulePage() {
     return (
       <div>
         <p>Module not found.</p>
-        <Link className="text-amber-700 underline dark:text-amber-400" to="/">
+        <Link className="text-sky-700 underline hover:text-sky-900 dark:text-sky-400 dark:hover:text-sky-300" to="/">
           Back to dashboard
         </Link>
       </div>
@@ -29,7 +29,7 @@ export default function ModulePage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link className="text-sm text-amber-700 hover:underline dark:text-amber-400" to="/">
+        <Link className="text-sm text-sky-700 hover:underline dark:text-sky-400" to="/">
           &larr; Dashboard
         </Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">
@@ -74,7 +74,7 @@ export default function ModulePage() {
                   <li key={l.id}>
                     <Link
                       to={`/module/${module.id}/lesson/${l.id}`}
-                      className="flex items-start gap-3 py-3 hover:text-amber-700 dark:hover:text-amber-400"
+                      className="flex items-start gap-3 py-3 hover:text-sky-700 dark:hover:text-sky-400"
                     >
                       <span
                         aria-hidden

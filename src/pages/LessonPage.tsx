@@ -15,7 +15,7 @@ export default function LessonPage() {
     return (
       <div>
         <p>Lesson not found.</p>
-        <Link className="text-amber-700 underline dark:text-amber-400" to="/">
+        <Link className="text-sky-700 underline hover:text-sky-900 dark:text-sky-400 dark:hover:text-sky-300" to="/">
           Back to dashboard
         </Link>
       </div>
@@ -30,7 +30,7 @@ export default function LessonPage() {
   return (
     <article className="space-y-5">
       <div>
-        <Link className="text-sm text-amber-700 hover:underline dark:text-amber-400" to={`/module/${module.id}`}>
+        <Link className="text-sm text-sky-700 hover:underline dark:text-sky-400" to={`/module/${module.id}`}>
           &larr; Module {module.number}: {module.title}
         </Link>
         <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">

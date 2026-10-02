@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react'
+import { Chevron, ui } from '../components/ui'
 import { MIN_PASSPHRASE } from './vault'
 import { useHistory } from './HistoryContext'
 import type { HistoryEntry } from './types'
 
-const input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950'
-const primary =
-  'rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300'
-const secondary = 'rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800'
+const input = ui.input
+const primary = ui.primary
+const secondary = ui.ghost
 
 const when = (at: number) => new Date(at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
 
@@ -19,12 +19,18 @@ export default function HistoryTab() {
 
 function Notice() {
   return (
-    <ul className="list-disc space-y-1 pl-5 text-xs text-slate-600 dark:text-slate-400">
-      <li>History is encrypted with your passphrase and stored only in this browser on this device. Nothing is sent anywhere.</li>
-      <li>There is no account and no recovery. If you forget the passphrase, the history cannot be opened and has to be erased.</li>
-      <li>It does not sync between browsers or devices. Clearing this site&apos;s data deletes it.</li>
-      <li>It locks when you leave this page, when you press Lock, and after 15 minutes of inactivity.</li>
-    </ul>
+    <details className="group text-xs">
+      <summary className={`inline-flex cursor-pointer items-center gap-1 ${ui.muted}`}>
+        <Chevron className="h-3 w-3" />
+        How privacy works
+      </summary>
+      <ul className={`mt-2 list-disc space-y-1 pl-8 ${ui.muted}`}>
+        <li>History is encrypted with your passphrase and stored only in this browser on this device. Nothing is sent anywhere.</li>
+        <li>There is no account and no recovery. If you forget the passphrase, the history cannot be opened and has to be erased.</li>
+        <li>It does not sync between browsers or devices. Clearing this site&apos;s data deletes it.</li>
+        <li>It locks when you leave this page, when you press Lock, and after 15 minutes of inactivity.</li>
+      </ul>
+    </details>
   )
 }
 

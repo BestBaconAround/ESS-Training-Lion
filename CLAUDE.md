@@ -185,7 +185,7 @@ Track unresolved questions here until the author answers; then move the answer i
 
 ## Call notes and private History (Troubleshooting page)
 
-- `AssistantPanel` has four tabs: Ask the notes, Call notes, Reference, History. **Reference** (`src/ask/ReferenceTab.tsx`, data in `src/content/reference.ts`) is a searchable, sourced lookup (every row needs `sources` and `revisions`, enforced by `reference.test.ts`) plus the fault table. Panels stay mounted (hidden) so state survives tab switches.
+- `AssistantPanel` has three tabs: Ask, Call notes, History. **Reference** is its own page (`/reference`, `src/pages/ReferencePage.tsx`, data in `src/content/reference.ts`): a searchable, sourced lookup (every row needs `sources` and `revisions`, enforced by `reference.test.ts`) plus the fault table, in collapsible sections. Panels stay mounted (hidden) so state survives tab switches.
 - **Call notes** (`src/ask/notes.ts`): pure `analyzeNotes(text, index)` detects revisions, fault codes and battery voltages (35-60 V with a unit; ignores PV/solar/grid context), classifies readings with `benchParams.ts` thresholds (never invent new ones), matches topics (`NOTES_MIN_SCORE = 4`), and asks first-call questions from `ts-first-call`. Draft is in sessionStorage (`ess-training:call-notes`).
 - **History** (`src/history/`): AES-GCM + PBKDF2 vault in localStorage key `ess-training:history-vault`. This is encryption at rest, **not a login**: no account, no recovery, per-browser, locks on leave/Lock now/15 min idle, capped at 500 entries. Ask questions auto-save while unlocked; call notes save only on "Save to private history". Do not describe it as a login or as secure against someone who knows the passphrase or can run code on the page.
 - The repo is public: never commit real history, customer data, or passphrases.
@@ -218,3 +218,10 @@ Conflicts and open questions (each is a visible `todo` in content where it affec
 - Limits: 25 MB per file (GitHub's browser upload limit is 25 MB; git blocks 100 MB and warns at 50 MB), 10 files per batch, types pdf/md/txt/csv/png/jpg/jpeg/webp/docx/xlsx. Names are sanitized and never overwritten (`-2`, `-3`).
 - **The repo is public: everything in the inbox is public.** The panel says so and requires a checkbox. Before using an inbox file in content, apply the same public-repo rules as for the notes (no personal details, no internal-only items, no register-level steps).
 - **When asked to "check the inbox":** list `reference-inbox/`, read each file in full, add a source tag in `src/content/types.ts` and `labels.ts`, turn the facts into sourced content (lessons, troubleshooting entries, `reference.ts` rows, fault data), note conflicts as `todo`s, update this file, then tell the author what changed. Do not move or delete inbox files unless asked.
+
+## Look and feel, theme and version
+
+- Shared building blocks are in `src/components/ui.tsx` (`ui` class tokens, `Disclosure` with a chevron, `PageHeader`). Build screens from these so the site stays consistent; collapsible content uses `Disclosure`.
+- **Day/night** is a `.dark` class on `<html>` (Tailwind `@custom-variant dark` in `index.css`). `src/theme.ts` saves the choice in localStorage (`ess-training:theme`), falls back to the device setting, and `index.html` applies it before first paint.
+- **Version and update time** in the header come from `package.json` `version` and the build time, injected by `vite.config.ts` (`__APP_VERSION__`, `__BUILD_TIME__`, read in `src/buildInfo.ts`). The time is the build (deploy) time shown in the viewer's time zone. **Bump `version` in `package.json` for each release** (0.x while the content grows).
+- Chat answers show three steps first ("Show all"), with sources folded away.

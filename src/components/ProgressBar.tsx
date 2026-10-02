@@ -4,7 +4,7 @@ export default function ProgressBar({ percent, label }: { percent: number; label
     <div>
       {label && <div className="mb-1 text-xs text-slate-500 dark:text-slate-400">{label}</div>}
       <div
-        className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800"
+        className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800"
         role="progressbar"
         aria-valuenow={p}
         aria-valuemin={0}

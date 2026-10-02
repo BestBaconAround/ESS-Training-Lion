@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
+import { ui } from '../components/ui'
 import { sourceText } from '../content/labels'
 import type { Idea } from './notes'
 
@@ -12,9 +13,9 @@ const KIND_LABEL: Record<Idea['kind'], string> = {
 
 export default function IdeaCard({ idea, onOpenEntry }: { idea: Idea; onOpenEntry: (entryId: string) => void }) {
   return (
-    <li className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+    <li className="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
           {KIND_LABEL[idea.kind]}
         </span>
         <span className="font-semibold">{idea.title}</span>
@@ -43,14 +44,14 @@ export default function IdeaCard({ idea, onOpenEntry }: { idea: Idea; onOpenEntr
       )}
       {idea.link?.type === 'entry' && (
         <p className="mt-2 text-xs">
-          <button type="button" onClick={() => onOpenEntry((idea.link as { entryId: string }).entryId)} className="text-amber-700 underline dark:text-amber-400">
+          <button type="button" onClick={() => onOpenEntry((idea.link as { entryId: string }).entryId)} className={ui.link}>
             Open the full entry
           </button>
         </p>
       )}
       {idea.link?.type === 'lesson' && (
         <p className="mt-2 text-xs">
-          <Link to={`/module/${idea.link.moduleId}/lesson/${idea.link.lessonId}`} className="text-amber-700 underline dark:text-amber-400">
+          <Link to={`/module/${idea.link.moduleId}/lesson/${idea.link.lessonId}`} className={ui.link}>
             Open the lesson
           </Link>
         </p>

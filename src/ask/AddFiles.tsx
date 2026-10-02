@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Disclosure, ui } from '../components/ui'
 import {
   ALLOWED_EXTENSIONS,
   INBOX,
@@ -12,9 +13,9 @@ import {
   type InboxFile,
 } from '../reference/upload'
 
-const input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950'
-const button =
-  'rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300'
+const input = ui.input
+const button = ui.primary
+const UPLOAD_PAGE = `https://github.com/${REPO.owner}/${REPO.repo}/upload/${REPO.branch}/${INBOX}`
 
 type Outcome = { name: string; ok: boolean; message: string }
 
@@ -72,16 +73,27 @@ export default function AddFiles() {
   }
 
   return (
-    <details className="mb-4 rounded-lg border border-slate-300 p-3 dark:border-slate-700">
-      <summary className="cursor-pointer text-sm font-semibold">Add files for Claude to learn from</summary>
+    <Disclosure
+      title={<span className="font-semibold">Add files for Claude to learn from</span>}
+      right={
+        <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">In development</span>
+      }
+    >
+      <div className="space-y-4 text-sm">
+        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100" role="note">
+          <strong>Still in development and may not work.</strong> If an upload fails, add the file directly on GitHub instead:{' '}
+          <a href={UPLOAD_PAGE} target="_blank" rel="noreferrer" className={ui.link}>
+            open the inbox upload page
+          </a>
+          .
+        </p>
 
-      <div className="mt-3 space-y-3 text-sm">
         <p>
           Files go into the <code>{INBOX}</code> folder of the GitHub repo. In a later session, ask Claude to read the inbox and update the app.
           Nothing in the app changes by itself.
         </p>
 
-        <p className="rounded bg-red-50 p-2 text-red-900 dark:bg-red-900/30 dark:text-red-200" role="note">
+        <p className="rounded-lg bg-red-50 p-3 text-red-900 dark:bg-red-900/30 dark:text-red-200" role="note">
           <strong>This repository is public.</strong> Anyone can read what you add. Do not add customer details, anything marked internal or
           confidential, or login links. If it should not be on the internet, do not add it here.
         </p>
@@ -158,7 +170,7 @@ export default function AddFiles() {
         <div>
           <div className="flex items-center gap-3">
             <h4 className="font-medium">Waiting in the inbox</h4>
-            <button type="button" onClick={refresh} className="text-xs text-amber-700 underline dark:text-amber-400">
+            <button type="button" onClick={refresh} className={`text-xs ${ui.link}`}>
               Refresh
             </button>
           </div>
@@ -175,6 +187,6 @@ export default function AddFiles() {
           )}
         </div>
       </div>
-    </details>
+    </Disclosure>
   )
 }

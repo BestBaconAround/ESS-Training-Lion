@@ -9,7 +9,7 @@ export default function SimPage() {
     return (
       <div>
         <p>Module not found.</p>
-        <Link className="text-amber-700 underline dark:text-amber-400" to="/">
+        <Link className="text-sky-700 underline hover:text-sky-900 dark:text-sky-400 dark:hover:text-sky-300" to="/">
           Back to dashboard
         </Link>
       </div>
@@ -18,7 +18,7 @@ export default function SimPage() {
   const Sim = simRegistry[module.sim.kind]
   return (
     <div className="space-y-5">
-      <Link className="text-sm text-amber-700 hover:underline dark:text-amber-400" to={`/module/${module.id}`}>
+      <Link className="text-sm text-sky-700 hover:underline dark:text-sky-400" to={`/module/${module.id}`}>
         &larr; Module {module.number}: {module.title}
       </Link>
       <h1 className="text-2xl font-bold tracking-tight">{module.sim.title}</h1>

@@ -8,20 +8,20 @@ export default function ModuleCard({ module, summary }: { module: Module; summar
   return (
     <Link
       to={`/module/${module.id}`}
-      className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-amber-400 hover:shadow dark:border-slate-800 dark:bg-slate-900"
+      className="block rounded-xl border border-slate-200 bg-white p-5 no-underline transition hover:border-slate-400 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-600"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white dark:bg-slate-100 dark:text-slate-900">
             {module.number}
           </span>
-          <h2 className="text-base font-semibold leading-snug">{module.title}</h2>
+          <h2 className="text-base leading-snug">{module.title}</h2>
         </div>
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
             ready
               ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-              : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
           }`}
         >
           {ready ? 'Ready' : 'Coming soon'}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ui } from '../components/ui'
 import { ESCALATION } from '../content/troubleshooting'
 import { useHistory } from '../history/HistoryContext'
 import { buildCorpus } from './corpus'
@@ -18,7 +19,7 @@ function tabStore(): Storage | null {
   }
 }
 
-const PLACEHOLDER = 'Type what the customer says and what you see.\nFor example: Rev 3, light is red, battery 2 reads 50.2V, A2_10 on the app. Happens every morning.'
+const PLACEHOLDER = 'What the customer says and what you see.\nFor example: Rev 3, light is red, battery 2 reads 50.2V, A2_11 on the app.'
 
 export default function CallNotes({ onOpenEntry }: { onOpenEntry: (entryId: string) => void }) {
   const history = useHistory()
@@ -47,41 +48,23 @@ export default function CallNotes({ onOpenEntry }: { onOpenEntry: (entryId: stri
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs text-slate-500 dark:text-slate-400">
-        Type notes while you are on the call. The ideas below come from the reference material, with sources. They are ideas to check, not answers. Notes stay in this
-        browser tab, are never sent anywhere, and are cleared when you close the tab.
-      </p>
-      <label className="block text-sm font-medium" htmlFor="call-notes">
-        Call notes
-      </label>
-      <textarea
-        id="call-notes"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={7}
-        placeholder={PLACEHOLDER}
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
-      />
-      <div className="flex flex-wrap items-center gap-3 text-sm">
-        <button
-          type="button"
-          onClick={save}
-          disabled={!unlocked || !text.trim()}
-          className="rounded-md bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
-        >
+    <div className="space-y-4">
+      <div>
+        <label className="sr-only" htmlFor="call-notes">
+          Call notes
+        </label>
+        <textarea id="call-notes" value={text} onChange={(e) => setText(e.target.value)} rows={6} placeholder={PLACEHOLDER} className={ui.input} />
+        <p className={`mt-1 text-xs ${ui.muted}`}>Ideas appear as you type, from the reference material. Notes stay in this browser tab and are cleared when you close it.</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <button type="button" onClick={save} disabled={!unlocked || !text.trim()} className={ui.primary}>
           Save to private history
         </button>
-        <button
-          type="button"
-          onClick={() => setText('')}
-          disabled={!text}
-          className="rounded-md border border-slate-300 px-3 py-1.5 font-medium hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-800"
-        >
-          Clear notes
+        <button type="button" onClick={() => setText('')} disabled={!text} className={`${ui.ghost} disabled:opacity-40`}>
+          Clear
         </button>
-        <span className="text-xs text-slate-500 dark:text-slate-400" role="status">
-          {saved ? 'Saved to private history.' : unlocked ? 'Private history is unlocked.' : 'Unlock the History tab to save notes.'}
+        <span className={`text-xs ${ui.muted}`} role="status">
+          {saved ? 'Saved.' : unlocked ? '' : 'Unlock History to save notes.'}
         </span>
       </div>
 
@@ -95,12 +78,12 @@ export default function CallNotes({ onOpenEntry }: { onOpenEntry: (entryId: stri
 
       <div aria-live="polite">
         {!debounced.trim() ? null : analysis.ideas.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-300 p-3 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
-            No ideas from these notes yet. Add a fault code, the light color, a voltage reading, or what the customer says is wrong.
+          <p className={`rounded-lg border border-dashed border-slate-300 p-3 text-sm dark:border-slate-700 ${ui.muted}`}>
+            No ideas yet. Add a fault code, the light color, a voltage reading, or what the customer says is wrong.
           </p>
         ) : (
           <div className="space-y-2">
-            <h3 className="text-sm font-semibold">Ideas from the reference material</h3>
+            <h3 className="text-sm font-semibold">Ideas to check</h3>
             <ul className="space-y-2">
               {analysis.ideas.map((i) => (
                 <IdeaCard key={i.id} idea={i} onOpenEntry={onOpenEntry} />

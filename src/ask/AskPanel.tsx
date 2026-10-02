@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { sourceText } from '../content/labels'
-import SourceNote, { RevisionBadge } from '../components/SourceNote'
+import { RevisionBadge } from '../components/SourceNote'
+import { Chevron, ui } from '../components/ui'
 import { useHistory } from '../history/HistoryContext'
 import { snapshotAnswer } from '../history/entries'
 import type { RevisionChoice } from '../troubleshooting/filter'
 import { buildCorpus, type Chunk } from './corpus'
 import { SearchIndex, type Hit } from './search'
 
-const SUGGESTIONS = ["My battery won't address", 'A2_10', 'App cannot connect', 'No light on the inverter', 'Grid over voltage', 'Which pins are the CTs on?']
+const SUGGESTIONS = ["Battery reads 0 volts", 'A2_11', 'App cannot connect', 'Which pins are the CTs on?']
 
 type Message =
   | { id: number; from: 'user'; text: string }
@@ -24,7 +25,7 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
     {
       id: 0,
       from: 'bot',
-      text: 'Ask me about a battery, inverter or power problem. I answer only from the reference material in this app (troubleshooting entries, lessons and your notes), and I show where each answer comes from. If it is not in there, I will say so.',
+      text: 'Ask about a battery, inverter or power problem. Answers come only from the reference material in this app.',
     },
   ])
   const [input, setInput] = useState('')
@@ -51,7 +52,7 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
         : {
             id: nextId.current + 1,
             from: 'bot',
-            text: 'I could not find that in the reference material. Try different words: a fault code, a symptom, or a part name. If it should be covered, it needs to be added to the notes.',
+            text: 'Nothing in the reference material matches that. Try a fault code, a symptom or a part name.',
           }
     setMessages((m) => [...m, { id: nextId.current, from: 'user', text: q }, reply])
     nextId.current += 2
@@ -63,56 +64,46 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
     ask(input)
   }
 
+  const started = messages.length > 1
+
   return (
     <section aria-label="Ask the notes">
-      <p className="text-xs text-slate-500 dark:text-slate-400">
-        This searches the reference material. It does not use AI to write answers, so it cannot make anything up.
-      </p>
-
-      <div className="mt-3 space-y-3" role="log" aria-live="polite" aria-label="Conversation">
+      <div className="space-y-3" role="log" aria-live="polite" aria-label="Conversation">
         {messages.map((m, i) =>
           m.from === 'user' ? (
-            <div key={m.id} ref={i === messages.length - 2 ? lastQuestion : undefined} className="scroll-mt-20 ml-auto max-w-[85%] rounded-xl bg-slate-900 px-3 py-2 text-sm text-white dark:bg-slate-100 dark:text-slate-900">
+            <div
+              key={m.id}
+              ref={i === messages.length - 2 ? lastQuestion : undefined}
+              className="scroll-mt-28 ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-slate-900 px-4 py-2 text-sm text-white dark:bg-slate-100 dark:text-slate-900"
+            >
               {m.text}
             </div>
+          ) : m.hits ? (
+            <Answer key={m.id} hits={m.hits} rev={rev} onOpenEntry={onOpenEntry} />
           ) : (
-            <div key={m.id} className="max-w-full space-y-2 rounded-xl bg-slate-100 px-3 py-2 text-sm dark:bg-slate-800">
-              <p>{m.text}</p>
-              {m.hits && <Answer hits={m.hits} rev={rev} onOpenEntry={onOpenEntry} />}
-            </div>
+            <p key={m.id} className={`text-sm ${i === 0 ? ui.muted : ''}`}>
+              {m.text}
+            </p>
           ),
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2" aria-label="Example questions">
-        {SUGGESTIONS.map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => ask(s)}
-            className="rounded-full border border-slate-300 px-3 py-1 text-xs hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      {!started && (
+        <div className="mt-4 flex flex-wrap gap-2" aria-label="Example questions">
+          {SUGGESTIONS.map((s) => (
+            <button key={s} type="button" onClick={() => ask(s)} className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
 
-      <form onSubmit={onSubmit} className="mt-3 flex gap-2">
+      <form onSubmit={onSubmit} className="mt-4 flex gap-2">
         <label className="sr-only" htmlFor="ask-input">
           Your question
         </label>
-        <input
-          id="ask-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask a question, e.g. battery reads 0 volts"
-          className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
-        />
-        <button
-          type="submit"
-          disabled={!input.trim()}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
-        >
+        <input id="ask-input" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask a question" className={ui.input} />
+        <button type="submit" disabled={!input.trim()} className={ui.primary}>
           Ask
         </button>
       </form>
@@ -124,14 +115,14 @@ function OpenLink({ chunk, onOpenEntry }: { chunk: Chunk; onOpenEntry: (id: stri
   if (chunk.link.type === 'entry') {
     const id = chunk.link.entryId
     return (
-      <button type="button" onClick={() => onOpenEntry(id)} className="text-amber-700 underline dark:text-amber-400">
+      <button type="button" onClick={() => onOpenEntry(id)} className={ui.link}>
         Open the full entry
       </button>
     )
   }
   if (chunk.link.type === 'lesson') {
     return (
-      <Link to={`/module/${chunk.link.moduleId}/lesson/${chunk.link.lessonId}`} className="text-amber-700 underline dark:text-amber-400">
+      <Link to={`/module/${chunk.link.moduleId}/lesson/${chunk.link.lessonId}`} className={ui.link}>
         Open the lesson
       </Link>
     )
@@ -139,54 +130,70 @@ function OpenLink({ chunk, onOpenEntry }: { chunk: Chunk; onOpenEntry: (id: stri
   return null
 }
 
+/** Steps shown before "Show all". Keeps one answer from filling the screen. */
+const PREVIEW_LINES = 3
+
 function Answer({ hits, rev, onOpenEntry }: { hits: Hit[]; rev: RevisionChoice; onOpenEntry: (id: string) => void }) {
   const [best, ...others] = hits
+  const [all, setAll] = useState(false)
   const lines = best.chunk.lines.filter((l) => appliesTo(l.revisions, rev)).slice(0, 8)
+  const shown = all ? lines : lines.slice(0, PREVIEW_LINES)
+  const sources = [...new Set(lines.flatMap((l) => l.sources.map(sourceText)))]
   return (
-    <div className="space-y-2">
-      <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
-        <div className="font-semibold">{best.chunk.title}</div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">{best.chunk.where}</div>
-        {lines.length > 0 ? (
-          <ul className="mt-2 list-disc space-y-2 pl-5">
-            {lines.map((l, i) => (
-              <li key={i}>
-                <RevisionBadge revisions={l.revisions} />
-                {l.text}
-                <SourceNote sources={l.sources} />
-              </li>
+    <div className="rounded-2xl rounded-bl-md bg-slate-100 p-4 text-sm dark:bg-slate-800">
+      <div className="font-semibold">{best.chunk.title}</div>
+      <div className={`text-xs ${ui.muted}`}>{best.chunk.where}</div>
+      {lines.length > 0 ? (
+        <ul className="mt-3 list-disc space-y-2 pl-5">
+          {shown.map((l, i) => (
+            <li key={i}>
+              <RevisionBadge revisions={l.revisions} />
+              {l.text}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-xs">Nothing in this passage applies to the revision you chose.</p>
+      )}
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+        {lines.length > PREVIEW_LINES && (
+          <button type="button" onClick={() => setAll((v) => !v)} className={ui.link} aria-expanded={all}>
+            {all ? 'Show fewer' : `Show all ${lines.length} steps`}
+          </button>
+        )}
+        <OpenLink chunk={best.chunk} onOpenEntry={onOpenEntry} />
+      </div>
+      {sources.length > 0 && (
+        <details className="group mt-2 text-xs">
+          <summary className={`inline-flex cursor-pointer items-center gap-1 ${ui.muted}`}>
+            <Chevron className="h-3 w-3" />
+            Sources
+          </summary>
+          <ul className={`mt-1 list-disc pl-8 ${ui.muted}`}>
+            {sources.map((x) => (
+              <li key={x}>{x}</li>
             ))}
           </ul>
-        ) : (
-          <p className="mt-2 text-xs">Nothing in this passage applies to the revision you chose.</p>
-        )}
-        {best.chunk.lines.length > lines.length && lines.length > 0 && <p className="mt-1 text-xs text-slate-500">More in the full passage.</p>}
-        <p className="mt-2 text-xs">
-          <OpenLink chunk={best.chunk} onOpenEntry={onOpenEntry} />
-        </p>
-      </div>
+        </details>
+      )}
       {others.length > 0 && (
-        <div className="text-xs">
-          <span className="font-semibold">Also relevant: </span>
-          {others.map((h, i) => (
-            <span key={h.chunk.id}>
-              {i > 0 && ' · '}
-              {h.chunk.link.type === 'entry' ? (
-                <button type="button" onClick={() => onOpenEntry((h.chunk.link as { entryId: string }).entryId)} className="text-amber-700 underline dark:text-amber-400">
-                  {h.chunk.title}
-                </button>
-              ) : h.chunk.link.type === 'lesson' ? (
-                <Link to={`/module/${h.chunk.link.moduleId}/lesson/${h.chunk.link.lessonId}`} className="text-amber-700 underline dark:text-amber-400">
-                  {h.chunk.title}
-                </Link>
-              ) : (
-                <span>{h.chunk.title}</span>
-              )}
-            </span>
-          ))}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className={ui.muted}>Also relevant:</span>
+          {others.map((h) =>
+            h.chunk.link.type === 'entry' ? (
+              <button key={h.chunk.id} type="button" onClick={() => onOpenEntry((h.chunk.link as { entryId: string }).entryId)} className="rounded-full border border-slate-300 px-2.5 py-0.5 hover:bg-white dark:border-slate-600 dark:hover:bg-slate-700">
+                {h.chunk.title}
+              </button>
+            ) : h.chunk.link.type === 'lesson' ? (
+              <Link key={h.chunk.id} to={`/module/${h.chunk.link.moduleId}/lesson/${h.chunk.link.lessonId}`} className="rounded-full border border-slate-300 px-2.5 py-0.5 no-underline hover:bg-white dark:border-slate-600 dark:hover:bg-slate-700">
+                {h.chunk.title}
+              </Link>
+            ) : (
+              <span key={h.chunk.id}>{h.chunk.title}</span>
+            ),
+          )}
         </div>
       )}
-      <p className="sr-only">{best.chunk.lines.map((l) => l.sources.map(sourceText).join('; ')).join(' ')}</p>
     </div>
   )
 }
