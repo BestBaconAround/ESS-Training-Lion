@@ -64,6 +64,31 @@ describe('procedures', () => {
   })
 })
 
+describe('web sources', () => {
+  it('always carry the page URL and the date searched, and are never the only source for a Lion fact', () => {
+    const errors: string[] = []
+    const check = (where: string, sources: { source: string; url?: string; note?: string }[]) => {
+      for (const x of sources) {
+        if (x.source !== 'web') continue
+        if (!x.url?.startsWith('https://')) errors.push(`${where}: web source without an https url`)
+        if (!/searched \d/.test(x.note ?? '')) errors.push(`${where}: web source without the date searched`)
+      }
+    }
+    for (const t of TOPICS) for (const sec of t.sections) for (const f of sec.facts) check(`${t.id}/${sec.title}`, f.sources)
+    for (const p of PROCEDURES) for (const st of p.steps ?? []) check(p.id, st.sources)
+    expect(errors).toEqual([])
+  })
+
+  it('are used only in sections marked From the web', () => {
+    for (const t of TOPICS) {
+      for (const sec of t.sections) {
+        const usesWeb = sec.facts.some((f) => f.sources.some((x) => x.source === 'web'))
+        if (usesWeb) expect(sec.fromWeb, `${t.id}/${sec.title}`).toBe(true)
+      }
+    }
+  })
+})
+
 describe('knowledge pages', () => {
   it('have sourced facts, https links and a list of what is still needed', () => {
     const errors: string[] = []

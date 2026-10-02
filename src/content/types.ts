@@ -16,6 +16,7 @@ export type SourceTag =
   | 'emsc' // EMS-C Manual, updated 4/13/25
   | 'video' // Commissioning walkthrough video transcript
   | 'author' // Field knowledge supplied by the course author
+  | 'web' // Public web page found by search (not Lion material). Never mixed with Lion facts; carries a url and the date searched
   | 'tsm' // Sanctuary Technical Service Manual, updated 9/30/2026 (Sanctuary 2 and 3)
   | 'settings' // Settings for Sanctuary 2 and Sanctuary 3, rev1.1 6/4/2026 (user and installer level only)
   | 'notes' // The author's own ESS support notes (personal details and internal-only items removed)
@@ -25,6 +26,8 @@ export interface SourceRef {
   /** PDF page numbers (equal to printed page numbers). Omit for video/author. */
   pages?: number[]
   note?: string
+  /** Web sources only: the page the fact came from. */
+  url?: string
 }
 
 /** A single teachable fact. */

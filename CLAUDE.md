@@ -233,3 +233,10 @@ Conflicts and open questions (each is a visible `todo` in content where it affec
 - **Held back from the Procedures content** (public repo): register addresses and register-read procedures (the registers item is a `todo` pending the author's decision), and the ESS support email address (the phone number is already public in the manuals).
 - **Feedback page** (`/feedback`, `src/feedback/issue.ts`): a static site cannot store input, so it opens a pre-filled GitHub issue (public). **When asked to "check feedback", list the open issues, verify each claim against the sources, and update the content.**
 - Items that need an AI model (the graph-screenshot optimizer) are shown as `blocked`: this site has no server or API key.
+
+## Web research (author decision 10/2/2026)
+
+- The author allowed information **from the internet** for four areas only: Tigo optimizers/TS4/TAP/CCA, electrical and panel theory, state code requirements (California, Utah, Texas) and competitors. This relaxes the "Lion sources only" rule for those areas and nowhere else.
+- Web facts use the `web` source tag (`web()` helper: title, https URL, date searched), live in sections marked `fromWeb` ("From the web" label and a banner on the page), and are **never mixed into Lion facts**. `procedures.test.ts` enforces the URL, the date and the label.
+- Quality: the build sandbox blocks most of these sites (support.tigoenergy.com, www.tigoenergy.com, www.energy.ca.gov, www.energy.gov, www.nrel.gov; earlier support.lionenergy.com, youtube.com, github.io), so the facts are from **search summaries, not the full pages**. Codes, dates and NEC editions are high stakes: Utah's edition results conflict and one Texas date was unconfirmed. Treat them as leads to verify on the official page. The author is using Claude.ai to pull the exact wording, to be handed back and loaded into these sections.
+- Public repo: the same hold-backs apply (no register addresses, no internal-only Lion content, no personal contact details).

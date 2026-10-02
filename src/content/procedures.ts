@@ -1,4 +1,4 @@
-import { src } from './helpers'
+import { src, web } from './helpers'
 import type { RevisionTag, SourceRef } from './types'
 
 // Procedures the author asked for. Each item is built only from the documents. Steps carry sources and revisions.
@@ -481,9 +481,19 @@ export const PROCEDURES: Procedure[] = [
     id: 'p-tigo',
     group: 'Solar',
     title: 'How Tigo solar optimizers and CCAs work',
-    summary: 'No source yet.',
+    summary: 'From Tigo\'s own documents as found by web search. Not Lion material.',
+    steps: [
+      s('A Tigo TS4 is a module-level power electronics (MLPE) device, one per panel. TS4-A-M monitors, TS4-A-S monitors and provides rapid shutdown, and TS4-A-O monitors, provides rapid shutdown and optimizes each panel.', [web('TS4 Flex MLPE (Tigo Energy)', 'https://www.tigoenergy.com/ts4')]),
+      s('The TS4s talk to the Tigo Access Point (TAP) over a wireless mesh. The TAP connects by RS485 cable to the Cloud Connect Advanced (CCA), which collects the data and sends it to the cloud. One TAP handles up to 300 TS4s and one CCA up to 7 TAPs and 900 TS4s.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
+      s('Rapid shutdown uses a keep-alive signal from the CCA through the TAP. While the TS4s hear it they pass full module voltage. When AC power is lost the CCA stops sending it and the TS4s shut the panels down.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
+      s('Tigo says rapid shutdown only works when the CCA is on the same breaker as the inverters, and that this setup is certified to shut down every TS4 module output in under 30 seconds.', [web('FAQ - Optimizers (TS4-O) (Tigo support)', 'https://support.tigoenergy.com/hc/en-us/articles/35838437199507-FAQ-Optimizers-TS4-O')]),
+      s('If the CCA does not see TS4s: check the distance (the TAP should be within about 10 m / 33 ft of a TS4), roof obstructions, and TAP placement. Put the TAP centrally with a clear line of sight, and add a TAP for large or multi-level arrays.', [web('CCA/TAP Communication And TS4 MLPE Troubleshooting Guide (Tigo Energy)', 'https://www.instagroup.co.uk/wp-content/uploads/2025/09/CCATAP-Communication-Troubleshooting-Guide-1.pdf')]),
+      s('Tigo\'s Energy Intelligence (EI) app is used to commission and test the TS4, TAP and CCA.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
+      s('On the Sanctuary side: the Sanctuary has no rapid shutdown transmitter, optimizers and rapid shutdown devices are both MLPE, and the "PV Optimizer" setting is harmless when left enabled with no optimizers.', [TSM(64, 98), SET(37)]),
+    ],
     todo: [
-      'A source on Tigo optimizers and the Cloud Connect Advanced (CCA). The documents only say that optimizers and rapid shutdown devices are MLPE (Technical Service Manual p.98), that "PV Optimizer" is a setting that is harmless when there are no optimizers (Settings Guide p.37), and that one popular optimizer brand is known for noise (p.64).',
+      'The Tigo support site and manuals could not be opened from here, so this is from search summaries. Read the Tigo installation manual before teaching it.',
+      'How a Tigo system is wired next to a Sanctuary (where the CCA gets its power, and what happens to the keep-alive when the Sanctuary is off-grid). Needs the author.',
     ],
   },
 
@@ -612,7 +622,7 @@ export const PROCEDURES: Procedure[] = [
     id: 'p-page-electricity',
     group: 'Learning',
     title: 'Everything about electricity that is relevant to ESS',
-    summary: 'Its own page, built from the glossary and notes so far.',
+    summary: 'Its own page: the Lion glossary plus basic theory from the web.',
     links: [{ type: 'page', to: '/electricity', label: 'Electricity page' }],
     todo: ['A source for the electrical theory the author wants covered (see the page for the list).'],
   },

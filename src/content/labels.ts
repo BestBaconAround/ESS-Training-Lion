@@ -7,6 +7,7 @@ export const SOURCE_LABELS: Record<SourceTag, string> = {
   emsc: 'EMS-C Manual 4/13/25',
   video: 'Commissioning video',
   author: 'Course author (field knowledge)',
+  web: 'Web (not Lion material, verify)',
   tsm: 'Sanctuary Technical Service Manual (9/30/2026)',
   settings: 'Settings Guide for Sanctuary 2 and 3 (rev 1.1, 6/4/2026)',
   notes: 'Author\'s ESS support notes',
@@ -27,6 +28,7 @@ export function revisionText(tag: RevisionTag): string {
 
 export function sourceText(ref: SourceRef): string {
   const label = SOURCE_LABELS[ref.source]
+  if (ref.source === 'web') return ref.note ? `${label}: ${ref.note}` : label
   if (!ref.pages?.length) return label
   return `${label}, p.${ref.pages.join(', ')}`
 }

@@ -82,3 +82,6 @@ export const image = (
   revisions: RevisionTag = ['rev4'],
   sources: SourceRef[] = [{ source: 'author', note: 'Photo from the author\'s training setup' }],
 ): Block => ({ type: 'image', src, alt, caption, width: size[0], height: size[1], sources, revisions })
+
+/** A public web page found by search. Not Lion material: always shown as such and never mixed with Lion facts. */
+export const web = (title: string, url: string, searched = '10/2/2026'): SourceRef => ({ source: 'web', note: `${title}, searched ${searched}`, url })

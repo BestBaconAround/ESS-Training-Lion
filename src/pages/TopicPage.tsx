@@ -14,10 +14,22 @@ export default function TopicPage({ topicId }: { topicId?: string }) {
     <div className="space-y-6">
       <PageHeader title={topic.title} lead={topic.lead} />
 
+      {topic.sections.some((x) => x.fromWeb) && (
+        <p className="rounded-lg border border-sky-300 bg-sky-50 p-3 text-sm text-sky-950 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100" role="note">
+          <strong>Sections marked "From the web" are not Lion material.</strong> They come from public web pages found by search on 10/2/2026 and were read as search summaries, not
+          the full pages. Open the source link and check it before you rely on it, especially codes, dates and numbers.
+        </p>
+      )}
+
       {topic.sections.length > 0 && (
         <div className="space-y-3">
           {topic.sections.map((s, i) => (
-            <Disclosure key={s.title} title={<span className="font-semibold">{s.title}</span>} right={<span className={`text-xs ${ui.muted}`}>{s.facts.length}</span>} defaultOpen={i === 0}>
+            <Disclosure key={s.title} title={
+                <span className="font-semibold">
+                  {s.title}
+                  {s.fromWeb && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 align-middle text-xs font-medium text-sky-800 dark:bg-sky-900/40 dark:text-sky-300">From the web</span>}
+                </span>
+              } right={<span className={`text-xs ${ui.muted}`}>{s.facts.length}</span>} defaultOpen={i === 0}>
               <ul className="list-disc space-y-3 pl-5 text-sm">
                 {s.facts.map((f, j) => (
                   <li key={j}>

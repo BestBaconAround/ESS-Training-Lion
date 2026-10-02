@@ -5,7 +5,19 @@ import type { RevisionTag, SourceRef } from '../content/types'
 export default function SourceNote({ sources, revisions }: { sources: SourceRef[]; revisions?: RevisionTag }) {
   return (
     <span className="block text-xs text-slate-500 dark:text-slate-400">
-      Source: {sources.map(sourceText).join('; ')}
+      Source:{' '}
+      {sources.map((x, i) => (
+        <span key={i}>
+          {i > 0 && '; '}
+          {x.url ? (
+            <a href={x.url} target="_blank" rel="noreferrer" className="underline hover:text-slate-800 dark:hover:text-slate-200">
+              {sourceText(x)}
+            </a>
+          ) : (
+            sourceText(x)
+          )}
+        </span>
+      ))}
       {revisions && revisions !== 'all' ? ` · Applies to: ${revisionText(revisions)}` : ''}
     </span>
   )
