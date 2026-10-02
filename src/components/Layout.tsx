@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { APP_VERSION, BUILD_TIME, formatBuildTime } from '../buildInfo'
 import { useTheme } from '../theme'
 
@@ -35,6 +35,7 @@ function ThemeButton() {
 }
 
 export default function Layout() {
+  const { pathname } = useLocation()
   const updated = formatBuildTime(BUILD_TIME)
   return (
     <div className="min-h-screen">
@@ -72,20 +73,14 @@ export default function Layout() {
             <NavLink to="/procedures" className={tab}>
               Procedures
             </NavLink>
+            <NavLink to="/homeowner" className={tab}>
+              Homeowner messages
+            </NavLink>
             <NavLink to="/reference" className={tab}>
               Reference
             </NavLink>
-            <NavLink to="/electricity" className={tab}>
-              Electricity
-            </NavLink>
-            <NavLink to="/solar" className={tab}>
-              Solar
-            </NavLink>
-            <NavLink to="/codes" className={tab}>
-              Codes
-            </NavLink>
-            <NavLink to="/competitors" className={tab}>
-              Competitors
+            <NavLink to="/learn" className={(o) => tab({ isActive: o.isActive || ['/electricity', '/solar', '/codes', '/competitors'].includes(pathname) })}>
+              Learn more
             </NavLink>
             <NavLink to="/feedback" className={tab}>
               Feedback

@@ -114,7 +114,7 @@ export const ELECTRICITY: Topic = {
   needed: [
     'Not found yet: three-phase service, power factor and reactive power, AC vs DC safety, and how to read a one-line diagram. The search did not return usable pages for these.',
     'A multimeter lesson (see the "How a multimeter works" procedure).',
-    'The web section was read as search summaries, not the full pages (the sites could not be opened from here). Check each source link before you teach from it, and have the author review the theory.',
+    'The theory section was read as search summaries, not the full pages. Check each source link before you teach from it, and have the author review it.',
   ],
 }
 
@@ -233,7 +233,7 @@ export const SOLAR: Topic = {
     'How a solar cell works (the physics), cell and module construction, panel datasheet reading, and installation by roof type.',
     'How to wire a Tigo system next to a Sanctuary (where the CCA gets its power, and what the Sanctuary expects). Not in the Lion documents or the Tigo manual. Needs the author.',
     'Tigo support articles: support.tigoenergy.com refused automated access (error 403) from here. The "Tigo support articles" section is as reported by Claude.ai research and has not been opened or checked by Claude Code. Open each link before relying on it.',
-    'The web sections were read as search summaries, not the full pages. Check each source link and have the author review them.',
+    'The Tigo installation manual section was read in full. The panel theory section is from search summaries: check each source link and have the author review it.',
   ],
 }
 

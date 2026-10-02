@@ -1,4 +1,4 @@
-import { src, web } from './helpers'
+import { official, src, web } from './helpers'
 import type { RevisionTag, SourceRef } from './types'
 import type { TopicImage } from './topics'
 
@@ -48,6 +48,7 @@ const TSM = (...pages: number[]) => src('tsm', ...pages)
 const SET = (...pages: number[]) => src('settings', ...pages)
 const EMSC = (...pages: number[]) => src('emsc', ...pages)
 const AUTHOR = src('author')
+const TIGO_MAN = official('TS4-A with TAP and CCA Installation Manual, Rev 2.3, 10/1/2025, PN 002-00129-00 (Tigo Energy)', 'https://cdn.prod.website-files.com/5fad551d7419c7a0e9e4aba4/698b65573e1e53f5d116c80f_002-00129-00%202.3%20IO%26M%20TS4A%20with%20TAP%20and%20CCA%2020251001%20-%20EN.pdf')
 const VIDEO = src('video')
 
 const s = (text: string, sources: SourceRef[], revisions: RevisionTag = 'all'): ProcedureStep => ({ text, sources, revisions })
@@ -518,18 +519,21 @@ export const PROCEDURES: Procedure[] = [
     id: 'p-tigo',
     group: 'Solar',
     title: 'How Tigo solar optimizers and CCAs work',
-    summary: 'From Tigo\'s own documents as found by web search. Not Lion material.',
+    summary: 'From Tigo\'s installation manual (read in full) plus Tigo support articles reported by Claude.ai research. Not Lion material.',
     steps: [
-      s('A Tigo TS4 is a module-level power electronics (MLPE) device, one per panel. TS4-A-M monitors, TS4-A-S monitors and provides rapid shutdown, and TS4-A-O monitors, provides rapid shutdown and optimizes each panel.', [web('TS4 Flex MLPE (Tigo Energy)', 'https://www.tigoenergy.com/ts4')]),
-      s('The TS4s talk to the Tigo Access Point (TAP) over a wireless mesh. The TAP connects by RS485 cable to the Cloud Connect Advanced (CCA), which collects the data and sends it to the cloud. One TAP handles up to 300 TS4s and one CCA up to 7 TAPs and 900 TS4s.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
-      s('Rapid shutdown uses a keep-alive signal from the CCA through the TAP. While the TS4s hear it they pass full module voltage. When AC power is lost the CCA stops sending it and the TS4s shut the panels down.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
-      s('Tigo says rapid shutdown only works when the CCA is on the same breaker as the inverters, and that this setup is certified to shut down every TS4 module output in under 30 seconds.', [web('FAQ - Optimizers (TS4-O) (Tigo support)', 'https://support.tigoenergy.com/hc/en-us/articles/35838437199507-FAQ-Optimizers-TS4-O')]),
-      s('If the CCA does not see TS4s: check the distance (the TAP should be within about 10 m / 33 ft of a TS4), roof obstructions, and TAP placement. Put the TAP centrally with a clear line of sight, and add a TAP for large or multi-level arrays.', [web('CCA/TAP Communication And TS4 MLPE Troubleshooting Guide (Tigo Energy)', 'https://www.instagroup.co.uk/wp-content/uploads/2025/09/CCATAP-Communication-Troubleshooting-Guide-1.pdf')]),
-      s('Tigo\'s Energy Intelligence (EI) app is used to commission and test the TS4, TAP and CCA.', [web('TS4-A-O/S/M with TAP and CCA Quick Start Guide (Tigo Energy)', 'https://www.solar-electric.com/lib/wind-sun/Tigo_QSG_TS4-A_CCA_TAP.pdf')]),
+      s('A Tigo TS4 is module-level power electronics (MLPE), one per panel. TS4-A-M monitors, TS4-A-S monitors and provides rapid shutdown, and TS4-A-O monitors, provides rapid shutdown and optimizes. They use the Tigo Access Point (TAP) and the Cloud Connect Advanced (CCA) to talk to inverters and the cloud. TS4-A-O units used only to optimize do not need a TAP or CCA.', [TIGO_MAN]),
+      s('The TAP talks wirelessly to the TS4s and connects to the CCA with a 4-wire cable such as shielded RS-485. One TAP handles up to 300 TS4s and one CCA up to seven TAPs and 900 TS4s. A TAP reaches TS4s within 10 m (33 ft) directly, and up to 35 m (115 ft) through relays.', [TIGO_MAN]),
+      s('Rapid shutdown: the CCA must be on the same AC branch circuit as the inverter it controls, and the initiator must turn off power to the CCA. Reported by Tigo support: the TAP sends a keep-alive, and when the CCA loses power it stops and the TS4s shut down (output under 80 V within 30 seconds). For TS4-X and TS4-A 725W units an inverter-integrated transmitter may keep the signal going, so "CCA off" does not always mean "array off".', [TIGO_MAN, web('Intro to Tigo TS4-A-O/S/M (Tigo support), reported by Claude.ai research; not opened here', 'https://support.tigoenergy.com/hc/en-us/articles/211807027-Intro-to-Tigo-TS4-A-O-S-M-Monitoring-Group'), web('Multi Factor Rapid Shutdown Overview (Tigo support), reported by Claude.ai research; not opened here', 'https://support.tigoenergy.com/hc/en-us/articles/44983309634195')]),
+      s('Before working on a TS4: turn off the CCA and the inverter (or use the rapid shutdown initiator), wait 30 seconds, and disconnect the TS4 output cables before the input cables. Always assume TS4 units are on. Do not connect or disconnect them under load.', [TIGO_MAN]),
+      s('When connecting a TS4, connect the shorter input leads to the PV module first, then the longer output cable to the next TS4. Doing it the other way can damage the TS4.', [TIGO_MAN]),
+      s('The CCA light: solid green is OK, solid yellow is a warning (scanning incomplete or no connection to the Tigo server), solid red is an error (cannot find all TS4s or cannot reach the Tigo server), blinking red/yellow is automatic PV-Off.', [TIGO_MAN]),
+      s('If the CCA does not see the TAP: in the EI app run CCA Configuration > Settings > TAP TEST. Measure 24 VDC at the CCA Gateway/TAP terminal (under 12 V means power off, remove the TAP connector, power on, wait 2 minutes, re-measure). Check wire colors at both ends and put one 120 ohm resistor on the last TAP. This is reported by Claude.ai research and not opened here.', [web('CCA - TAP Test (Tigo support), reported by Claude.ai research; not opened here', 'https://support.tigoenergy.com/hc/en-us/articles/360059913673-CCA-TAP-Test')]),
+      s('If TS4s do not appear: discovery normally takes under 60 minutes on a home system. Wait 2 hours after sunrise before calling. Check that the TAP count matches what was entered, the modules are in the sun, and the serial numbers in Layout are right. After a TS4 replacement, update the new serial number in the EI Portal. This is reported by Claude.ai research and not opened here.', [web('System Discovery (Tigo support), reported by Claude.ai research; not opened here', 'https://support.tigoenergy.com/hc/en-us/articles/1500002619981')]),
+      s('Commissioning is done in the Tigo Energy Intelligence (EI) mobile app or at ei.tigoenergy.com.', [TIGO_MAN]),
       s('On the Sanctuary side: the Sanctuary has no rapid shutdown transmitter, optimizers and rapid shutdown devices are both MLPE, and the "PV Optimizer" setting is harmless when left enabled with no optimizers.', [TSM(64, 98), SET(37)]),
     ],
     todo: [
-      'The Tigo support site and manuals could not be opened from here, so this is from search summaries. Read the Tigo installation manual before teaching it.',
+      'The Tigo support articles could not be opened from here (error 403). Open the linked pages before teaching the steps marked "reported by Claude.ai research".',
       'How a Tigo system is wired next to a Sanctuary (where the CCA gets its power, and what happens to the keep-alive when the Sanctuary is off-grid). Needs the author.',
     ],
   },

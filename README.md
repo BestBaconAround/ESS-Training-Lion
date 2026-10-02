@@ -36,7 +36,7 @@ All 7 modules are on the dashboard. Modules 2 and 4 are fully built; the rest sh
 
 Progress (lessons, quiz scores, simulator attempts and best scores) can be downloaded and restored from the **Progress backup** page.
 
-The **Troubleshooting** page (top navigation) is a searchable reference for battery, inverter and power problems: the 24 fault codes plus guided steps, filterable by area and by revision, each step with its source. Add entries in `src/content/troubleshooting.ts`.
+The **Troubleshooting** page (top navigation) is a searchable reference for battery, inverter and power problems: the 88 fault codes plus guided steps, filterable by area and by revision, each step with its source. Add entries in `src/content/troubleshooting.ts`.
 
 **Ask the notes** (on the Troubleshooting page) is a chatbot that answers only from the reference material, with sources. It searches the troubleshooting entries, the lessons, and any markdown files you drop into `src/content/reference/` (each `#` heading becomes a searchable section). It is a search, not generative AI, so it cannot make things up and needs no server or API key. If nothing matches, it says so.
 
@@ -73,3 +73,5 @@ The source manuals are Lion Energy documents. Check the repository's visibility 
 The header has a day/night switch and shows the app version and when it was last built (deployed). Bump `version` in `package.json` for each release.
 
 **Procedures** (top menu) lists the jobs on a Sanctuary call and how much of each is written; gaps are listed as "Still needed". **Electricity, Solar, Codes and Competitors** are knowledge pages built only from the documents. **Feedback** opens a pre-filled GitHub issue (public) so other people can send corrections and ideas.
+
+The **Homeowner messages** page (`/homeowner`, data in `src/content/homeowner.ts`) holds short, plain-language messages with a Copy button. `homeowner.test.ts` keeps sentences short and bans technical words. The **Learn more** page (`/learn`) links the Electricity, Solar, Codes and Competitors pages.
