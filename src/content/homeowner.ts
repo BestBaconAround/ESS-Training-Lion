@@ -144,7 +144,22 @@ Turn it off when the storm is over.`,
 5. Type the email address of the person.`,
     sources: [TSM(12), SET(11)],
     revisions: 'all',
-    todo: ['How to remove someone\'s shared access (not in the documents read so far).'],
+  },
+  {
+    id: 'h-unshare',
+    group: 'Your app',
+    title: 'Stop sharing your system with someone',
+    customerSays: 'How do I take someone off my system?',
+    text: `You can take away someone's access at any time.
+
+1. Go to smart.lionenergy.com.
+2. Open the page for your system.
+3. Click Menu.
+4. Click Share Access.
+5. Click the small arrow next to the person's name.
+6. Click Remove.`,
+    sources: [TSM(12), { source: 'author', note: 'Share access removal, by the author' }],
+    revisions: 'all',
   },
   {
     id: 'h-change',

@@ -235,15 +235,15 @@ export const PROCEDURES: Procedure[] = [
     id: 'p-share-access',
     group: 'Settings and the web app',
     title: 'Share access and remove access',
-    summary: 'Sharing is in the web app. Removing is not in the documents yet.',
+    summary: 'Sharing and removing access are both on the Share access tab in the web app.',
     steps: [
       s('Invite the customer to view the product: web app Menu > share access.', [TSM(12)]),
       s('Shared access is by email, and it is one of the items that can be changed in "Edit info" without recommissioning. The other items are customer name, address, phone and password, installer, third-party owner, servicing company, on or off grid, PV total watts and PV location.', [SET(11)]),
       s('Change user name or address, grid status (on or off grid) or the installing technician: web app Menu > Edit info.', [TSM(12)]),
       s('The homeowner and anyone the product was shared with can change only the internet, the operating mode and the battery reserve percentage.', [SET(11)]),
+      s('Remove access: on the Share access tab, click the drop down arrow next to the person and click Remove.', [{ source: 'author', note: 'Share access removal, by the author' }]),
       s('Delete a product from the web app: Menu > Edit info (permission required).', [TSM(12)]),
     ],
-    todo: ['How to remove someone\'s shared access (not in the documents read so far).'],
   },
   {
     id: 'p-web-app',
