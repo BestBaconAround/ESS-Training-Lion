@@ -44,6 +44,8 @@ The **Troubleshooting** page (top navigation) is a searchable reference for batt
 
 **Reference** (third tab) is a searchable lookup: quick facts, pins, defaults and limits by topic (contacts, telling the revisions apart, lights and controls, battery, grid/generator/solar, ports and pins, tools, source documents) plus all 88 alarm, fault and status codes. Every row shows its source page and revision. The data is in `src/content/reference.ts` and `src/content/data/faults.ts`.
 
+The Reference tab also has **Add files for Claude to learn from**: it uploads manuals and notes (up to 25 MB each) to the `reference-inbox/` folder using a GitHub token you paste in (kept in memory only). **The repo is public, so anything added is public.** Ask Claude to check the inbox in a later session to turn the files into app content.
+
 **History** (fourth tab) keeps your Ask questions and saved call notes. It is **private by passphrase, not an account**: the history is encrypted in your browser (AES-GCM, key from PBKDF2-SHA-256, 600,000 iterations) and stored only in this browser's `localStorage`. There is no server, so there is **no password recovery** (forget it and the only option is Erase), it does not follow you to another browser or device, and it locks when you leave the page, press Lock now, or after 15 minutes idle. A real login would need a backend, which this static site does not have. Do not put customer names or addresses in call notes.
 
 ## Adding content

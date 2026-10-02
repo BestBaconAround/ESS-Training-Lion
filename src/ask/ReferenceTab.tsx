@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import AddFiles from './AddFiles'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
 import { FAULT_CODES } from '../content/data/faults'
 import { sourceText } from '../content/labels'
@@ -36,6 +37,9 @@ export default function ReferenceTab({ rev }: { rev: RevisionChoice }) {
       <p className="text-xs text-slate-500 dark:text-slate-400">
         Quick lookups from the source documents, with the page for each. Search narrows everything below, including the fault codes.
       </p>
+      <div className="mt-2">
+        <AddFiles />
+      </div>
       <label className="sr-only" htmlFor="ref-search">
         Search the reference material
       </label>

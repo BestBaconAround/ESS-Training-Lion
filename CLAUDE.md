@@ -211,3 +211,10 @@ Conflicts and open questions (each is a visible `todo` in content where it affec
 - **Rev 1 and the power button** (`settings` p.32): "Inverter Shutdown SOC" was added because on Sanctuary 2 Rev 1 the controller stayed on with the power button off and drained the batteries to 0%. This is a hint for the open WCM-comms question; not confirmed.
 - **Revs 1-2 PV minimum**: now taught as 120 V to start (`tsm` p.61, newest; the author said the Technical Service Manual overrules). The Isc limit for Revs 1-2 (13 A vs 15 A) is still open.
 - **Power cycle wait**: now taught as about 30 s until the relays click (`tsm` p.56 overrules the author's ten seconds). Rev 1 also needs the batteries unplugged (`tsm` p.56). The Power cycle section below keeps the author's original wording for the record.
+
+## Reference inbox ("Add files for Claude to learn from")
+
+- The Reference tab has an **Add files** panel (`src/ask/AddFiles.tsx`, logic in `src/reference/upload.ts`, tested). It uploads to `reference-inbox/` on the dev branch through the GitHub contents API using a **fine-grained token the author pastes in** (kept in memory only, never stored, sent only to api.github.com). A static site has no backend, so this is the only in-app way to write to the repo.
+- Limits: 25 MB per file (GitHub's browser upload limit is 25 MB; git blocks 100 MB and warns at 50 MB), 10 files per batch, types pdf/md/txt/csv/png/jpg/jpeg/webp/docx/xlsx. Names are sanitized and never overwritten (`-2`, `-3`).
+- **The repo is public: everything in the inbox is public.** The panel says so and requires a checkbox. Before using an inbox file in content, apply the same public-repo rules as for the notes (no personal details, no internal-only items, no register-level steps).
+- **When asked to "check the inbox":** list `reference-inbox/`, read each file in full, add a source tag in `src/content/types.ts` and `labels.ts`, turn the facts into sourced content (lessons, troubleshooting entries, `reference.ts` rows, fault data), note conflicts as `todo`s, update this file, then tell the author what changed. Do not move or delete inbox files unless asked.
