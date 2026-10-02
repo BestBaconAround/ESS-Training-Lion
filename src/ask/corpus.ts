@@ -1,4 +1,5 @@
 import { modules } from '../content'
+import { REFERENCE_SECTIONS } from '../content/reference'
 import { TROUBLESHOOTING, AREA_LABELS, type TroubleshootingEntry } from '../content/troubleshooting'
 import type { Block, RevisionTag, SourceRef } from '../content/types'
 import { parseMarkdownSections } from './markdown'
@@ -69,6 +70,21 @@ function lessonChunks(): Chunk[] {
   return out
 }
 
+/** The quick facts on the Reference page, one chunk per row, so the chat can answer from them too. */
+function referencePageChunks(): Chunk[] {
+  return REFERENCE_SECTIONS.flatMap((sec) =>
+    sec.rows.map((r, i) => ({
+      id: `refpage:${sec.id}#${i}`,
+      kind: 'reference' as const,
+      title: r.label,
+      where: `Reference: ${sec.title}`,
+      text: `${sec.title} ${r.label} ${r.value}`,
+      lines: [{ text: r.value, sources: r.sources, revisions: r.revisions }],
+      link: { type: 'none' as const },
+    })),
+  )
+}
+
 /** Files dropped into src/content/reference/*.md. Each heading section becomes a searchable chunk. */
 const referenceFiles = import.meta.glob('../content/reference/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 
@@ -96,5 +112,5 @@ export function referenceChunks(files: Record<string, string> = referenceFiles):
 }
 
 export function buildCorpus(extraReference: Record<string, string> = referenceFiles): Chunk[] {
-  return [...TROUBLESHOOTING.map(fromEntry), ...lessonChunks(), ...referenceChunks(extraReference)]
+  return [...TROUBLESHOOTING.map(fromEntry), ...lessonChunks(), ...referencePageChunks(), ...referenceChunks(extraReference)]
 }

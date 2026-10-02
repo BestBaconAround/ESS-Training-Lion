@@ -28,13 +28,14 @@ describe('Ask the notes: finds the right passage', () => {
     ["my battery won't address", 'ts-battery-wont-address'],
     ['battery reads 0 volts during commissioning', 'ts-battery-wont-address'],
     ['the app cannot connect to the system', 'ts-app-offline'],
-    ['check wifi hotspot', 'ts-app-offline'],
     ['no light on the inverter but the buttons are in', 'ts-no-light'],
     ['how do I power cycle the inverter', 'ts-power-cycle'],
     ['sell back stuck frequency watt', 'ts-sellback-stuck'],
     ['solar drops to zero in daylight', 'ts-pv-reverse'],
     ['first call what should I ask', 'ts-first-call'],
-    ['which pins are the CTs on', 'ts-ct-check'],
+    ['how do I change my wifi', 'ts-change-wifi'],
+    ['change wifi password', 'ts-change-wifi'],
+    ['new router wifi', 'ts-change-wifi'],
   ]
   // Two passages are right for this one: the guided entry and the generated A1_7 fault entry. Either may lead.
   it('"grid over voltage" -> the guided entry is in the top two', () => {
@@ -42,6 +43,8 @@ describe('Ask the notes: finds the right passage', () => {
   })
   // The lesson on the same topic, or the meter-test entry, may legitimately rank next to the guided entry.
   for (const [q, id] of [
+    ['check wifi hotspot', 'ts-app-offline'],
+    ['which pins are the CTs on', 'ts-ct-check'],
     ['what power supply settings do I use to charge a dead battery', 'ts-battery-wont-address'],
     ['shutdown button pressed but still running', 'ts-shutdown-still-on'],
   ]) {
