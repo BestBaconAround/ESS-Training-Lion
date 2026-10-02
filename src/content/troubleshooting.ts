@@ -42,6 +42,7 @@ const AUTHOR = src('author')
 const NOTES = src('notes')
 const TSM = (...pages: number[]) => src('tsm', ...pages)
 const SETTINGS = (...pages: number[]) => src('settings', ...pages)
+const AUTH_WIFI: SourceRef = { source: 'author', note: 'Wi-Fi procedure and troubleshooting, updated by the author' }
 const step = (text: string, sources: SourceRef[], revisions: RevisionTag = 'all'): TroubleshootingStep => ({ text, sources, revisions })
 
 /** Where support goes when a problem cannot be fixed on the call. */
@@ -309,18 +310,27 @@ const guided: TroubleshootingEntry[] = [
     title: 'Change the Wi-Fi network or password',
     customerSays: 'I got a new router, or changed my Wi-Fi password, and the system is offline.',
     steps: [
+      step('Homeowner with an EMS-C (Gen 2 Rev 4): take off the cover below the LEDs (4 screws, 4 mm hex on a black system). Press the mode button below the EMS-C Ethernet port. The Bluetooth light should flash for pairing. Open the Lion Smart app, tap the gear icon under System, then Network Connection under Sanctuary Network Connection, and follow the steps. When connected, close the app and press the reset button at the bottom of the EMS-C, next to the power switch. It should show online in the app within about five minutes.', [AUTH_WIFI], ['rev4']),
+      step('Homeowner with a WCM (Gen 2 Rev 3): press the left button next to the WCM LED (it blinks white for pairing), do the same app steps, then press the reset button on the WCM. It goes white, then green when connected. It takes about 2 minutes to time out of pairing and connect, and the Smart app does not update the moment it turns green.', [AUTH_WIFI], ['rev3']),
+      step('Technician: press the mode button on the communicator. In the Technician app tap Select Service > Change or Reconnect Network and follow the procedure. When it succeeds, close the app, press the reset button and wait a few minutes.', [AUTH_WIFI, TSM(61)]),
       step('You have to be within Bluetooth range of the Sanctuary. The Wi-Fi network name (SSID) and password cannot be changed from a distance.', [TSM(60)]),
-      step('Laptop with Bluetooth (always works): open a browser and go to smart.lionenergy.com. Open the customer\'s product page, then go to settings > change internet, and follow the on-screen prompts.', [TSM(61), SETTINGS(11)]),
-      step('Lion Technician app (installers with technician access, Apple or Android): Select Service > "Change or Reconnect Network".', [TSM(61)]),
-      step('Lion Smart app: the Apple version can change the Wi-Fi. The Android version cannot yet.', [TSM(61)]),
-      step('Mobile browser: this does not work on every device. If it does not work, try another method.', [TSM(60, 61)]),
+      step('Laptop with Bluetooth: open a browser and go to smart.lionenergy.com. Open the customer\'s product page, then go to settings > change internet, and follow the on-screen prompts.', [TSM(61), SETTINGS(11)]),
+      step('Lion Smart app: the Technical Service Manual says the Apple version can change the Wi-Fi and the Android version cannot yet (the author\'s steps above do not mention this: confirm). A mobile browser does not work on every device.', [TSM(60, 61)]),
       step('Most reliable: connect an Ethernet cable from the customer\'s router to the EMS-C\'s Ethernet port.', [TSM(61)]),
-      step('Check that the communicator is joined to the homeowner\'s Wi-Fi and not to a mobile hotspot, and that data shows on smart.lionenergy.com.', [TSM(13)]),
-      step('If the EMS-C cannot connect, check the antennas: the antenna labeled cellular goes to the cellular port and the antenna labeled WiFi/Bluetooth goes to the WiFi port. A wrong antenna gives poor reception.', [TSM(60)]),
-      step('Then read the EMS-C light. Solid blue means connected. Solid red means disconnected.', [src('emsc', 6)]),
+      step('If it will not connect: press the communicator\'s reset button and wait 3 minutes. The web app should show online, and the phone app can take 5 to 10 minutes.', [AUTH_WIFI]),
+      step('Make sure it is not a local only setup. Local only is Bluetooth only and does not do internet.', [AUTH_WIFI]),
+      step('Check the antennas: the antenna labeled cellular goes to the cellular port and the antenna labeled WiFi/Bluetooth goes to the WiFi port. A wrong antenna gives poor reception.', [TSM(60), AUTH_WIFI]),
+      step('Check the network is 2.4 GHz. 5 GHz is not supported yet.', [AUTH_WIFI]),
+      step('Check that the red communicator cable is in the right inverter communication port. On Gen 2 Rev 4 it is the WiFi port.', [AUTH_WIFI, src('emsc', 8)], ['rev4']),
+      step('Power cycle the communicator. Try connecting to a hotspot network. If available, update the communicator to the latest firmware. EMS-C only: check that 12 V is going to the communicator.', [AUTH_WIFI, TSM(13)]),
+      step('Check that the communicator is joined to the homeowner\'s Wi-Fi and not to a mobile hotspot, and that data shows on smart.lionenergy.com. Then read the EMS-C light: solid blue means connected, solid red means disconnected.', [TSM(13), src('emsc', 6)]),
     ],
     related: [{ moduleId: 'inverter-controls', lessonId: 'm2-shutdown' }],
-    todo: ['Revs 1-3 (WCM): confirm the same methods apply and what the WCM status light shows.'],
+    todo: [
+      'Revs 1-2 (WCM): the author gave steps for Rev 3 only. Confirm the same buttons and lights apply.',
+      'Screenshots of the three Lion Smart app screens (the author named them Smart1, Smart2, Smart3 but only the text was shared).',
+      'Gen 3 steps from the same procedure are held back (Gen 3 is not on the platform yet).',
+    ],
   },
   {
     id: 'ts-power-cycle',

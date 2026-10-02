@@ -27,24 +27,48 @@ export const HOMEOWNER_MESSAGES: HomeownerMessage[] = [
   {
     id: 'h-wifi',
     group: 'Internet',
-    title: 'Change your Wi-Fi name or password',
+    title: 'Change your Wi-Fi name or password (EMS-C, Rev 4)',
     customerSays: 'I got a new router. / I changed my Wi-Fi password. / My system says it is offline.',
+    text: `Here is how to change the Wi-Fi on your Lion system. You can use a phone or a laptop.
+
+Stand next to your Lion system.
+
+1. Take off the cover under the lights on the front. It has 4 screws. You need a 4 mm hex key.
+2. Find the small box called the EMS-C. Press the Mode button under the network plug. A blue light should start to flash.
+3. Open the Lion Smart app.
+4. Tap System, then tap the gear icon at the top right.
+5. Tap Network Connection. Follow the steps on the screen.
+6. When it says connected, close the app. Press the Reset button at the bottom of the box, next to the power switch.
+7. Wait 5 minutes. Your system should show online in the app.
+
+If it still will not connect, call us.`,
+    sources: [{ source: 'author', note: 'Wi-Fi procedure, updated by the author' }, TSM(61)],
+    revisions: ['rev4'],
+    todo: ['The Technical Service Manual says the Android Lion Smart app cannot yet change the Wi-Fi. Confirm whether this still applies, and what to tell Android users.', 'Screenshots of the app screens.'],
+  },
+  {
+    id: 'h-wifi-wcm',
+    group: 'Internet',
+    title: 'Change your Wi-Fi name or password (WCM, Rev 3)',
+    customerSays: 'I got a new router. / I changed my Wi-Fi password. / My system is offline. (Rev 3 with a WCM)',
     text: `Here is how to change the Wi-Fi on your Lion system.
 
-Stand close to your Lion system. Your laptop needs Bluetooth turned on.
+Stand next to your Lion system.
 
-1. On your laptop, go to smart.lionenergy.com.
-2. Open the page for your system.
-3. Click Settings.
-4. Click Change Internet.
-5. Follow the steps on the screen. Type your new Wi-Fi name and password.
+1. Take off the cover under the lights on the front. It has 4 screws. You need a 4 mm hex key.
+2. Find the small board called the WCM. Press the left button next to its light. The light should blink white.
+3. Open the Lion Smart app.
+4. Tap System, then tap the gear icon at the top right.
+5. Tap Network Connection. Follow the steps on the screen.
+6. When it says connected, close the app. Press the Reset button on the WCM.
+7. The light goes white, then green when it is online. This can take about 2 minutes.
 
-If you have an iPhone, the Lion Smart app can do this too. The Android app cannot yet.
+The app may take a few more minutes to show online.
 
-If it still will not connect, plug a network cable from your router into the system. This is the most reliable way. Call us and we will show you where it plugs in.`,
-    sources: [TSM(60, 61), SET(11)],
-    revisions: 'all',
-    todo: ['Revs 1-3 (WCM): confirm the same methods apply.'],
+If it still will not connect, call us.`,
+    sources: [{ source: 'author', note: 'Wi-Fi procedure, updated by the author' }],
+    revisions: ['rev3'],
+    todo: ['Revs 1-2 (WCM): the author gave steps for Rev 3 only.', 'Screenshots of the app screens.'],
   },
   {
     id: 'h-light',

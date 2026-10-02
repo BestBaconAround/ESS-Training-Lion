@@ -48,6 +48,8 @@ const TSM = (...pages: number[]) => src('tsm', ...pages)
 const SET = (...pages: number[]) => src('settings', ...pages)
 const EMSC = (...pages: number[]) => src('emsc', ...pages)
 const AUTHOR = src('author')
+const AUTH_WIFI: SourceRef = { source: 'author', note: 'Wi-Fi procedure and troubleshooting, updated by the author' }
+const AUTH_SWAP: SourceRef = { source: 'author', note: 'Communicator replacement procedure, by the author' }
 const TIGO_MAN = official('TS4-A with TAP and CCA Installation Manual, Rev 2.3, 10/1/2025, PN 002-00129-00 (Tigo Energy)', 'https://cdn.prod.website-files.com/5fad551d7419c7a0e9e4aba4/698b65573e1e53f5d116c80f_002-00129-00%202.3%20IO%26M%20TS4A%20with%20TAP%20and%20CCA%2020251001%20-%20EN.pdf')
 const VIDEO = src('video')
 
@@ -72,14 +74,25 @@ export const PROCEDURES: Procedure[] = [
     id: 'p-wifi',
     group: 'Wi-Fi and communication',
     title: 'Change the Wi-Fi: homeowner and technician',
-    summary: 'Both people need to be within Bluetooth range of the Sanctuary.',
+    summary: 'Both people need to be within Bluetooth range of the Sanctuary. The homeowner and technician steps are the author\'s updated procedure.',
     steps: [
-      s('Homeowner: "Change Internet" is one of the three things a homeowner can change. It changes the Wi-Fi name (SSID) and password. Use a laptop with Bluetooth and follow the on-screen prompts: smart.lionenergy.com, the product page, settings, change internet.', [SET(11), TSM(61)]),
-      s('Homeowner on a phone: the Apple version of the Lion Smart app can change the Wi-Fi. The Android version cannot yet. A mobile browser does not work on every device.', [TSM(60, 61)]),
-      s('Technician: in the Lion Technician app (Apple or Android) use Select Service > "Change or Reconnect Network".', [TSM(61)]),
-      s('The most reliable connection is an Ethernet cable from the router to the EMS-C Ethernet port.', [TSM(61)]),
+      s('Homeowner with an EMS-C (Gen 2 Rev 4): either a phone or a laptop can change the internet. First go to the inverter and take off the cover below the LEDs (4 screws, 4 mm hex, on a black system).', [AUTH_WIFI], ['rev4']),
+      s('Find the EMS-C and press the mode button below the Ethernet port. The Bluetooth light should start flashing for pairing mode.', [AUTH_WIFI], ['rev4']),
+      s('Open the Lion Smart app. Under System tap the gear icon at the top right. Under Sanctuary Network Connection tap Network Connection, then follow the steps.', [AUTH_WIFI], ['rev4']),
+      s('When it says connected, close the app and press the reset button on the EMS-C (at the bottom of the EMS-C, next to the power switch). Wait a few minutes. The EMS-C should show online in the app within about five minutes.', [AUTH_WIFI], ['rev4']),
+      s('Homeowner with a WCM (Gen 2 Rev 3): take off the cover below the LEDs (4 screws, 4 mm hex). Find the WCM and press the left button next to the LED. It should blink white for pairing.', [AUTH_WIFI], ['rev3']),
+      s('Open the Lion Smart app, tap the gear icon under System, then Network Connection under Sanctuary Network Connection, and follow the steps. When connected, close the app and press the reset button on the WCM.', [AUTH_WIFI], ['rev3']),
+      s('The WCM goes white first, then green when it is connected to the internet. It takes about 2 minutes to time out of pairing and try to connect. The Smart app will not update as soon as the WCM turns green.', [AUTH_WIFI], ['rev3']),
+      s('Technician: open the cover below the LED, find the communicator and press the mode button. In the Technician app tap Select Service, then Change or Reconnect Network, and follow the procedure. When the connection succeeds, close the app, press the reset button, and wait a few minutes for the connection to initialize.', [AUTH_WIFI, TSM(61)]),
+      s('A laptop with Bluetooth also works: go to smart.lionenergy.com, open the product page, then settings > change internet, and follow the prompts. The most reliable connection is an Ethernet cable from the router to the EMS-C Ethernet port.', [TSM(61), SET(11)]),
+      s('Lion Smart app on a phone: the Technical Service Manual says the Apple version can change the Wi-Fi and the Android version cannot yet. A mobile browser does not work on every device.', [TSM(60, 61)]),
     ],
-    links: [{ type: 'entry', id: 'ts-change-wifi', label: 'Change the Wi-Fi network or password (troubleshooting entry)' }],
+    links: [{ type: 'entry', id: 'ts-change-wifi', label: 'Change the Wi-Fi network or password, and what to check if it will not connect (troubleshooting entry)' }],
+    todo: [
+      'Screenshots of the three Lion Smart app screens (System gear icon, Network Connection, the steps). The author named them Smart1, Smart2 and Smart3 but only the text was shared.',
+      'Conflict to confirm: the author\'s steps use the Lion Smart app on a phone, while the Technical Service Manual (9/30/2026) says the Android Lion Smart app cannot yet change the Wi-Fi. The manual is newer, so both are shown.',
+      'Gen 3 steps from the same procedure are held back (Gen 3 is not on the platform yet).',
+    ],
   },
   {
     id: 'p-replace-wcm',
@@ -89,8 +102,14 @@ export const PROCEDURES: Procedure[] = [
     ],
     group: 'Wi-Fi and communication',
     title: 'Replace a WCM with an EMS-C',
-    summary: 'What the documents say about the swap. The hands-on steps are still needed.',
+    summary: 'Replace a WCM with a new WCM, or with an EMS-C. The hands-on steps are the author\'s procedure; the wiring notes are from the manuals.',
     steps: [
+      s('Replacing a WCM with a new WCM: open the cover below the LEDs. Unplug the cables and the antenna from the WCM. With a small Phillips screwdriver bit take off the screws and replace the WCM with the new one. Reconnect the cables and the antenna.', [AUTH_SWAP]),
+      s('Then open the Technician app and tap Select Service. Tap Replace EMS-C Or WCM and follow the step by step instructions.', [AUTH_SWAP]),
+      s('Replacing a WCM with an EMS-C: open the cover below the LEDs. Unplug the cables and the antenna from the WCM. Take off the screws with a small Phillips bit.', [AUTH_SWAP]),
+      s('Drill a hole next to the antenna for the secondary cellular antenna. Replace the WCM with the new EMS-C.', [AUTH_SWAP], ['rev1', 'rev2', 'rev3']),
+      s('Plug the inverter communication cable into the red inverter port on the EMS-C, and install the 12 V power supply cable.', [AUTH_SWAP]),
+      s('Then open the Technician app, tap Select Service, tap Replace EMS-C Or WCM, and follow the step by step instructions.', [AUTH_SWAP]),
       s('Revs 1-3 shipped with a WCM and can be retrofitted with an EMS-C. Rev 4 has the EMS-C as standard (some Rev 4 shipped with a WCM).', [EMSC(13)]),
       s('Replacing a WCM or an EMS-C does not require recommissioning. Only one communicator is used per system and it stays in the parent inverter.', [EMSC(16), EMSC(13), AUTHOR]),
       s('Wiring by revision. Revs 1 and 2: the EMS-C inverter port goes to the RJ-45 dongle near the battery terminals. Rev 3: the EMS-C inverter port goes to the meter port (front right) with a specially wired Ethernet cable. Rev 4: the EMS-C goes to the inverter WiFi port.', [EMSC(8, 9, 10)]),
@@ -100,7 +119,8 @@ export const PROCEDURES: Procedure[] = [
       s('After it is connected to the Wi-Fi, the EMS-C light should be solid blue.', [EMSC(6)]),
     ],
     todo: [
-      'The step-by-step for physically removing the WCM and fitting the EMS-C on Revs 1-3 (which port gives the EMS-C its 12V on those revisions, and what the Technician app asks for after a swap). Not in the documents read so far.',
+      'Which revisions the "drill a hole for the secondary cellular antenna" step applies to. It is tagged Revs 1-3 because those have one antenna and Rev 4 has two (author); confirm.',
+      'Photos of each step (the cover, the WCM screws, the drilled antenna hole, the red inverter port, the 12 V cable). Which port gives the EMS-C its 12 V on Revs 1-3 is still not in the documents read.',
     ],
   },
   {
@@ -119,6 +139,8 @@ export const PROCEDURES: Procedure[] = [
       s('Inverter to inverter (parallel): the parallel ports carry CAN. The alarm is A1_11 (Parallel CAN Communication Fault). Check the cables with a tester, that all inverters run the same firmware, and that nobody commissioned a child inverter separately.', [TSM(73)]),
       s('Communicator to inverter: the alarm is E1_1 (Inverter Communication Fault). Check that every inverter is on with the front LED on or flashing, check the cables for your revision, and power-cycle the communicator. The default baud rate is 9600 bps.', [TSM(91, 92)]),
       s('Communicator to the internet: Wi-Fi or Ethernet. Without either, the EMS-C tries cellular but only uploads alarms. A1_23 means the cellular data for the month is used up.', [TSM(58, 75)]),
+      s('If the communicator will not connect to the internet: press its reset button and wait 3 minutes (the web app should show online, the phone app can take 5 to 10 minutes). Check that it is not a local only setup (local only is Bluetooth only and does not do internet), that the antennas are in the correct spots, and that the network is 2.4 GHz (5 GHz is not supported yet). Power cycle the communicator, try a hotspot network, and update the communicator to the latest firmware if available. EMS-C only: check that 12 V is going to the communicator.', [AUTH_WIFI, TSM(58, 60)]),
+      s('Check that the red communicator cable is in the right inverter communication port. On Gen 2 Rev 4 it is the WiFi port.', [AUTH_WIFI, EMSC(8)], ['rev4']),
       s('A power cycle of the inverter helps if the BMS communication failure has lasted a long time.', [TSM(22)]),
     ],
     links: [

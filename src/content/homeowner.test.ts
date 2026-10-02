@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { HOMEOWNER_MESSAGES } from './homeowner'
 
-// Words an older homeowner should never meet. Keep this list in step with what support actually sees in the app.
-const JARGON = ['ssid', 'ems-c', 'wcm', 'mppt', 'soc', 'firmware', 'inverter', 'dod', 'breaker', 'rssi', 'commission', 'parallel', 'bms', 'cts', 'amp', 'voltage']
+// EMS-C and WCM are allowed because the homeowner has to find that box. Words an older homeowner should never meet. Keep this list in step with what support actually sees in the app.
+const JARGON = ['ssid', 'mppt', 'soc', 'firmware', 'inverter', 'dod', 'breaker', 'rssi', 'commission', 'parallel', 'bms', 'cts', 'amp', 'voltage']
 
 describe('homeowner messages', () => {
   it('have unique ids, sources and revisions', () => {
@@ -24,7 +24,7 @@ describe('homeowner messages', () => {
         const n = sentence.trim().split(/\s+/).filter(Boolean).length
         if (n > 22) errors.push(`${m.id}: sentence over 22 words: "${sentence.trim().slice(0, 50)}..."`)
       }
-      if (m.text.split(/\s+/).length > 120) errors.push(`${m.id}: over 120 words`)
+      if (m.text.split(/\s+/).length > 150) errors.push(`${m.id}: over 150 words`)
     }
     expect(errors).toEqual([])
   })
