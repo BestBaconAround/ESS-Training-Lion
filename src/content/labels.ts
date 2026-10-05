@@ -13,17 +13,30 @@ export const SOURCE_LABELS: Record<SourceTag, string> = {
   notes: 'Author\'s ESS support notes',
 }
 
-export const REVISIONS: Revision[] = ['rev1', 'rev2', 'rev3', 'rev4']
+export const REVISIONS: Revision[] = ['rev1', 'rev2', 'rev3', 'rev4', 'gen3']
+
+/** Tag for a fact that holds on Sanctuary 2 Revs 1-4 and on Sanctuary 3. */
+export const EVERY: Revision[] = ['rev1', 'rev2', 'rev3', 'rev4', 'gen3']
 
 export const REVISION_LABELS: Record<Revision, string> = {
   rev1: 'Rev 1',
   rev2: 'Rev 2',
   rev3: 'Rev 3',
   rev4: 'Rev 4',
+  gen3: 'Sanctuary 3',
 }
 
 export function revisionText(tag: RevisionTag): string {
-  return tag === 'all' ? 'All revisions' : tag.map((r) => REVISION_LABELS[r]).join(', ')
+  if (tag === 'all') return 'All Sanctuary 2 revisions'
+  if (REVISIONS.every((r) => tag.includes(r))) return 'All revisions and Sanctuary 3'
+  return tag.map((r) => REVISION_LABELS[r]).join(', ')
+}
+
+/** Whether a fact tagged `tag` shows for the chosen revision. `'all'` (no choice) shows everything; the tag `'all'` means Sanctuary 2 only. */
+export function appliesToRevision(tag: RevisionTag, choice: Revision | 'all'): boolean {
+  if (choice === 'all') return true
+  if (tag === 'all') return choice !== 'gen3'
+  return tag.includes(choice)
 }
 
 export function sourceText(ref: SourceRef): string {

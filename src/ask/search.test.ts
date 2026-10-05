@@ -35,13 +35,24 @@ describe('Ask the notes: finds the right passage', () => {
     ['first call what should I ask', 'ts-first-call'],
   ]
   // Two passages are right for this one: the guided entry and the generated A1_7 fault entry. Either may lead.
+  it('"which pins are the CTs on" -> ts-ct-check is in the top three', () => {
+    expect(top('which pins are the CTs on').slice(0, 3).map((h) => h.chunk.id)).toContain('ts-ct-check')
+  })
+
+  it('"sanctuary 3 batteries disconnected" -> ts-gen3-battery-comm is in the top three', () => {
+    expect(top('sanctuary 3 batteries disconnected').slice(0, 3).map((h) => h.chunk.id)).toContain('ts-gen3-battery-comm')
+  })
+
+  it('"battery low inverter will not charge check the CTs" -> ts-gen3-battery-comm is in the top three', () => {
+    expect(top('battery low inverter will not charge check the CTs').slice(0, 3).map((h) => h.chunk.id)).toContain('ts-gen3-battery-comm')
+  })
+
   it('"grid over voltage" -> the guided entry is in the top three', () => {
     expect(top('grid over voltage').slice(0, 2).map((h) => h.chunk.id)).toContain('ts-grid-overvoltage')
   })
   // The lesson on the same topic, or the meter-test entry, may legitimately rank next to the guided entry.
   for (const [q, id] of [
     ['check wifi hotspot', 'ts-app-offline'],
-    ['which pins are the CTs on', 'ts-ct-check'],
     ['how do I change my wifi', 'ts-change-wifi'],
     ['change wifi password', 'ts-change-wifi'],
     ['new router wifi', 'ts-change-wifi'],

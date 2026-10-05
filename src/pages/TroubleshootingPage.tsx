@@ -4,6 +4,7 @@ import { getModule } from '../content'
 import { FAULT_FOOTNOTE } from '../content/data/faults'
 import { REVISION_LABELS, sourceText } from '../content/labels'
 import { AREA_LABELS, ESCALATION, TROUBLESHOOTING, type TroubleshootingArea, type TroubleshootingEntry } from '../content/troubleshooting'
+import Gen3Note from '../components/Gen3Note'
 import RevisionSelect from '../components/RevisionSelect'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
 import { Disclosure, PageHeader, ui } from '../components/ui'
@@ -24,7 +25,7 @@ export default function TroubleshootingPage() {
   const [rev, setRev] = useState<RevisionChoice>('all')
   const [openIds, setOpenIds] = useState<Set<string>>(new Set())
   const [scrollTo, setScrollTo] = useState<string | null>(null)
-  const entries = useMemo(() => filterEntries(TROUBLESHOOTING, area, query), [area, query])
+  const entries = useMemo(() => filterEntries(TROUBLESHOOTING, area, query).filter((e) => rev === 'all' || stepsFor(e, rev).length > 0), [area, query, rev])
   const count = (a: TroubleshootingArea | 'all') => filterEntries(TROUBLESHOOTING, a, query).length
 
   // From the chat: show the whole list, open that entry and scroll to it.
@@ -89,6 +90,7 @@ export default function TroubleshootingPage() {
           />
           <RevisionSelect value={rev} onChange={setRev} />
         </div>
+        <Gen3Note rev={rev} />
       </div>
 
       {entries.length === 0 ? (

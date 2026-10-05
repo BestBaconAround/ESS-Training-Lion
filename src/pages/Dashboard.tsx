@@ -18,7 +18,7 @@ export default function Dashboard() {
       <section className={`${ui.card} p-5 sm:p-6`}>
         <PageHeader
           title="Sanctuary 2 support training"
-          lead="Seven modules. Each has short lessons, a scored quiz and a simulator you can repeat."
+          lead="Seven modules on the Sanctuary 2. Each has short lessons, a scored quiz and a simulator you can repeat. Sanctuary 3 (Gen 3) is in Troubleshooting, Procedures and Reference: pick Sanctuary 3 in the Revision menu."
           right={
             <div className="w-full sm:w-64">
               <ProgressBar percent={overall} label={`Overall ${overall}% across ${ready.length} available ${ready.length === 1 ? 'module' : 'modules'}`} />

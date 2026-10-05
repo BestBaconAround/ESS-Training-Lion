@@ -26,7 +26,7 @@ export const CHECKLIST: CheckItem[] = [
   { id: 'reset', group: 'Communication', label: 'Pressed the communicator reset button and waited 3 minutes', sources: [AUTHOR] },
   { id: 'comm-cycle', group: 'Communication', label: 'Power cycled the communicator (tried a hotspot if needed)', sources: [AUTHOR] },
   { id: 'comm-12v', group: 'Power and cables', label: 'EMS-C: 12 V is going to the communicator', sources: [AUTHOR, TSM(39)] },
-  { id: 'cables', group: 'Power and cables', label: 'Tested the Ethernet cables with a cable tester (replaced any that failed)', sources: [TSM(23, 80, 81)] },
+  { id: 'cables', group: 'Power and cables', label: 'Tested the Ethernet cables with a cable tester (replaced any that failed; the OEM black cables often fail)', sources: [TSM(23, 80, 81), AUTHOR] },
   { id: 'power-cycle', group: 'Power and cables', label: 'Power cycled the inverter(s)', sources: [TSM(56)] },
 ]
 
@@ -43,6 +43,7 @@ export const REVISION_CHOICES = [
   { value: 'rev2', label: 'Rev 2' },
   { value: 'rev3', label: 'Rev 3' },
   { value: 'rev4', label: 'Rev 4' },
+  { value: 'gen3', label: 'Sanctuary 3' },
   { value: 'unknown', label: 'Not sure' },
 ] as const
 

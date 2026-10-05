@@ -3,6 +3,7 @@ import { BATTERY_RULES, CLASS_INFO } from '../content/sims/benchParams'
 import { ESCALATION, TROUBLESHOOTING, type TroubleshootingEntry } from '../content/troubleshooting'
 import type { Revision, RevisionTag, SourceRef } from '../content/types'
 import { src } from '../content/helpers'
+import { appliesToRevision } from '../content/labels'
 import { classify } from '../sims/bench/batteries'
 import type { ChunkLink } from './corpus'
 import type { Hit, SearchIndex } from './search'
@@ -46,6 +47,7 @@ const byId = (id: string): TroubleshootingEntry | undefined => TROUBLESHOOTING.f
 export function detectRevisions(text: string): Revision[] {
   const found = new Set<Revision>()
   for (const m of text.matchAll(/\brev(?:ision)?\.?\s*#?([1-4])\b/gi)) found.add(`rev${m[1]}` as Revision)
+  if (/\b(?:gen\.?\s*3|sanctuary\s*3|san\s*3)\b/i.test(text)) found.add('gen3')
   return [...found]
 }
 
@@ -76,7 +78,7 @@ export function detectBatteryReadings(text: string): number[] {
 
 const linesOf = (e: TroubleshootingEntry, rev: Revision | null, limit = 5): IdeaLine[] =>
   e.steps
-    .filter((s) => !rev || s.revisions === 'all' || s.revisions.includes(rev))
+    .filter((s) => !rev || appliesToRevision(s.revisions, rev))
     .slice(0, limit)
     .map((s) => ({ text: s.text, sources: s.sources, revisions: s.revisions }))
 
@@ -183,7 +185,7 @@ export function analyzeNotes(text: string, index: SearchIndex): NotesAnalysis {
       kind: 'match',
       title: c.title,
       detail: c.where,
-      lines: c.lines.filter((l) => !rev || l.revisions === 'all' || l.revisions.includes(rev)).slice(0, 5),
+      lines: c.lines.filter((l) => !rev || appliesToRevision(l.revisions, rev)).slice(0, 5),
       link: c.link,
     })
     matches++

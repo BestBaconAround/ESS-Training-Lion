@@ -2,10 +2,13 @@
 // satisfy these types, so new modules/lessons/quizzes need no UI changes.
 // See CLAUDE.md ("Content structure", "Hardware variants") for the rules.
 
-/** Gen 2 black Sanctuary hardware revisions. Add new values here for new hardware. */
-export type Revision = 'rev1' | 'rev2' | 'rev3' | 'rev4'
+/** Hardware revisions: Sanctuary 2 Revs 1-4 (Gen 2, black) and Sanctuary 3 (Gen 3, white). Add new values here for new hardware. */
+export type Revision = 'rev1' | 'rev2' | 'rev3' | 'rev4' | 'gen3'
 
-/** Which revisions a fact applies to. */
+/**
+ * Which revisions a fact applies to. `'all'` means all four Sanctuary 2 revisions (Revs 1-4) and NOT Sanctuary 3: most of the
+ * content was written before Sanctuary 3 was added. A fact that also holds for Sanctuary 3 is tagged `EVERY` (see labels.ts).
+ */
 export type RevisionTag = 'all' | Revision[]
 
 /** Where a fact came from. Never mix sources: tag each fact. */

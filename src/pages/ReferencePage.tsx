@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react'
 import AddFiles from '../ask/AddFiles'
+import Gen3Note from '../components/Gen3Note'
 import RevisionSelect from '../components/RevisionSelect'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
 import { Disclosure, PageHeader, ui } from '../components/ui'
 import { FAULT_CODES } from '../content/data/faults'
-import { sourceText } from '../content/labels'
+import { appliesToRevision, sourceText } from '../content/labels'
 import { REFERENCE_SECTIONS } from '../content/reference'
 import type { RevisionTag } from '../content/types'
 import type { RevisionChoice } from '../troubleshooting/filter'
 
-const appliesTo = (revisions: RevisionTag, rev: RevisionChoice) => rev === 'all' || revisions === 'all' || revisions.includes(rev)
+const appliesTo = (revisions: RevisionTag, rev: RevisionChoice) => appliesToRevision(revisions, rev)
 const norm = (s: string) => s.toLowerCase()
 const matches = (haystack: string, words: string[]) => words.every((w) => haystack.includes(w))
 
@@ -65,6 +66,7 @@ export default function ReferencePage() {
         />
         <RevisionSelect value={rev} onChange={setRev} />
       </div>
+      <Gen3Note rev={rev} />
 
       {sections.length === 0 && faults.length === 0 && (
         <p className={`${ui.card} border-dashed p-4 text-sm ${ui.muted}`}>Nothing matches that. Try a code, a part name or a number.</p>

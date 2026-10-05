@@ -27,11 +27,11 @@ export const HOMEOWNER_MESSAGES: HomeownerMessage[] = [
   {
     id: 'h-wifi',
     group: 'Internet',
-    title: 'Change your Wi-Fi name or password (EMS-C, Rev 4)',
+    title: 'Change your Wi-Fi name or password (EMS-C: Rev 4 and Sanctuary 3)',
     customerSays: 'I got a new router. / I changed my Wi-Fi password. / My system says it is offline.',
     text: `Here is how to change the Wi-Fi on your Lion system. Stand next to it.
 
-1. Take off the cover under the lights. It has 4 screws (4 mm hex key).
+1. Take off the cover under the lights. It has 4 screws. A black system needs a 4 mm hex key.
 2. Find the small box called the EMS-C. Press the Mode button under the network plug. A blue light should flash.
 3. Open the Lion Smart app.
 4. Tap System, then the gear icon at the top right.
@@ -43,7 +43,7 @@ Android phones cannot do this in the app yet. Use a laptop: go to smart.lionener
 
 If it still will not connect, call us.`,
     sources: [{ source: 'author', note: 'Wi-Fi procedure, updated by the author' }, TSM(61)],
-    revisions: ['rev4'],
+    revisions: ['rev4', 'gen3'],
     todo: ['Screenshots of the app screens.'],
   },
   {

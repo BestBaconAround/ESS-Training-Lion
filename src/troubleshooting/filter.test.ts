@@ -35,8 +35,11 @@ describe('troubleshooting filter', () => {
   it('shows only steps that apply to the chosen revision', () => {
     const cycle = TROUBLESHOOTING.find((x) => x.id === 'ts-power-cycle')!
     expect(stepsFor(cycle, 'all')).toHaveLength(cycle.steps.length)
-    // One step is Rev 1 only (unplug the batteries), one applies to every revision (generator off).
-    expect(stepsFor(cycle, 'rev4')).toHaveLength(cycle.steps.length - 1)
+    // One step is Rev 1 only (unplug the batteries), some are Sanctuary 3 only, one applies to every Sanctuary 2 revision (generator off).
+    const gen3Only = cycle.steps.filter((x) => Array.isArray(x.revisions) && x.revisions.length === 1 && x.revisions[0] === 'gen3').length
+    expect(gen3Only).toBeGreaterThan(0)
+    expect(stepsFor(cycle, 'rev4')).toHaveLength(cycle.steps.length - 1 - gen3Only)
+    expect(stepsFor(cycle, 'gen3')).toHaveLength(gen3Only)
     expect(stepsFor(cycle, 'rev1')).toHaveLength(2)
     expect(stepsFor(cycle, 'rev3').map((x) => x.revisions)).toEqual(['all'])
     // Mixed entry: Rev 4-only steps are hidden on Rev 3, steps for every revision stay.

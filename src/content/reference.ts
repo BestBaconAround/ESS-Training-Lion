@@ -49,6 +49,22 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
     ],
   },
   {
+    id: 'sanctuary3',
+    title: 'Sanctuary 3 (Gen 3, white)',
+    rows: [
+      row('How to tell it apart', 'The case is white and it has two power buttons on the side. Sanctuary 2 is black.', [src('tsm', 15)], ['gen3']),
+      row('Batteries', 'White batteries with a round power button. They talk to the inverter over CAN, so Sanctuary 3 batteries and Sanctuary 2 batteries cannot be mixed with the other inverter. If the round button is off, the battery cannot charge or discharge and communication is off.', [src('tsm', 20, 27)], ['gen3']),
+      row('Battery communication order', 'EMS-C battery port > battery #1 COM1. Battery #1 COM2 > battery #2 COM1, and so on. The last battery\'s COM2 stays empty. No RJ45 splitters. If battery communication fails: check cables with a tester, power cycle the batteries and the inverter, check firmware (ARM at least 0.5.6, DSP at least 1.9).', [src('tsm', 28), src('emsc', 7)], ['gen3']),
+      row('Communicator wiring', 'The EMS-C inverter port connects to the parent inverter\'s Parallel A port. The parent\'s Parallel B port connects to the next inverter\'s Parallel A port.', [src('tsm', 60), src('emsc', 7)], ['gen3']),
+      row('CAN termination', 'If long cables cause signal reflections, turn on micro-switch #1 on the last inverter only (120 ohm resistor; installation manual appendix D). The EMS-C already has a 120 ohm resistor.', [src('tsm', 28)], ['gen3']),
+      row('Load relays', 'Sanctuary 3 does not have the load relays that Sanctuary 2 has.', [src('tsm', 48)], ['gen3']),
+      row('Off-grid load limit', 'Limit load to 6 kW per leg per inverter (4 kW per leg on Sanctuary 2).', [src('tsm', 67)], ['gen3']),
+      row('CT plug and size', 'Same plug as Rev 4 (see the CT pins row): put it in the CT1 & CT2 port, not the meter port. The CT size is 200A / 100mA (2000:1).', [src('tsm', 9), src('settings', 31)], ['gen3']),
+      row('Powering on', 'Turn on the power button on each battery first, then the Complete System Shutdown switch, the PV switch, the grid breaker, the EMS-C switch, and the AC/DC switch.', [src('tsm', 10)], ['gen3']),
+      row('Batteries will not charge', 'If the cables are good but the battery is low and will not charge, check the CTs. Wrong CTs can let the batteries drain to nothing. Fix the CTs, then power cycle the batteries.', [src('author')], ['gen3']),
+    ],
+  },
+  {
     id: 'revisions',
     title: 'Telling the revisions apart',
     rows: [
@@ -56,6 +72,7 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
       row('Rev 2', 'Six metallic RJ45 connectors facing downward, still the single row of green push connectors (20 AWG solid wire).', [src('tsm', 14)], ['rev2']),
       row('Rev 3', 'A black plastic RJ45 connector to the left of the six metallic ones, and a second row of push connectors.', [src('tsm', 14)], ['rev3']),
       row('Rev 4', 'Plug-in screw terminals instead of push connectors, and two power buttons on the side.', [src('tsm', 14, 15)], ['rev4']),
+      row('Sanctuary 3 (Gen 3)', 'White case with two power buttons on the side, and white batteries with a round power button.', [src('tsm', 15, 20)], ['gen3']),
       row('Communicator', 'WCM on Revs 1-3 (and some Rev 4). EMS-C standard on Rev 4. Only one communicator per system, in the parent inverter.', [src('emsc', 13), AUTHOR]),
       row('CT size', '90A/90mA (1000:1) on Rev 1 and Rev 2. 200A/100mA (2000:1) on Rev 3 and Rev 4.', [src('settings', 31)]),
     ],

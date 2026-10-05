@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { REFERENCE_SECTIONS } from './reference'
 
-const VALID = new Set(['rev1', 'rev2', 'rev3', 'rev4'])
+const VALID = new Set(['rev1', 'rev2', 'rev3', 'rev4', 'gen3'])
 
 describe('reference material', () => {
   it('has unique section ids and rows with a value, a source and valid revisions', () => {

@@ -127,7 +127,7 @@ export function formatTicket(t: Ticket): string {
 
 /** The words the notes analysis reads: everything typed that describes the problem. */
 export function analysisText(t: Ticket): string {
-  return [t.reason, t.began, t.readings, t.actions, t.notes, t.codes.join(' '), t.revision.startsWith('rev') ? t.revision.replace('rev', 'Rev ') : ''].filter(Boolean).join('\n')
+  return [t.reason, t.began, t.readings, t.actions, t.notes, t.codes.join(' '), t.revision === 'gen3' ? 'Sanctuary 3' : t.revision.startsWith('rev') ? t.revision.replace('rev', 'Rev ') : ''].filter(Boolean).join('\n')
 }
 
 // ---- draft storage (this browser tab only) ---------------------------------

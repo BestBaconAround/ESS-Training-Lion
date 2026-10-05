@@ -1,4 +1,5 @@
 import { FAULT_CODES, FAULT_FOOTNOTE } from './data/faults'
+import { EVERY } from './labels'
 import { src } from './helpers'
 import type { RevisionTag, SourceRef } from './types'
 
@@ -192,6 +193,7 @@ const guided: TroubleshootingEntry[] = [
       step('Set the charge current to 20A (Inverter Max Charge Current on one inverter, System Charge Current on parallel inverters) and put the system in battery priority mode (Emergency Mode). Unplug one power cable from each of the other batteries, then plug in the low battery so it charges by itself.', [TSM(24)]),
       step('If it does not charge, send the "activate battery" command, or use a 60V/5A variable power supply set to 54V/5A connected to the inverter battery terminals. Follow standard electrical safety for this voltage.', [TSM(24), AUTHOR]),
       step('If the terminal voltage is less than 40V, try charging it manually with 5A. If no charging current is accepted, check the battery circuit breaker and try 5A again.', [TSM(80)]),
+      step('The OEM (black) Ethernet cables seem to fail, and replacing the cable often fixes communication problems. Replace the cable instead of reseating it again.', [AUTHOR], EVERY),
       step('If the terminals are above 50V, try a different BMS cable and check the cables with an Ethernet cable tester. RJ45 pin 6 = GND, 7 = A, 8 = B.', [TSM(80), AUTHOR]),
       step('Once the lowest cell is over 3.0V, put the charge current back (usually 140A). Bring the other batteries back in when the voltage is within 0.5V of each one, then change from emergency mode back to normal mode.', [TSM(25)]),
       step('If it still will not address, restart the commissioning process and power cycle the system. This is only for a system that never finished its first commissioning.', [AUTHOR, src('emsc', 16)]),
@@ -310,7 +312,7 @@ const guided: TroubleshootingEntry[] = [
     title: 'Change the Wi-Fi network or password',
     customerSays: 'I got a new router, or changed my Wi-Fi password, and the system is offline.',
     steps: [
-      step('Homeowner with an EMS-C (Gen 2 Rev 4): take off the cover below the LEDs (4 screws, 4 mm hex on a black system). Press the mode button below the EMS-C Ethernet port. The Bluetooth light should flash for pairing. Open the Lion Smart app, tap the gear icon under System, then Network Connection under Sanctuary Network Connection, and follow the steps. When connected, close the app and press the reset button at the bottom of the EMS-C, next to the power switch. It should show online in the app within about five minutes.', [AUTH_WIFI], ['rev4']),
+      step('Homeowner with an EMS-C (Gen 2 Rev 4 or Sanctuary 3): take off the cover below the LEDs (4 screws, 4 mm hex on a black system). Press the mode button below the EMS-C Ethernet port. The Bluetooth light should flash for pairing. Open the Lion Smart app, tap the gear icon under System, then Network Connection under Sanctuary Network Connection, and follow the steps. When connected, close the app and press the reset button at the bottom of the EMS-C, next to the power switch. It should show online in the app within about five minutes.', [AUTH_WIFI], ['rev4', 'gen3']),
       step('Homeowner with a WCM (Gen 2 Rev 3): press the left button next to the WCM LED (it blinks white for pairing), do the same app steps, then press the reset button on the WCM. It goes white, then green when connected. It takes about 2 minutes to time out of pairing and connect, and the Smart app does not update the moment it turns green.', [AUTH_WIFI], ['rev3']),
       step('Technician: press the mode button on the communicator. In the Technician app tap Select Service > Change or Reconnect Network and follow the procedure. When it succeeds, close the app, press the reset button and wait a few minutes.', [AUTH_WIFI, TSM(61)]),
       step('You have to be within Bluetooth range of the Sanctuary. The Wi-Fi network name (SSID) and password cannot be changed from a distance.', [TSM(60)]),
@@ -322,6 +324,7 @@ const guided: TroubleshootingEntry[] = [
       step('Check the antennas: the antenna labeled cellular goes to the cellular port and the antenna labeled WiFi/Bluetooth goes to the WiFi port. A wrong antenna gives poor reception.', [TSM(60), AUTH_WIFI]),
       step('Check the network is 2.4 GHz. 5 GHz is not supported yet.', [AUTH_WIFI]),
       step('Check that the red communicator cable is in the right inverter communication port. On Gen 2 Rev 4 it is the WiFi port.', [AUTH_WIFI, src('emsc', 8)], ['rev4']),
+      step('Sanctuary 3: the EMS-C inverter port connects to the parent inverter\'s Parallel A port. The parent inverter\'s Parallel B port connects to the next inverter\'s Parallel A port.', [AUTH_WIFI, src('emsc', 7), TSM(60)], ['gen3']),
       step('Power cycle the communicator. Try connecting to a hotspot network. If available, update the communicator to the latest firmware. EMS-C only: check that 12 V is going to the communicator.', [AUTH_WIFI, TSM(13)]),
       step('Check that the communicator is joined to the homeowner\'s Wi-Fi and not to a mobile hotspot, and that data shows on smart.lionenergy.com. Then read the EMS-C light: solid blue means connected, solid red means disconnected.', [TSM(13), src('emsc', 6)]),
     ],
@@ -335,7 +338,7 @@ const guided: TroubleshootingEntry[] = [
   {
     id: 'ts-power-cycle',
     area: 'inverter',
-    title: 'How to power cycle a Rev 4 inverter',
+    title: 'How to power cycle an inverter (Rev 4 and Sanctuary 3)',
     steps: [
       step('Turn off the grid breaker. (Find it first.)', [AUTHOR], ['rev4']),
       step('Turn off the PV switch.', [AUTHOR], ['rev4']),
@@ -346,9 +349,19 @@ const guided: TroubleshootingEntry[] = [
       step('Wait about 30 seconds, until the relays click and the normal light on the face of the inverter turns off.', [AUTHOR, TSM(56)], ['rev4']),
       step('Repeat in reverse order.', [AUTHOR], ['rev4']),
       step('It takes about two minutes for the inverter to fully power back on. Then check that the EMS-C status light turns solid.', [AUTHOR], ['rev4']),
+      step('Sanctuary 3: turn off the grid breaker. (Find it first.)', [AUTHOR], ['gen3']),
+      step('Sanctuary 3: turn off the Bat switch (the round power button on each battery).', [AUTHOR, TSM(10)], ['gen3']),
+      step('Sanctuary 3: turn off the PV switch.', [AUTHOR], ['gen3']),
+      step('Sanctuary 3: push out the AC/DC button, then push out the Complete System Shutdown button.', [AUTHOR], ['gen3']),
+      step('Sanctuary 3: wait ten seconds, until the normal light on the face of the inverter turns off.', [AUTHOR], ['gen3']),
+      step('Sanctuary 3: repeat in reverse order. Turn the batteries on first (the power button on each battery), then the Complete System Shutdown switch, the PV switch, the grid breaker, the EMS-C power switch and the AC/DC switch.', [AUTHOR, TSM(10)], ['gen3']),
+      step('Sanctuary 3: it takes about two minutes for the inverter to fully power back on. Then check that the EMS-C status light turns solid (it may take a minute or two longer).', [AUTHOR], ['gen3']),
     ],
     related: [{ moduleId: 'inverter-controls', lessonId: 'm2-faults' }],
-    todo: ['Power cycle steps for Revs 1-3 in the author\'s own order (single power button and DC switch). The Technical Service Manual (p.56) gives the generic steps: PV switch off, grid off, power buttons off.'],
+    todo: [
+      'Power cycle steps for Revs 1-3 in the author\'s own order (single power button and DC switch). The Technical Service Manual (p.56) gives the generic steps: PV switch off, grid off, power buttons off.',
+      'Sanctuary 3: confirm that the author\'s "Bat switch" is the round power button on each battery, and whether to wait ten seconds (author) or about 30 seconds (the Technical Service Manual gives 30 s for the Sanctuary 2 relays, p.56).',
+    ],
   },
 
   // ------------------------------------------------------------------ power
@@ -418,13 +431,14 @@ const guided: TroubleshootingEntry[] = [
     title: 'CT check (grid CT problems)',
     steps: [
       step('On a Rev 4, the L1 CT is on pins 3 and 6 and the L2 CT is on pins 1 and 2.', [NOTES], ['rev4']),
-      step('The CT arrows must point away from the main panel and toward the grid power source.', [src('manual', 34)]),
+      step('The CT arrows must point away from the main panel and toward the grid power source. Correct CT placement and orientation is critical: if the CTs are on the opposite lines or face the other way, the current reads backwards.', [src('manual', 34), TSM(9)], EVERY),
       step('In a system with several inverters, only the parent inverter has the CTs.', [src('manual', 34)]),
       step('Read the rating on the CTs themselves (the commissioning example showed 200A / 100mA).', [src('video')]),
-      step('Two CT sizes have shipped. 90A / 90mA (1000:1 ratio) is used on Sanctuary 2 Rev 1 and Rev 2 hardware. 200A / 100mA (2000:1 ratio) is used on Rev 3, Rev 4 and Sanctuary 3. The Current Transducer Ratio setting has to match the CTs that are installed.', [SETTINGS(31, 32)]),
-      step('Fault A1_12 (Grid CT is Reversed) exists, but do not rely on it: it does not detect improper CT installation. Check that the CTs are installed correctly, with the arrow pointing away from the inverter.', [TSM(74)]),
-      step('The CTs must at least include the current going to the inverter grid port. Loads upstream of the CTs cannot use power on demand from the battery while on-grid. If the CTs are on the opposite lines, or face the wrong way, the current reads backwards.', [TSM(9)]),
-      step('On Rev 4 and Sanctuary 3 both CTs share one plug. Pins 3 and 6 are the L1 CT (3 = N, 6 = P) and pins 1 and 2 are the L2 CT (1 = N, 2 = P). If the CT plug is put in the meter port instead, only the L2 CT reads power, and it reads backwards as if it were the L1 CT. Use the CT port shown on the diagram inside the wiring panel cover.', [TSM(9)], ['rev4']),
+      step('Two CT sizes have shipped. 90A / 90mA (1000:1 ratio) is used on Sanctuary 2 Rev 1 and Rev 2 hardware. 200A / 100mA (2000:1 ratio) is used on Rev 3, Rev 4 and Sanctuary 3. The Current Transducer Ratio setting has to match the CTs that are installed.', [SETTINGS(31, 32)], EVERY),
+      step('Fault A1_12 (Grid CT is Reversed) exists, but do not rely on it: it does not detect improper CT installation. Check that the CTs are installed correctly, with the arrow pointing away from the inverter.', [TSM(74)], EVERY),
+      step('The CTs must at least include the current going to the inverter grid port. Loads upstream of the CTs cannot use power on demand from the battery while on-grid. If the CTs are on the opposite lines, or face the wrong way, the current reads backwards.', [TSM(9)], EVERY),
+      step('Sanctuary 3: wrong CTs can stop the inverter from charging the batteries and let them drain to nothing. If the battery communication cables are good but the battery is low and the inverter will not charge it, check the CTs, fix them, then power cycle the batteries.', [AUTHOR], ['gen3']),
+      step('On Rev 4 and Sanctuary 3 both CTs share one plug. Pins 3 and 6 are the L1 CT (3 = N, 6 = P) and pins 1 and 2 are the L2 CT (1 = N, 2 = P). If the CT plug is put in the meter port instead, only the L2 CT reads power, and it reads backwards as if it were the L1 CT. Use the CT port shown on the diagram inside the wiring panel cover.', [TSM(9)], ['rev4', 'gen3']),
     ],
     related: [{ moduleId: 'inverter-controls', lessonId: 'm2-faults' }],
     todo: ['A photo of the CT wires spliced to Cat5 is still to be added.'],
@@ -606,6 +620,34 @@ const guided: TroubleshootingEntry[] = [
     todo: ['The Settings Guide describes A1_3 two ways (p.14: raised together with A1_4 when on-grid DoD is the same or less than off-grid DoD; p.14: raised after A1_4 when on-grid DoD is higher). Confirm with the author which one the specialist should expect.'],
   },
 
+  {
+    id: 'ts-gen3-battery-comm',
+    area: 'battery',
+    title: 'Sanctuary 3: batteries disconnected, or the inverter will not charge them',
+    customerSays: 'The app says the batteries are disconnected (BMS communication alarm), or the battery is low and will not charge.',
+    steps: [
+      step('Sanctuary 3 batteries have a round power button. If it is off, the battery cannot accept charging current or discharge power, and communication is disabled. Check this first.', [TSM(27)], ['gen3']),
+      step('If the button is on and no LEDs on the battery turn on, the battery is likely below 0% with the BMS asleep. It needs charging current to wake up.', [TSM(28)], ['gen3']),
+      step('Check the communication cables. The parent inverter\'s Parallel A port connects to the EMS-C\'s inverter port. The EMS-C\'s battery port connects to COM1 on battery #1. COM2 on battery #1 connects to COM1 on the next battery, and so on. The last battery\'s COM2 port stays empty.', [TSM(28), src('emsc', 7)], ['gen3']),
+      step('Test every communication cable with an Ethernet cable tester. No RJ45 splitters are used on Sanctuary 3 BMS communication cables.', [TSM(28)], ['gen3']),
+      step('If a cable fails, or the problem stays, replace the cable. The OEM (black) cables seem to fail, and replacing the cable often fixes communication problems.', [AUTHOR], ['gen3']),
+      step('Power cycle all the batteries (push the round power button off, then on, on every battery). Then power cycle the inverter.', [TSM(28)], ['gen3']),
+      step('Check the inverter firmware. The original firmware sometimes let the child inverter in a parallel system interfere with BMS communication. Firmware older than the originally released version (June 2025) will not communicate with the batteries. ARM must be at least 0.5.6 and DSP at least 1.9. Update it with the Lion Smart web app or the Lion Technician app.', [TSM(28)], ['gen3']),
+      step('If long cables may be causing CAN signal reflections, turn on micro-switch #1 on the last inverter only (it connects a 120 ohm termination resistor; see the installation manual, appendix D). The EMS-C already has one.', [TSM(28)], ['gen3']),
+      step('Make sure the system was commissioned with the correct number of batteries.', [TSM(28)], ['gen3']),
+      step('PACEEX app: with only battery #1 on, connect to it and check its software version. If it is 41826-1.02 (old), update it to 41826-1.40 with an iPhone, because the old version can cause BMS communication problems. Then turn on all the batteries and check that the master battery\'s PACK parallel number matches the number of batteries.', [TSM(29), NOTES], ['gen3']),
+      step('If battery communication fails during commissioning, make the 2nd battery the master. If it still fails, make the 3rd battery the master, and so on.', [NOTES], ['gen3']),
+      step('Other things to check: the inverter is on and communicating, the power buttons on the inverter are pushed in, the battery power button and breaker are on, and the BMS wiring is right. You can also shorten the grid reconnect time and then send the battery awaken command, and make sure the battery wakeup command is enabled.', [NOTES], ['gen3']),
+      step('If the cables are good but the battery is low and the inverter will not charge it, check the CTs. If the CTs are wrong, the batteries can drain down to nothing. Fix the CTs, then power cycle the batteries. This should fix it.', [AUTHOR], ['gen3']),
+      step('Field example: the batteries were below 48 V and had to be force charged. At about 50 V the inverter started to charge them, but the graph showed the battery charging from nothing. The CTs were checked and found to be incorrect, and they probably caused the problem.', [AUTHOR], ['gen3']),
+    ],
+    related: [{ moduleId: 'dc-wiring-batteries', lessonId: 'm4-dead-battery' }],
+    todo: [
+      'The Sanctuary 3 installation manual is not in this site yet, so the wiring and appendix D details come only from the Technical Service Manual and the EMS-C manual.',
+      'How to force charge a Sanctuary 3 battery is not written down. The author did it on a call when the batteries were under 48 V.',
+      'The Gen 3 CT test (it involves writing a register) is held back: register-write procedures are not published.',
+    ],
+  },
 ]
 
 const faultEntries: TroubleshootingEntry[] = FAULT_CODES.map((f) => ({
@@ -615,8 +657,8 @@ const faultEntries: TroubleshootingEntry[] = FAULT_CODES.map((f) => ({
   faultCode: f.code,
   description: f.description,
   steps: f.solutions.length
-    ? f.solutions.map((x) => (typeof x === 'string' ? step(x, f.sources) : step(x.text, x.sources ?? f.sources, x.revisions)))
-    : [step('The Technical Service Manual lists no troubleshooting for this code.', f.sources)],
+    ? f.solutions.map((x) => (typeof x === 'string' ? step(x, f.sources, EVERY) : step(x.text, x.sources ?? f.sources, x.revisions === 'all' ? EVERY : x.revisions)))
+    : [step('The Technical Service Manual lists no troubleshooting for this code.', f.sources, EVERY)],
   todo: f.todo,
   related: [{ moduleId: 'inverter-controls', lessonId: 'm2-faults' }],
 }))

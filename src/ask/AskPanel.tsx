@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { sourceText } from '../content/labels'
+import { appliesToRevision, sourceText } from '../content/labels'
+import type { RevisionTag } from '../content/types'
 import { RevisionBadge } from '../components/SourceNote'
 import { Chevron, ui } from '../components/ui'
 import { useHistory } from '../history/HistoryContext'
@@ -18,7 +19,7 @@ type Message =
 let index: SearchIndex | null = null
 const getIndex = () => (index ??= new SearchIndex(buildCorpus()))
 
-const appliesTo = (revisions: 'all' | readonly string[], rev: RevisionChoice) => rev === 'all' || revisions === 'all' || revisions.includes(rev)
+const appliesTo = (revisions: RevisionTag, rev: RevisionChoice) => appliesToRevision(revisions, rev)
 
 export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: string) => void; rev: RevisionChoice }) {
   const [messages, setMessages] = useState<Message[]>([

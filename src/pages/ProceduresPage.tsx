@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
+import Gen3Note from '../components/Gen3Note'
 import RevisionSelect from '../components/RevisionSelect'
 import { Disclosure, PageHeader, ui } from '../components/ui'
 import { PROCEDURES, PROCEDURE_GROUPS, statusOf, type Procedure, type ProcedureLink, type ProcedureStatus } from '../content/procedures'
+import { appliesToRevision } from '../content/labels'
 import type { RevisionTag } from '../content/types'
 import type { RevisionChoice } from '../troubleshooting/filter'
 
@@ -15,7 +17,7 @@ const STATUS: Record<ProcedureStatus, { label: string; cls: string }> = {
 }
 
 const FILTERS: (ProcedureStatus | 'all')[] = ['all', 'ready', 'partial', 'todo', 'blocked']
-const applies = (r: RevisionTag, rev: RevisionChoice) => rev === 'all' || r === 'all' || r.includes(rev)
+const applies = (r: RevisionTag, rev: RevisionChoice) => appliesToRevision(r, rev)
 const norm = (t: string) => t.toLowerCase()
 
 function linkTarget(l: ProcedureLink): string {
@@ -47,12 +49,14 @@ export default function ProceduresPage() {
 
   const visible = useMemo(
     () =>
-      PROCEDURES.filter((p) => filter === 'all' || statusOf(p) === filter).filter((p) => {
+      PROCEDURES.filter((p) => filter === 'all' || statusOf(p) === filter)
+        .filter((p) => rev === 'all' || !p.steps?.length || p.steps.some((x) => appliesToRevision(x.revisions, rev)))
+        .filter((p) => {
         if (!words.length) return true
         const hay = norm([p.title, p.summary, ...(p.steps?.map((x) => x.text) ?? []), ...(p.todo ?? [])].join(' '))
         return words.every((w) => hay.includes(w))
       }),
-    [filter, words],
+    [filter, words, rev],
   )
 
   return (
@@ -86,6 +90,7 @@ export default function ProceduresPage() {
         <input id="proc-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search, e.g. generator, TOU, relay" className={`${ui.input} max-w-md flex-1`} />
         <RevisionSelect value={rev} onChange={setRev} />
       </div>
+      <Gen3Note rev={rev} />
 
       {visible.length === 0 && <p className={`${ui.card} border-dashed p-4 text-sm ${ui.muted}`}>Nothing matches. Try fewer words or another status.</p>}
 

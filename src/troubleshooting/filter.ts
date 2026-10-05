@@ -1,4 +1,5 @@
 import type { TroubleshootingArea, TroubleshootingEntry, TroubleshootingStep } from '../content/troubleshooting'
+import { appliesToRevision } from '../content/labels'
 import type { Revision } from '../content/types'
 
 const norm = (s: string) => s.toLowerCase()
@@ -24,5 +25,5 @@ export type RevisionChoice = 'all' | Revision
 /** Steps that apply to the chosen revision. 'all' keeps every step. */
 export function stepsFor(entry: TroubleshootingEntry, rev: RevisionChoice): TroubleshootingStep[] {
   if (rev === 'all') return entry.steps
-  return entry.steps.filter((s) => s.revisions === 'all' || s.revisions.includes(rev))
+  return entry.steps.filter((s) => appliesToRevision(s.revisions, rev))
 }
