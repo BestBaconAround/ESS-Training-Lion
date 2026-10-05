@@ -17,6 +17,8 @@ export type SourceTag =
   | 'san2_2' // Installation Guide, updated 4/25/25 (2) - Revs 1-2
   | 'san2_3' // Installation Guide, updated 4/25/25 (3) - Rev 3
   | 'emsc' // EMS-C Manual, updated 4/13/25
+  | 'san3' // Sanctuary 3 Installation Guide & Manual, updated 3/10/26 (48 pp) - Sanctuary 3
+  | 'ctguide' // Lion Energy CT Guide, updated 4/09/26 (13 pp)
   | 'video' // Commissioning walkthrough video transcript
   | 'author' // Field knowledge supplied by the course author
   | 'web' // Public web page found by search (not Lion material). Never mixed with Lion facts; carries a url and the date searched

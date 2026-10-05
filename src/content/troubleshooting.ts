@@ -42,6 +42,8 @@ export interface TroubleshootingEntry {
 const AUTHOR = src('author')
 const NOTES = src('notes')
 const TSM = (...pages: number[]) => src('tsm', ...pages)
+const SAN3 = (...pages: number[]) => src('san3', ...pages)
+const CTG = (...pages: number[]) => src('ctguide', ...pages)
 const SETTINGS = (...pages: number[]) => src('settings', ...pages)
 const AUTH_WIFI: SourceRef = { source: 'author', note: 'Wi-Fi procedure and troubleshooting, updated by the author' }
 const step = (text: string, sources: SourceRef[], revisions: RevisionTag = 'all'): TroubleshootingStep => ({ text, sources, revisions })
@@ -350,17 +352,16 @@ const guided: TroubleshootingEntry[] = [
       step('Repeat in reverse order.', [AUTHOR], ['rev4']),
       step('It takes about two minutes for the inverter to fully power back on. Then check that the EMS-C status light turns solid.', [AUTHOR], ['rev4']),
       step('Sanctuary 3: turn off the grid breaker. (Find it first.)', [AUTHOR], ['gen3']),
-      step('Sanctuary 3: turn off the Bat switch (the round power button on each battery).', [AUTHOR, TSM(10)], ['gen3']),
+      step('Sanctuary 3: turn off the Bat switch (the round power button on each battery, confirmed by the author 10/5/2026).', [AUTHOR, TSM(10)], ['gen3']),
       step('Sanctuary 3: turn off the PV switch.', [AUTHOR], ['gen3']),
       step('Sanctuary 3: push out the AC/DC button, then push out the Complete System Shutdown button.', [AUTHOR], ['gen3']),
-      step('Sanctuary 3: wait ten seconds, until the normal light on the face of the inverter turns off.', [AUTHOR], ['gen3']),
+      step('Sanctuary 3: wait about 30 seconds, until the normal light on the face of the inverter turns off (author, 10/5/2026).', [AUTHOR, TSM(56)], ['gen3']),
       step('Sanctuary 3: repeat in reverse order. Turn the batteries on first (the power button on each battery), then the Complete System Shutdown switch, the PV switch, the grid breaker, the EMS-C power switch and the AC/DC switch.', [AUTHOR, TSM(10)], ['gen3']),
       step('Sanctuary 3: it takes about two minutes for the inverter to fully power back on. Then check that the EMS-C status light turns solid (it may take a minute or two longer).', [AUTHOR], ['gen3']),
     ],
     related: [{ moduleId: 'inverter-controls', lessonId: 'm2-faults' }],
     todo: [
       'Power cycle steps for Revs 1-3 in the author\'s own order (single power button and DC switch). The Technical Service Manual (p.56) gives the generic steps: PV switch off, grid off, power buttons off.',
-      'Sanctuary 3: confirm that the author\'s "Bat switch" is the round power button on each battery, and whether to wait ten seconds (author) or about 30 seconds (the Technical Service Manual gives 30 s for the Sanctuary 2 relays, p.56).',
     ],
   },
 
@@ -435,6 +436,8 @@ const guided: TroubleshootingEntry[] = [
       step('In a system with several inverters, only the parent inverter has the CTs.', [src('manual', 34)]),
       step('Read the rating on the CTs themselves (the commissioning example showed 200A / 100mA).', [src('video')]),
       step('Two CT sizes have shipped. 90A / 90mA (1000:1 ratio) is used on Sanctuary 2 Rev 1 and Rev 2 hardware. 200A / 100mA (2000:1 ratio) is used on Rev 3, Rev 4 and Sanctuary 3. The Current Transducer Ratio setting has to match the CTs that are installed.', [SETTINGS(31, 32)], EVERY),
+      step('What wrong CTs do (CT Guide): wrong location, no CTs, reversed arrows, or L1 and L2 swapped all give the inverter wrong grid readings. It may discharge the battery into the grid and charge it from the grid again and again, discharge at full power until the TOU set-point and then charge at full power, or think grid current is zero. Off-grid, CTs are not needed unless a generator is on the grid port.', [CTG(12)], EVERY),
+      step('Bad CT data on the graph: with backwards or L1/L2-swapped CTs the grid line can show sell-back for 24 hours, or the system alternates between charging from the grid and selling to the grid and the numbers do not add up. With CTs not installed or not connected, grid power reads zero and the calculated load follows solar.', [CTG(10, 11)], EVERY),
       step('Fault A1_12 (Grid CT is Reversed) exists, but do not rely on it: it does not detect improper CT installation. Check that the CTs are installed correctly, with the arrow pointing away from the inverter.', [TSM(74)], EVERY),
       step('The CTs must at least include the current going to the inverter grid port. Loads upstream of the CTs cannot use power on demand from the battery while on-grid. If the CTs are on the opposite lines, or face the wrong way, the current reads backwards.', [TSM(9)], EVERY),
       step('Sanctuary 3: wrong CTs can stop the inverter from charging the batteries and let them drain to nothing. If the battery communication cables are good but the battery is low and the inverter will not charge it, check the CTs, fix them, then power cycle the batteries.', [AUTHOR], ['gen3']),
@@ -628,23 +631,27 @@ const guided: TroubleshootingEntry[] = [
     steps: [
       step('Sanctuary 3 batteries have a round power button. If it is off, the battery cannot accept charging current or discharge power, and communication is disabled. Check this first.', [TSM(27)], ['gen3']),
       step('If the button is on and no LEDs on the battery turn on, the battery is likely below 0% with the BMS asleep. It needs charging current to wake up.', [TSM(28)], ['gen3']),
-      step('Check the communication cables. The parent inverter\'s Parallel A port connects to the EMS-C\'s inverter port. The EMS-C\'s battery port connects to COM1 on battery #1. COM2 on battery #1 connects to COM1 on the next battery, and so on. The last battery\'s COM2 port stays empty.', [TSM(28), src('emsc', 7)], ['gen3']),
+      step('Check the communication cables. Each battery comes with one 3 ft Ethernet cable. Battery #1 COMM1 goes to the BATTERY port on the EMS-C. COMM2 on battery #1 goes to COMM1 on battery #2, and so on. The last battery\'s COMM2 stays empty. The EMS-C\'s inverter port goes to the parent inverter\'s Parallel A port.', [SAN3(23), TSM(28), src('emsc', 7)], ['gen3']),
       step('Test every communication cable with an Ethernet cable tester. No RJ45 splitters are used on Sanctuary 3 BMS communication cables.', [TSM(28)], ['gen3']),
       step('If a cable fails, or the problem stays, replace the cable. The OEM (black) cables seem to fail, and replacing the cable often fixes communication problems.', [AUTHOR], ['gen3']),
       step('Power cycle all the batteries (push the round power button off, then on, on every battery). Then power cycle the inverter.', [TSM(28)], ['gen3']),
       step('Check the inverter firmware. The original firmware sometimes let the child inverter in a parallel system interfere with BMS communication. Firmware older than the originally released version (June 2025) will not communicate with the batteries. ARM must be at least 0.5.6 and DSP at least 1.9. Update it with the Lion Smart web app or the Lion Technician app.', [TSM(28)], ['gen3']),
-      step('If long cables may be causing CAN signal reflections, turn on micro-switch #1 on the last inverter only (it connects a 120 ohm termination resistor; see the installation manual, appendix D). The EMS-C already has one.', [TSM(28)], ['gen3']),
+      step('Micro-switches (above the six RJ45 connectors): #1 is the CAN BMS bus. Turn it on for the last parallel inverter only, because the EMS-C already has a 120 ohm resistor. #2 is RS-485 BMS and can stay off (Sanctuary 3 does not use RS-485 for BMS). #3 is the parallel CAN bus: turn it on for the first and last parallel inverter. #4 is the meter port (not used) and stays off. Turn #1 on if long cables may be causing CAN signal reflections.', [SAN3(47), TSM(28)], ['gen3']),
       step('Make sure the system was commissioned with the correct number of batteries.', [TSM(28)], ['gen3']),
       step('PACEEX app: with only battery #1 on, connect to it and check its software version. If it is 41826-1.02 (old), update it to 41826-1.40 with an iPhone, because the old version can cause BMS communication problems. Then turn on all the batteries and check that the master battery\'s PACK parallel number matches the number of batteries.', [TSM(29), NOTES], ['gen3']),
       step('If battery communication fails during commissioning, make the 2nd battery the master. If it still fails, make the 3rd battery the master, and so on.', [NOTES], ['gen3']),
       step('Other things to check: the inverter is on and communicating, the power buttons on the inverter are pushed in, the battery power button and breaker are on, and the BMS wiring is right. You can also shorten the grid reconnect time and then send the battery awaken command, and make sure the battery wakeup command is enabled.', [NOTES], ['gen3']),
-      step('If the cables are good but the battery is low and the inverter will not charge it, check the CTs. If the CTs are wrong, the batteries can drain down to nothing. Fix the CTs, then power cycle the batteries. This should fix it.', [AUTHOR], ['gen3']),
+      step('If the cables are good but the battery is low and the inverter will not charge it, check the CTs. If the CTs are wrong, the batteries can drain down to nothing. Fix the CTs, then power cycle the batteries. This should fix it.', [AUTHOR, SAN3(37)], ['gen3']),
+      step('Why the CTs matter: the Sanctuary 3 guide says incorrect CT installation may cause unintended battery charging from the grid and continuous battery discharge back into the grid. The CT Guide adds that CTs in the wrong location give the inverter wrong grid signals, so it discharges the battery into the grid and charges it from the grid again and again. With no CTs it thinks grid current is zero and may charge from and discharge to the grid repeatedly. With reversed or L1/L2-swapped CTs it may discharge at full power until the TOU set-point, then charge at full power from the grid.', [SAN3(37), CTG(12)], ['gen3']),
+      step('CT install check: the CT labeled Line 1 clamps Line 1 feeding the main panel and the CT labeled Line 2 clamps Line 2. The arrows must point away from the main panel and toward the grid power source. In a parallel system usually only the parent inverter has CTs. If each inverter has its own CTs, turn off Common Grid CT in the settings.', [SAN3(37), CTG(8)], ['gen3']),
+      step('Force charging a Sanctuary 3 battery: put alligator clips on the positive and negative cables at the busbar. Disconnect, at the batteries, the batteries that do not need to be charged. Check polarity before you clip on: the battery terminals are not protected from reverse polarity.', [AUTHOR, TSM(53)], ['gen3']),
+      step('To charge the batteries from the grid when solar and loads are not charging them, the installer checklist says you can temporarily put the system in emergency mode.', [SAN3(43)], ['gen3']),
       step('Field example: the batteries were below 48 V and had to be force charged. At about 50 V the inverter started to charge them, but the graph showed the battery charging from nothing. The CTs were checked and found to be incorrect, and they probably caused the problem.', [AUTHOR], ['gen3']),
     ],
     related: [{ moduleId: 'dc-wiring-batteries', lessonId: 'm4-dead-battery' }],
     todo: [
-      'The Sanctuary 3 installation manual is not in this site yet, so the wiring and appendix D details come only from the Technical Service Manual and the EMS-C manual.',
-      'How to force charge a Sanctuary 3 battery is not written down. The author did it on a call when the batteries were under 48 V.',
+      'Only parts of the Sanctuary 3 Installation Guide (3/10/26) are in the site so far: battery wiring, CTs, micro-switches, remote shutdown and the post-commissioning checklist. Solar, AC, generator and commissioning steps are not added yet.',
+      'What to connect to the alligator clips (the charger or power supply), and its voltage and current, for force charging a Sanctuary 3 battery.',
       'The Gen 3 CT test (it involves writing a register) is held back: register-write procedures are not published.',
     ],
   },

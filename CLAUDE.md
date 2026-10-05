@@ -11,7 +11,8 @@ Training platform for new Lion Energy tech support specialists on the **Sanctuar
   - `Lion_Energy_EMS-C_Manual_7-compressed.pdf` (EMS-C manual, Updated 4/13/25, 16 pp, for Sanctuary 2 and Sanctuary 3)
   - `Lion- Sanctuary Technical Service Manual.pdf` (Updated 9/30/2026, 101 pp, Sanctuary 2 and 3; source tag `tsm`). The newest document: alarm/fault/status table (pp.67-96, 88 codes), power button tests, relay and IGBT checks, firmware recovery, solar and generator troubleshooting. **Where it disagrees with the 4/25/25 guides, it wins** (newer), but record the conflict as a `todo`. **Author decision (10/2/2026): the Technical Service Manual is written by the engineer and overrules the author's own field knowledge too.**
   - `Lion Sanctuary 2 & 3 Settings Guide` (rev1.1 6/4/2026, 53 pp, tag `settings`). **Not committed** (do not commit it). Only user (U) and installer (I) level settings are used in content. **Lion-internal (LE) settings, the "Settings Requiring Lion Energy Support" section and register/bit names are held back** (public repo).
-  - Source tags in content: `manual` (12/20/24 (4), the 14.3kWh manual), `san2_2`, `san2_3`, `emsc`, `tsm`, `settings`, `video`, `author`, `notes`.
+  - `Sanctuary 3 Installation Guide & Manual` (updated 3/10/26, 48 pp, tag `san3`) and `Lion Energy CT Guide` (updated 4/09/26, 13 pp, tag `ctguide`), both downloaded from support.lionenergy.com (`sanctuary-3-installation-guide.pdf`, `Lion_Energy_CT_Manual_3.pdf`) on 10/5/2026. **Not committed** (PDFs are not committed unless the author asks); PDF page = printed page. Used so far: Sanctuary 3 pp.10, 14, 23, 26, 31, 32, 37, 43, 47; CT Guide pp.8, 10-12. Not read in full yet: solar, AC, generator wiring, commissioning.
+  - Source tags in content: `manual` (12/20/24 (4), the 14.3kWh manual), `san2_2`, `san2_3`, `emsc`, `tsm`, `settings`, `san3`, `ctguide`, `video`, `author`, `notes`.
 - Page numbers cited in content (`sourcePages`) are **PDF page numbers**, which equal the printed page numbers (cover = 1) in all four PDFs.
 - Later: Confluence-sourced content may be added as additional modules/lessons. Technical content must come from lionenergy.com or the author's Confluence, never from general knowledge.
 - **Never invent specs, fault codes, or procedures.** If something is not in the source, leave a `TODO(source): ...` in the content file and, if it affects the learner, ask the author.
@@ -123,7 +124,7 @@ Buttons latch: **pushed in = on, pushed out = off.** Procedure as given for a **
 3. Turn off the PV turn switch.
 4. Push out the AC/DC button.
 5. Push out the Complete System Shutdown button.
-6. Wait ten seconds, when the normal light on the face of the inverter turns off.
+6. Wait ten seconds, when the normal light on the face of the inverter turns off. (**Author update 10/5/2026: wait about 30 seconds**; the "Bat switch" is the round power button on each battery of a Sanctuary 3.)
 7. Repeat in reverse order.
 
 It takes about two minutes for the inverter to fully power back on. Verify on the EMS-C that the status light changes to solid, indicating it is connected to the internet (may take a minute or two longer).
@@ -277,6 +278,7 @@ Conflicts and open questions (each is a visible `todo` in content where it affec
 
 - `Revision` now has `'gen3'` (label "Sanctuary 3"). **`'all'` means Sanctuary 2 Revs 1-4 only**: most of the content was written for Sanctuary 2, so it is hidden when Sanctuary 3 is selected. A fact that also holds for Sanctuary 3 is tagged `EVERY` (`labels.ts`); `appliesToRevision(tag, choice)` is the one rule used by Troubleshooting, Procedures, Reference, the chat and Call notes. The fault-code entries use `EVERY` (the fault table covers both, author). The Revision menu and the ticket form have a Sanctuary 3 choice, and Call notes detect "Gen 3", "Sanctuary 3" and "San 3".
 - With Sanctuary 3 selected, a banner says only confirmed Sanctuary 3 steps are shown; entries and procedures with no Sanctuary 3 step are hidden.
-- **Sanctuary 3 sources:** the Technical Service Manual (pp.9, 10, 15, 20, 27-29, 48, 60, 67), the EMS-C manual (p.7), the Settings Guide (p.31), the author's notes (PACEEX app, battery master swap, battery awaken) and the author's new field note (wrong CTs can let Gen 3 batteries drain and stop the inverter charging them; fix the CTs and power cycle the batteries). **The Sanctuary 3 installation manual is not in the repo**, so wiring detail beyond those pages is missing.
+- **Sanctuary 3 sources:** the Technical Service Manual (pp.9, 10, 15, 20, 27-29, 48, 60, 67), the EMS-C manual (p.7), the Settings Guide (p.31), the author's notes (PACEEX app, battery master swap, battery awaken) and the author's new field note (wrong CTs can let Gen 3 batteries drain and stop the inverter charging them; fix the CTs and power cycle the batteries). The Sanctuary 3 Installation Guide (`san3`) and the CT Guide (`ctguide`) were added on 10/5/2026 (see Source of truth); only some pages are used so far.
 - **OEM cables (author, 10/5/2026):** the OEM black Ethernet cables seem to fail, and replacing the cable often fixes communication problems. In `p-comms-map`, `ts-battery-wont-address`, `ts-gen3-battery-comm` and the call ticket checklist (tagged for every revision).
-
+- **Force charge a Sanctuary 3 battery (author, 10/5/2026):** alligator clips on the positive and negative cables at the busbar; disconnect at the batteries that do not need charging. The charger or power supply and its settings are not given.
+- **CTs and Sanctuary 3 batteries (author, 10/5/2026; corroborated by `san3` p.37 and `ctguide` p.12):** wrong CTs can let the batteries drain and stop the inverter charging them; fix the CTs and power cycle the batteries.

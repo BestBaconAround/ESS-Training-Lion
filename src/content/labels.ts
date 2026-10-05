@@ -5,6 +5,8 @@ export const SOURCE_LABELS: Record<SourceTag, string> = {
   san2_2: 'Installation Guide 4/25/25 (Revs 1-2)',
   san2_3: 'Installation Guide 4/25/25 (Rev 3)',
   emsc: 'EMS-C Manual 4/13/25',
+  san3: 'Sanctuary 3 Installation Guide 3/10/26',
+  ctguide: 'CT Guide 4/09/26',
   video: 'Commissioning video',
   author: 'Course author (field knowledge)',
   web: 'Web (not Lion material, verify)',
