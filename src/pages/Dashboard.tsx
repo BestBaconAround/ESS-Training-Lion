@@ -28,8 +28,9 @@ export default function Dashboard() {
       </section>
       <section aria-label="On a call" className="space-y-3">
         <h2 className="text-lg font-semibold">On a call</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[
+            { to: '/ticket', title: 'Call ticket', note: 'Fill out a ticket while you talk. Copy it when you are done.' },
             { to: '/troubleshooting', title: 'Troubleshooting', note: 'Ask a question, or find the steps and fault codes.' },
             { to: '/procedures', title: 'Procedures', note: 'Step by step: Wi-Fi, TOU, generator, RMA and more.' },
             { to: '/homeowner', title: 'Homeowner messages', note: 'Simple words to copy and send.' },

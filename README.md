@@ -75,3 +75,5 @@ The header has a day/night switch and shows the app version and when it was last
 **Procedures** (top menu) lists the jobs on a Sanctuary call and how much of each is written; gaps are listed as "Still needed". **Electricity, Solar, Codes and Competitors** are knowledge pages built only from the documents. **Feedback** opens a pre-filled GitHub issue (public) so other people can send corrections and ideas.
 
 The **Homeowner messages** page (`/homeowner`, data in `src/content/homeowner.ts`) holds short, plain-language messages with a Copy button. `homeowner.test.ts` keeps sentences short and bans technical words. The **Learn more** page (`/learn`) links the Electricity, Solar, Codes and Competitors pages.
+
+The **Call ticket** page (`/ticket`, logic in `src/ticket/`, form content in `src/content/ticket.ts`) is a form to fill out during a call: caller, system, problem, a sourced checklist, what was done and the outcome. It suggests ideas from the reference material as you type, and copies the ticket as plain text. The ticket stays in the browser tab (sessionStorage); nothing is sent anywhere.

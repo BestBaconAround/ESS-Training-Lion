@@ -2,28 +2,7 @@ import { useState } from 'react'
 import SourceNote, { RevisionBadge } from '../components/SourceNote'
 import { PageHeader, ui } from '../components/ui'
 import { HOMEOWNER_MESSAGES } from '../content/homeowner'
-
-/** Copy text. Falls back to a hidden textarea where the clipboard API is blocked. */
-async function copyText(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text)
-    return true
-  } catch {
-    try {
-      const ta = document.createElement('textarea')
-      ta.value = text
-      ta.style.position = 'fixed'
-      ta.style.opacity = '0'
-      document.body.appendChild(ta)
-      ta.select()
-      const ok = document.execCommand('copy')
-      document.body.removeChild(ta)
-      return ok
-    } catch {
-      return false
-    }
-  }
-}
+import { copyText } from '../lib/clipboard'
 
 function CopyButton({ text }: { text: string }) {
   const [state, setState] = useState<'idle' | 'done' | 'failed'>('idle')

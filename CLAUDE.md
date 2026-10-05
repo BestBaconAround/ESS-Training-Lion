@@ -267,3 +267,9 @@ Conflicts and open questions (each is a visible `todo` in content where it affec
 - **Settled (author 10/2/2026):** the Android Lion Smart app still cannot change the Wi-Fi (matches `tsm` p.61). The app steps are for Apple phones; Android users use a laptop with Bluetooth or the Technician app.
 - **Gen 3 items from the same files are held back** (Gen 3 is not on the platform yet). Screenshots Smart1 to Smart3 were named but not shared.
 
+## Call ticket (`/ticket`, v0.11.0)
+
+- A form for use during a call: caller, system (revision, communicator, counts, firmware), the problem (reason, pattern, fault codes with autocomplete from the 88-code table, readings), a checklist, what was done, the outcome and notes. Data/options in `src/content/ticket.ts` (every checklist item has a source: first-call and precheck notes, the author's Wi-Fi checklist, `tsm` pp.23, 39, 56, 60, 80, 81); pure logic in `src/ticket/ticket.ts` (number, format-as-text, duration, tab-storage draft; tested); UI `src/pages/TicketPage.tsx`.
+- **Privacy:** the ticket holds customer details, so it lives in sessionStorage only (cleared when the tab closes), is never written to the repo, and is only copied, downloaded or printed by the specialist. It is **not** saved to the encrypted History: the History vault state lives inside the Troubleshooting page's `HistoryProvider`, so the ticket page cannot use it. Ticket numbers are local references (`T-YYYYMMDD-HHMM`), not numbers from any ticket system.
+- The ideas panel reuses `analyzeNotes` on the typed problem text; it detects the revision and fault codes and offers one-click "use Rev N" and "add A2_11".
+

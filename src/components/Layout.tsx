@@ -39,7 +39,7 @@ export default function Layout() {
   const updated = formatBuildTime(BUILD_TIME)
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
+      <header className="sticky top-0 z-20 print:hidden border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
         <div className="mx-auto max-w-5xl px-4">
           <div className="flex items-center justify-between gap-3 py-3">
             <NavLink to="/" className="flex items-center gap-2.5 no-underline">
@@ -69,6 +69,9 @@ export default function Layout() {
             </NavLink>
             <NavLink to="/troubleshooting" className={tab}>
               Troubleshooting
+            </NavLink>
+            <NavLink to="/ticket" className={tab}>
+              Call ticket
             </NavLink>
             <NavLink to="/procedures" className={tab}>
               Procedures

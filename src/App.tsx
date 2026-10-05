@@ -12,6 +12,7 @@ import QuizPage from './pages/QuizPage'
 import ReferencePage from './pages/ReferencePage'
 import SimPage from './pages/SimPage'
 import BatteryCurvePage from './pages/BatteryCurvePage'
+import TicketPage from './pages/TicketPage'
 import WireBoxPage from './pages/WireBoxPage'
 import TopicPage from './pages/TopicPage'
 import TroubleshootingPage from './pages/TroubleshootingPage'
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="homeowner" element={<HomeownerPage />} />
           <Route path="learn" element={<KnowledgePage />} />
           <Route path="battery-curve" element={<BatteryCurvePage />} />
+          <Route path="ticket" element={<TicketPage />} />
           <Route path="wire-box" element={<WireBoxPage />} />
           <Route path="feedback" element={<FeedbackPage />} />
           <Route path="reference" element={<ReferencePage />} />
