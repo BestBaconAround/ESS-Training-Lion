@@ -52,6 +52,9 @@ describe('Ask the notes: finds the right passage', () => {
   })
   // The lesson on the same topic, or the meter-test entry, may legitimately rank next to the guided entry.
   for (const [q, id] of [
+    ["Can't address gen2 battery", 'ts-battery-wont-address'],
+    ['cannot address the battery', 'ts-battery-wont-address'],
+    ['gen 2 battery wont address', 'ts-battery-wont-address'],
     ['check wifi hotspot', 'ts-app-offline'],
     ['how do I change my wifi', 'ts-change-wifi'],
     ['change wifi password', 'ts-change-wifi'],

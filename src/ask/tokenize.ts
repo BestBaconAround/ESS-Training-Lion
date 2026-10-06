@@ -3,13 +3,15 @@
 const STOP = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'do', 'does', 'for', 'from', 'how', 'i', 'if', 'in', 'is', 'it', 'its', 'me', 'my', 'of', 'on', 'or',
   'so', 'that', 'the', 'then', 'this', 'to', 'was', 'what', 'when', 'which', 'with', 'you', 'your', 'can', 'should', 'would', 'about', 'tell', 'there', 'will', 'not', 'also', 'just', 'any', 'out',
+  // "gen2" names the whole product family, so it says nothing about which passage answers the question.
+  'gen2',
 ])
 
 /** A few spoken-language shortcuts mapped to the words the notes use. Keep this small and obvious. */
 const SYNONYMS: Record<string, string[]> = {
   wont: ['will', 'not'],
-  cant: ['cannot'],
-  cannot: ['cannot'],
+  cant: ['not'],
+  cannot: ['not'],
   dont: ['not'],
   doesnt: ['not'],
   offline: ['connect', 'comms'],
@@ -37,7 +39,7 @@ const WORD = /[a-z0-9_]+(?:\.[0-9]+)?/g
 /** Lowercase word tokens. Fault codes (a2_10) and decimals (51.5) stay whole. */
 export function tokenize(text: string, opts: { stop?: boolean; synonyms?: boolean } = {}): string[] {
   const { stop = true, synonyms = false } = opts
-  const cleaned = text.toLowerCase().replace(/['’]/g, '')
+  const cleaned = text.toLowerCase().replace(/['’]/g, '').replace(/\bgen\s+2\b/g, 'gen2')
   const out: string[] = []
   for (const raw of cleaned.match(WORD) ?? []) {
     const parts = synonyms && SYNONYMS[raw] ? SYNONYMS[raw] : [raw]
