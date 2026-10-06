@@ -34,12 +34,31 @@ export function stem(word: string): string {
   return w
 }
 
+/** Spoken phrases rewritten to the words the notes use. Applied to questions only. Keep this small and obvious. */
+const PHRASES: [RegExp, string][] = [
+  [/\b(?:show|shows|showing|come|comes|coming|pop|pops) up\b/g, 'address'],
+  [/\b(?:not|never|wont|cant|cannot|doesnt|didnt) (?:be )?(?:detect|detected|found|find|recogni[sz]e|recogni[sz]ed|see|seen|read)\b/g, 'wont address'],
+  [/\bwake (?:it |the battery |a battery )?up\b/g, 'wake address'],
+  [/\b(?:reboot|restart|cycle|turn (?:the )?(?:system|inverter|it) off and (?:back )?on)\b/g, 'power cycle'],
+  [/\b(?:lights? (?:went |are |keeps? |goes? )?out|power (?:went |is )?out (?:in|at|of) the (?:house|home))\b/g, 'loads off'],
+  [/\b(?:not|isnt|arent|never|stopped|stops?) (?:exporting|export|selling|sending)\b/g, 'sell back stuck'],
+  [/\bexport(?:ing)?\b/g, 'sell back'],
+  [/\b(?:not|isnt|arent|never|stopped|stops?|no) (?:producing|production|making power|generating)\b/g, 'solar not used'],
+  [/\b(?:dark|blank|unlit|lit)\b/g, 'no light'],
+  [/\b(?:panels?|pv|array|strings?) (?:not|isnt|arent|no)\b/g, 'solar not used'],
+  [/\b(?:dead|flat|drained|empty) batter(?:y|ies)\b/g, 'battery wont address 0 volt'],
+  [/\bwhat (?:do|should|to) i? ?ask\b|\bask (?:the )?(?:customer|caller|homeowner)\b/g, 'first call approach'],
+  [/\b(?:no|lost|lose|losing|bad) (?:communication|comms|connection)\b/g, 'offline connect comms'],
+  [/\bbutton (?:does ?nt|doesnt|wont|will not) (?:do anything|work|turn)\b|\bbutton does nothing\b/g, 'power button will not turn on'],
+]
+
 const WORD = /[a-z0-9_]+(?:\.[0-9]+)?/g
 
 /** Lowercase word tokens. Fault codes (a2_10) and decimals (51.5) stay whole. */
 export function tokenize(text: string, opts: { stop?: boolean; synonyms?: boolean } = {}): string[] {
   const { stop = true, synonyms = false } = opts
-  const cleaned = text.toLowerCase().replace(/['’]/g, '').replace(/\bgen\s+2\b/g, 'gen2')
+  let cleaned = text.toLowerCase().replace(/['’]/g, '').replace(/\b(\d+(?:\.\d+)?)(v|vdc|volts?)\b/g, '$1 $2').replace(/\bgen\s+2\b/g, 'gen2')
+  if (synonyms) for (const [re, to] of PHRASES) cleaned = cleaned.replace(re, to)
   const out: string[] = []
   for (const raw of cleaned.match(WORD) ?? []) {
     const parts = synonyms && SYNONYMS[raw] ? SYNONYMS[raw] : [raw]

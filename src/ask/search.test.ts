@@ -81,6 +81,60 @@ describe('Ask the notes: finds the right passage', () => {
   })
 })
 
+describe('Ask the notes: plain-worded questions', () => {
+  // Other passages (a fault entry, a procedure) may rank first on some of these; the guided entry must be in the top three.
+  const phrasings: [string, string][] = [
+  ['battery wont show up in the app','ts-battery-wont-address'],
+  ['battery not detected','ts-battery-wont-address'],
+  ['battery shows 0v','ts-battery-wont-address'],
+  ['dead battery how do I wake it up','ts-battery-wont-address'],
+  ['batteries different voltages','ts-battery-spread'],
+  ['inverter is dark nothing lit','ts-no-light'],
+  ['no power to the inverter display','ts-no-light'],
+  ['red light on inverter','ts-red-light'],
+  ['orange light','ts-red-light'],
+  ['green light is flashing','ts-blinking-green'],
+  ['customer says app shows offline','ts-app-offline'],
+  ['system not connecting to internet','ts-app-offline'],
+  ['no communication with inverter','ts-app-offline'],
+  ['homeowner got a new router','ts-change-wifi'],
+  ['reset the wifi on the ems-c','ts-change-wifi'],
+  ['reboot the inverter','ts-power-cycle'],
+  ['turn the system off and back on','ts-power-cycle'],
+  ['restart system','ts-power-cycle'],
+  ['lights went out in the house','ts-loads-off'],
+  ['no backup power loads off','ts-loads-off'],
+  ['solar not producing','ts-no-solar'],
+  ['pv voltage zero','ts-pv-reverse'],
+  ['gfci error','ts-gfci-solar'],
+  ['ground fault on solar','ts-gfci-solar'],
+  ['high grid voltage','ts-grid-overvoltage'],
+  ['not exporting to grid','ts-sellback-stuck'],
+  ['inverter wont connect to the grid','ts-wont-connect-grid'],
+  ['firmware update failed','ts-failed-firmware'],
+  ['bricked inverter after update','ts-failed-firmware'],
+  ['clock is wrong','ts-time-wrong'],
+  ['time of use schedule off','ts-time-wrong'],
+  ['battery reserve setting','ts-operating-modes'],
+  ['what is emergency mode','ts-operating-modes'],
+  ['A1_3 low battery','ts-battery-dod'],
+  ['battery drains to zero gen 3','ts-gen3-battery-comm'],
+  ['CT installed backwards','ts-ct-check'],
+  ['which way do the CTs face','ts-ct-check'],
+  ['remote shutdown pressed','ts-remote-shutdown'],
+  ['power button does nothing','ts-power-button-test'],
+  ['what do I ask the customer first','ts-first-call'],
+  ['what to check before troubleshooting','ts-remote-precheck'],
+  ['string voltage in cold weather','ts-voc-calc'],
+  ['system still running after pressing shutdown','ts-shutdown-still-on'],
+  ]
+  for (const [q, id] of phrasings) {
+    it(`"${q}" -> ${id} is in the top three`, () => {
+      expect(top(q).slice(0, 3).map((h) => h.chunk.id)).toContain(id)
+    })
+  }
+})
+
 describe('Ask the notes: does not guess', () => {
   for (const q of ['what is the best pizza recipe', 'who won the world cup', 'qqqq zzzz', '', '   ', 'the']) {
     it(`returns nothing for "${q}"`, () => {
