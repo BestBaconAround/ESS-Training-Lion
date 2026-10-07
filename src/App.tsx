@@ -14,8 +14,12 @@ import SimPage from './pages/SimPage'
 import BatteryCurvePage from './pages/BatteryCurvePage'
 import TicketPage from './pages/TicketPage'
 import WireBoxPage from './pages/WireBoxPage'
+import { lazy, Suspense } from 'react'
 import TopicPage from './pages/TopicPage'
 import TroubleshootingPage from './pages/TroubleshootingPage'
+
+// The 3D lab pulls in three.js, so it loads only when opened.
+const Inverter3DPage = lazy(() => import('./pages/Inverter3DPage'))
 
 // HashRouter keeps deep links working on GitHub Pages with no server rewrites.
 export default function App() {
@@ -39,6 +43,7 @@ export default function App() {
           <Route path="battery-curve" element={<BatteryCurvePage />} />
           <Route path="ticket" element={<TicketPage />} />
           <Route path="wire-box" element={<WireBoxPage />} />
+          <Route path="inverter-3d" element={<Suspense fallback={<p className="p-4 text-sm">Loading the 3D lab...</p>}><Inverter3DPage /></Suspense>} />
           <Route path="feedback" element={<FeedbackPage />} />
           <Route path="reference" element={<ReferencePage />} />
           <Route path="backup" element={<BackupPage />} />

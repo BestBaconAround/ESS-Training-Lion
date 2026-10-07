@@ -145,7 +145,7 @@ export interface FixScenario {
   titles: string[]
 }
 
-const touched = (id: string, pvString: number): string[] => {
+export const touched = (id: string, pvString: number): string[] => {
   switch (id) {
     case 'ct-meter': return ['p_ct_cable']
     case 'comms-swap': return ['p_emsc_cable', 'p_bms_cable']
@@ -160,7 +160,7 @@ const touched = (id: string, pvString: number): string[] => {
   }
 }
 
-function apply(id: string, state: WireState, pvString: number): void {
+export function apply(id: string, state: WireState, pvString: number): void {
   const swap = (a: string, b: string) => {
     const t = state[a]
     state[a] = state[b]

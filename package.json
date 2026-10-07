@@ -1,7 +1,7 @@
 {
   "name": "ess-training-lion",
   "private": true,
-  "version": "0.13.5",
+  "version": "0.14.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,9 +11,11 @@
     "check:content": "vitest run src/content"
   },
   "dependencies": {
+    "@types/three": "^0.186.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-router-dom": "^7.18.4"
+    "react-router-dom": "^7.18.4",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

@@ -145,7 +145,7 @@ export const PROCEDURES: Procedure[] = [
       s('A power cycle of the inverter helps if the BMS communication failure has lasted a long time.', [TSM(22)]),
     ],
     links: [
-      { type: 'page', to: '/wire-box', label: 'Practice in the wire box simulator (Rev 4)' },
+      { type: 'page', to: '/wire-box', label: 'Practice in the wire box simulator (Rev 4)' },{ type: 'page', to: '/inverter-3d', label: 'Practice in the 3D inverter lab (Rev 4)' },
 
       { type: 'entry', id: 'ts-fault-a2_11', label: 'A2_11 BMS Communication Failure' },
       { type: 'entry', id: 'ts-fault-a1_11', label: 'A1_11 Parallel CAN Communication Fault' },
@@ -394,7 +394,7 @@ export const PROCEDURES: Procedure[] = [
       s('The "Phase Wiring Detection Control" setting enables this check. When the inverters power on, the parent sends voltage to the load port. If a child does not see it or it is out of phase, the inverters shut the load power off and set the load wiring error alarm.', [SET(26)]),
       s('Check the grid type: split phase should read 120 V line to neutral and 240 V line to line. About 208 V line to line with 120 V on each leg is three-phase.', [TSM(34)]),
     ],
-    links: [{ type: 'page', to: '/wire-box', label: 'Practice in the wire box simulator (Rev 4)' },{ type: 'entry', id: 'ts-wont-connect-grid', label: 'The inverter will not connect to the grid' }],
+    links: [{ type: 'page', to: '/wire-box', label: 'Practice in the wire box simulator (Rev 4)' },{ type: 'page', to: '/inverter-3d', label: 'Practice in the 3D inverter lab (Rev 4)' },{ type: 'entry', id: 'ts-wont-connect-grid', label: 'The inverter will not connect to the grid' }],
   },
   {
     id: 'p-fix-cts',
@@ -404,7 +404,7 @@ export const PROCEDURES: Procedure[] = [
     group: 'Installation and wiring',
     title: 'Fix CTs',
     summary: 'Placement, direction, pins and size.',
-    links: [{ type: 'page', to: '/wire-box', label: 'Practice in the wire box simulator (Rev 4)' },{ type: 'entry', id: 'ts-ct-check', label: 'CT check (grid CT problems)' }],
+    links: [{ type: 'page', to: '/wire-box', label: 'Practice in the wire box simulator (Rev 4)' },{ type: 'page', to: '/inverter-3d', label: 'Practice in the 3D inverter lab (Rev 4)' },{ type: 'entry', id: 'ts-ct-check', label: 'CT check (grid CT problems)' }],
     steps: [
       s('Arrow direction: the arrow should point away from the inverter. If the CTs are on opposite lines, or face the other way, the current reads backwards. A1_12 does not detect improper CT installation, so do not rely on it.', [TSM(9, 74)]),
       s('The support-level settings "CT L1 Reverse" and "CT L1/L2 Swap" have the same effect as flipping the CT arrow or swapping the CTs. "CT L1 Reverse" is not reset by recommissioning.', [SET(35), TSM(11)]),

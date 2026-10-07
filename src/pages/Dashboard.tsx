@@ -45,6 +45,10 @@ export default function Dashboard() {
       </section>
       <section aria-label="Practice" className="space-y-3">
         <h2 className="text-lg font-semibold">Practice</h2>
+        <Link to="/inverter-3d" className={`${ui.card} block p-4 no-underline hover:border-slate-400 dark:hover:border-slate-600`}>
+          <div className="font-semibold">Inverter lab (3D, Rev 4)</div>
+          <p className={`mt-1 text-sm ${ui.muted}`}>Walk around an inverter that was installed wrong. Move cables, loosen and tighten bolts, test with the meter and cable tester, and fix it.</p>
+        </Link>
         <Link to="/wire-box" className={`${ui.card} block p-4 no-underline hover:border-slate-400 dark:hover:border-slate-600`}>
           <div className="font-semibold">Wire box simulator (Rev 4)</div>
           <p className={`mt-1 text-sm ${ui.muted}`}>Drag cables onto the terminals and ports, or find and fix wrong wiring: CTs, BMS, EMS-C, PV, grid, load, battery.</p>

@@ -5,7 +5,7 @@ import { TOPICS } from './topics'
 import { TROUBLESHOOTING } from './troubleshooting'
 
 const REVS = new Set(['rev1', 'rev2', 'rev3', 'rev4', 'gen3'])
-const PAGES = new Set(['/wire-box', '/', '/reference', '/procedures', '/electricity', '/solar', '/codes', '/competitors', '/troubleshooting', '/feedback'])
+const PAGES = new Set(['/wire-box', '/inverter-3d', '/', '/reference', '/procedures', '/electricity', '/solar', '/codes', '/competitors', '/troubleshooting', '/feedback'])
 const entryIds = new Set(TROUBLESHOOTING.map((e) => e.id))
 
 describe('procedures', () => {
