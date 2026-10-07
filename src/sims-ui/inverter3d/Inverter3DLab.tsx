@@ -8,6 +8,8 @@ import { randomSeed } from '../../sims/rng'
 import { fits } from '../../sims/wirebox/engine'
 import {
   FASTENED_IDS,
+  correctLab,
+  emptyLab,
   gradeLab,
   makeLabScenario,
   measure,
@@ -50,6 +52,7 @@ function startSeed(): number {
 
 export default function Inverter3DLab() {
   const [seed, setSeed] = useState(startSeed)
+  const [creative, setCreative] = useState(false)
   const scenario = useMemo(() => makeLabScenario(seed), [seed])
   const [lab, setLab] = useState<LabState>(scenario.lab)
   const [tool, setTool] = useState<Tool>('inspect')
@@ -95,7 +98,7 @@ export default function Inverter3DLab() {
       update(r.lab)
       setNote({
         title: socketId ? `${name} plugged into ${socketName(socketId)}` : `${name} is on the bench`,
-        body: r.displaced ? `${partById(r.displaced).label} came out and is on the bench.` : socketId ? 'Click Check my work when you think it is right, or test it with the meter.' : 'Unplugged.',
+        body: r.displaced ? `${partById(r.displaced).label} came out and is on the bench.` : socketId ? 'Press Check when you think it is right, or test it with the meter.' : 'Unplugged.',
         tone: 'info',
       })
     },
@@ -195,12 +198,23 @@ export default function Inverter3DLab() {
   }, [probes])
 
   const newInverter = () => {
+    setCreative(false)
     const s = randomSeed()
     const sc = makeLabScenario(s)
     setSeed(s)
     setLab(sc.lab)
     setInspected(new Set())
     setNote(null)
+    setChecked(false)
+    setRevealed(false)
+    setProbes([null, null])
+  }
+
+  const startCreative = (kind: 'correct' | 'empty') => {
+    setCreative(true)
+    setLab(kind === 'empty' ? emptyLab() : correctLab())
+    setInspected(new Set())
+    setNote({ title: 'Creative mode', body: kind === 'empty' ? 'Every cable is on the bench and every bolt is loose. Build the box any way you like.' : 'A correct install. Take it apart, change it, test it. Nothing is graded unless you press Check wiring.', tone: 'info' })
     setChecked(false)
     setRevealed(false)
     setProbes([null, null])
@@ -217,12 +231,35 @@ export default function Inverter3DLab() {
 
   return (
     <div className="space-y-4">
-      <section className={`${ui.card} space-y-1 p-4`} aria-live="polite">
-        <h2 className="text-base font-semibold">The call</h2>
-        <p className="text-sm">
-          A Rev 4 inverter was just installed. {scenario.symptoms.join(' ')} Find what is wrong, fix it, and make every wire correct and every bolt tight.
-        </p>
-      </section>
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Mode">
+        <button type="button" aria-pressed={!creative} className={creative ? ui.ghost : ui.primary} onClick={() => { if (creative) { setCreative(false); setLab(scenario.lab); setNote(null); setChecked(false); setProbes([null, null]) } }}>
+          Find the fault
+        </button>
+        <button type="button" aria-pressed={creative} className={creative ? ui.primary : ui.ghost} onClick={() => startCreative('correct')}>
+          Creative sandbox
+        </button>
+      </div>
+
+      {creative ? (
+        <section className={`${ui.card} space-y-2 p-4`}>
+          <h2 className="text-base font-semibold">Creative sandbox</h2>
+          <p className="text-sm">No call, no tasks and no score. Move cables, turn bolts, test with the meter and the cable tester, and try things to see what happens. Press Check wiring any time to see what the sources say about the current wiring.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className={ui.ghost} onClick={() => startCreative('correct')}>Reset to a correct install</button>
+            <button type="button" className={ui.ghost} onClick={() => startCreative('empty')}>Start with an empty box</button>
+            <button type="button" className={ui.ghost} aria-pressed={lab.gridOn} onClick={() => update({ ...lab, gridOn: !lab.gridOn })}>
+              Grid breaker: {lab.gridOn ? 'on' : 'off'}
+            </button>
+          </div>
+        </section>
+      ) : (
+        <section className={`${ui.card} space-y-1 p-4`} aria-live="polite">
+          <h2 className="text-base font-semibold">The call</h2>
+          <p className="text-sm">
+            A Rev 4 inverter was just installed. {scenario.symptoms.join(' ')} Find what is wrong, fix it, and make every wire correct and every bolt tight.
+          </p>
+        </section>
+      )}
 
       <div className="relative overflow-hidden rounded-xl border border-slate-300 bg-slate-900 dark:border-slate-700" style={{ height: 'min(78vh, 760px)', minHeight: 460 }}>
         <div ref={host} className="absolute inset-0" />
@@ -233,17 +270,21 @@ export default function Inverter3DLab() {
         )}
 
         <div className="pointer-events-none absolute left-3 top-3 max-w-[16rem] rounded-lg bg-slate-950/80 p-3 text-white backdrop-blur">
-          <div className="text-sm font-semibold">Inverter lab (Rev 4)</div>
-          <div className="mt-1 text-xs text-slate-300">Progress: {progress}%</div>
-          <div className="mt-1 h-2 w-full overflow-hidden rounded bg-slate-700">
-            <div className="h-full bg-emerald-400 transition-all" style={{ width: `${progress}%` }} />
-          </div>
+          <div className="text-sm font-semibold">Inverter lab (Rev 4){creative ? ': creative' : ''}</div>
+          {!creative && (
+            <>
+              <div className="mt-1 text-xs text-slate-300">Progress: {progress}%</div>
+              <div className="mt-1 h-2 w-full overflow-hidden rounded bg-slate-700">
+                <div className="h-full bg-emerald-400 transition-all" style={{ width: `${progress}%` }} />
+              </div>
+            </>
+          )}
           <p className="mt-2 text-xs text-slate-200">
             {hintTool.hint} <span className="text-slate-400">Drag empty space to rotate, right-drag to pan, scroll to zoom.</span>
           </p>
         </div>
 
-        <div className="absolute right-3 top-3 hidden w-60 rounded-lg bg-slate-950/80 p-3 text-white backdrop-blur sm:block">
+        <div className={`absolute right-3 top-3 ${creative ? 'hidden' : 'hidden sm:block'} w-60 rounded-lg bg-slate-950/80 p-3 text-white backdrop-blur`}>
           <div className="text-sm font-semibold">Task checklist</div>
           <ul className="mt-2 space-y-1.5 text-xs">
             {tasks.map((t) => (
@@ -293,7 +334,7 @@ export default function Inverter3DLab() {
         )}
       </div>
 
-      <section className={`${ui.card} p-4 sm:hidden`} aria-label="Task checklist">
+      <section className={`${ui.card} p-4 sm:hidden ${creative ? 'hidden' : ''}`} aria-label="Task checklist">
         <h2 className="text-base font-semibold">Task checklist ({progress}%)</h2>
         <ul className="mt-2 space-y-1.5 text-sm">
           {tasks.map((t) => (
@@ -315,11 +356,13 @@ export default function Inverter3DLab() {
 
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" className={ui.primary} onClick={() => setChecked(true)}>
-          Check my work
+          {creative ? 'Check wiring' : 'Check my work'}
         </button>
-        <button type="button" className={ui.ghost} onClick={reveal}>
-          Show me what was wrong
-        </button>
+        {!creative && (
+          <button type="button" className={ui.ghost} onClick={reveal}>
+            Show me what was wrong
+          </button>
+        )}
         <button type="button" className={ui.ghost} onClick={newInverter}>
           New inverter
         </button>
@@ -342,7 +385,7 @@ export default function Inverter3DLab() {
         </section>
       )}
 
-      {revealed && (
+      {revealed && !creative && (
         <section className={`${ui.card} space-y-2 p-4`}>
           <h2 className="text-base font-semibold">What was wrong</h2>
           <ul className="list-disc space-y-2 pl-5 text-sm">

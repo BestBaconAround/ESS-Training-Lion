@@ -4,6 +4,7 @@ import { SCENARIO_IDS, SOCKETS } from '../../content/sims/wireBox'
 import {
   FASTENED_IDS,
   correctLab,
+  emptyLab,
   faultFixed,
   gradeLab,
   makeLabScenario,
@@ -170,5 +171,20 @@ describe('tasks', () => {
     const t = (s: string[]) => tasksFor(sc, sc.lab, new Set(s)).find((x) => x.id === 'x-ac')!.done
     expect(t(['ac-grid'])).toBe(false)
     expect(t(['ac-grid', 'ac-gen', 'ac-load'])).toBe(true)
+  })
+})
+
+describe('creative mode', () => {
+  it('an empty box has every cable on the bench, and can be built to a correct install', () => {
+    let lab = emptyLab()
+    expect(Object.values(lab.wires).every((w) => w === null)).toBe(true)
+    expect(gradeLab(lab).done).toBe(false)
+    const correct = correctLab()
+    for (const [part, socket] of Object.entries(correct.wires)) lab = placeWire(lab, part, socket).lab
+    for (const id of FASTENED_IDS) lab = turnBolt(lab, id, 'tighten')
+    expect(gradeLab(lab).done).toBe(true)
+  })
+  it('the grid breaker setting changes the meter', () => {
+    expect(measure({ ...correctLab(), gridOn: false }, 'volts', 'grid_l1', 'grid_n').headline).toBe('0 V')
   })
 })

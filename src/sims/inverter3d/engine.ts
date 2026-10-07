@@ -27,6 +27,16 @@ export const allTight = (): Record<string, Fastener> => Object.fromEntries(FASTE
 
 export const correctLab = (batteryV = 52.8): LabState => ({ wires: correctState(), fasteners: allTight(), bad: [], spare: null, batteryV, gridOn: true })
 
+/** Creative mode: every cable on the bench and every bolt loose, so the box can be built from nothing. */
+export const emptyLab = (batteryV = 52.8): LabState => ({
+  wires: Object.fromEntries(Object.keys(correctState()).map((k) => [k, null])),
+  fasteners: Object.fromEntries(FASTENED_IDS.map((id) => [id, 'loose' as Fastener])),
+  bad: [],
+  spare: null,
+  batteryV,
+  gridOn: true,
+})
+
 export interface LabPlaceResult {
   lab: LabState
   rejected?: string
