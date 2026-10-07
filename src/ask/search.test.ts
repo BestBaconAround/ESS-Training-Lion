@@ -84,6 +84,9 @@ describe('Ask the notes: finds the right passage', () => {
 describe('Ask the notes: plain-worded questions', () => {
   // Other passages (a fault entry, a procedure) may rank first on some of these; the guided entry must be in the top three.
   const phrasings: [string, string][] = [
+    ['battery has voltage but no communication','ts-battery-no-comm'],
+    ['battery lost communication replace BMS connector','ts-battery-no-comm'],
+    ['BMS connector continuity 4 pin','ts-battery-no-comm'],
   ['battery wont show up in the app','ts-battery-wont-address'],
   ['battery not detected','ts-battery-wont-address'],
   ['battery shows 0v','ts-battery-wont-address'],
