@@ -5,8 +5,6 @@ import type { RevisionTag, SourceRef } from './types'
 
 // Reference page for support calls. Every step carries a source and a revision tag; anything not in a source is a TODO.
 
-/** Sanctuary 2 Revs 1-3: the guides show a round 4-pin BMS connector on the battery. */
-const REV123: RevisionTag = ['rev1', 'rev2', 'rev3']
 
 export type TroubleshootingArea = 'general' | 'battery' | 'inverter' | 'power'
 
@@ -213,16 +211,16 @@ const guided: TroubleshootingEntry[] = [
     steps: [
       step('Check the battery voltage first. This entry is for a battery above 51 V that will not communicate. Below that, see "A battery will not address, or reads 0 V".', [AUTHOR]),
       step('Replace the BMS cable (the OEM black cables seem to fail often). Check the cable with an Ethernet cable tester if you have one.', [AUTHOR], EVERY),
-      step('Look at the battery BMS port. The continuity and connector steps below only work on a battery with the round 4-pin (barrel) BMS connection. They do not work on a battery with an Ethernet BMS port: there, replace the cable, then replace the BMS or the battery.', [AUTHOR], EVERY),
-      step('Still no communication: check continuity of the BMS port on the battery and of the BMS connector.', [AUTHOR], REV123),
-      step('Take off the 4-pin connector that has 2 red wires and 1 black wire. Measure continuity on all three points.', [AUTHOR], REV123),
-      step('If any of the three has no continuity, replace the BMS connector.', [AUTHOR], REV123),
-      step('If no replacement connector is available, the technician can splice an Ethernet cable onto the wires: make a female end, or make a male end and connect directly to the inverter.', [AUTHOR], REV123),
+      step('Look at the battery BMS port. The continuity and connector steps below only work on a battery with the round 4-pin (barrel, aviation-style) BMS connection. The Viry B and Coco batteries have it. They do not work on a battery with an Ethernet BMS port: there, replace the cable, then replace the BMS or the battery.', [AUTHOR], EVERY),
+      step('Still no communication: check continuity of the BMS port on the battery and of the BMS connector.', [AUTHOR]),
+      step('Take off the 4-pin connector that has 2 red wires and 1 black wire. Measure continuity on all three points.', [AUTHOR]),
+      step('If any of the three has no continuity, replace the BMS connector.', [AUTHOR]),
+      step('If no replacement connector is available, the technician can splice an Ethernet cable onto the wires: make a female end, or make a male end and connect directly to the inverter.', [AUTHOR]),
       step('If the BMS connector is good (round 4-pin battery) or the battery has an Ethernet BMS port and a new cable did not help, replace the BMS if one is available, or replace the entire battery.', [AUTHOR], EVERY),
     ],
     todo: [
       'TODO(source): the Technical Service Manual (p.23) lists the round 4-pin connector as A green, B orange, C no connection, D blue (see Reference). The author describes 2 red wires and 1 black wire. Confirm that this is the same connector (wire colors may differ by battery version) and which pins to use when splicing an Ethernet cable (RJ45 pin 6 = GND, 7 = A, 8 = B).',
-      'TODO(author): do these steps apply to the Sanctuary 3 battery, and which revisions have the 4-pin connector? The connector steps are tagged Revs 1-3 because their guides show the 4-pin aviation BMS connector on the battery (`san2_2` p.12, `san2_3` p.18) and Rev 4 uses Ethernet between batteries (`manual` p.21). Confirm which batteries have the round connector, and whether any Rev 4 battery does.',
+      'TODO(author): the connector steps are not tagged by revision because the author says the battery model decides it (Viry B and Coco have the aviation-style connector). Confirm the spelling of the model names, where the model is printed on the battery, which Sanctuary 2 revisions ship each model, and whether any Sanctuary 3 battery has the round connector.',
     ],
     related: [{ moduleId: 'dc-wiring-batteries', lessonId: 'm4-dead-battery' }],
   },
