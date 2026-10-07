@@ -43,6 +43,9 @@ interface Note {
 
 const socketName = (id: string) => socketById(id).label
 
+/** Dark navy panel with a blue edge, like the mockup. */
+const PANEL = 'rounded-xl border border-[#1d4f80] bg-[#081a30]/90 text-white shadow-lg backdrop-blur'
+
 /** `#/inverter-3d?seed=12` opens the same inverter every time (used for sharing a case and for tests). */
 function startSeed(): number {
   const q = window.location.hash.split('?')[1]
@@ -64,6 +67,10 @@ export default function Inverter3DLab() {
   const [checked, setChecked] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showViews, setShowViews] = useState(false)
+  const [view, setView] = useState('Front View')
+  const [labelsOn, setLabelsOn] = useState(true)
   const [selCable, setSelCable] = useState<string>('p_bms_cable')
   const [selSocket, setSelSocket] = useState<string>('bms')
   const host = useRef<HTMLDivElement>(null)
@@ -261,7 +268,7 @@ export default function Inverter3DLab() {
         </section>
       )}
 
-      <div className="relative overflow-hidden rounded-xl border border-slate-300 bg-slate-900 dark:border-slate-700" style={{ height: 'min(78vh, 760px)', minHeight: 460 }}>
+      <div className="relative overflow-hidden rounded-xl border border-[#1d4f80] bg-[#0b1220]" style={{ height: 'min(80vh, 780px)', minHeight: 480 }}>
         <div ref={host} className="absolute inset-0" />
         {error && (
           <div className="absolute inset-0 flex items-center justify-center p-6 text-center text-sm text-white">
@@ -269,66 +276,140 @@ export default function Inverter3DLab() {
           </div>
         )}
 
-        <div className="pointer-events-none absolute left-3 top-3 max-w-[16rem] rounded-lg bg-slate-950/80 p-3 text-white backdrop-blur">
-          <div className="text-sm font-semibold">Inverter lab (Rev 4){creative ? ': creative' : ''}</div>
+        <div className={`pointer-events-none absolute left-3 top-3 w-[min(21rem,calc(100%-5.5rem))] p-3 ${PANEL}`}>
+          <div className="flex items-start gap-2.5">
+            <svg aria-hidden viewBox="0 0 24 24" className="mt-0.5 h-8 w-8 shrink-0 text-[#3b9bff]" fill="currentColor">
+              <path d="M13.5 2 5 13.2h5.4L9.6 22 19 9.8h-5.6z" />
+            </svg>
+            <div className="min-w-0">
+              <div className="text-base font-semibold leading-tight sm:text-lg">{creative ? 'Inverter Creative Sandbox' : 'Inverter Training Simulator'}</div>
+              <div className="mt-0.5 text-[11px] leading-snug text-slate-300">
+                {creative ? 'No tasks. Build it, break it, test it.' : 'Explore the inverter, identify components, and complete tasks.'}
+              </div>
+            </div>
+          </div>
           {!creative && (
             <>
-              <div className="mt-1 text-xs text-slate-300">Progress: {progress}%</div>
-              <div className="mt-1 h-2 w-full overflow-hidden rounded bg-slate-700">
-                <div className="h-full bg-emerald-400 transition-all" style={{ width: `${progress}%` }} />
+              <div className="mt-2.5 text-sm font-semibold">Progress: {progress}%</div>
+              <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[#173a63]">
+                <div className="h-full rounded-full bg-[#3b9bff] transition-all" style={{ width: `${progress}%` }} />
               </div>
             </>
           )}
-          <p className="mt-2 text-xs text-slate-200">
-            {hintTool.hint} <span className="text-slate-400">Drag empty space to rotate, right-drag to pan, scroll to zoom.</span>
-          </p>
+          <p className="mt-2 text-[11px] leading-snug text-slate-300">{hintTool.hint}</p>
         </div>
 
-        <div className={`absolute right-3 top-3 ${creative ? 'hidden' : 'hidden sm:block'} w-60 rounded-lg bg-slate-950/80 p-3 text-white backdrop-blur`}>
-          <div className="text-sm font-semibold">Task checklist</div>
-          <ul className="mt-2 space-y-1.5 text-xs">
-            {tasks.map((t) => (
-              <li key={t.id} className="flex items-start gap-2">
-                <span aria-hidden className={`mt-0.5 inline-block h-3.5 w-3.5 shrink-0 rounded-full border ${t.done ? 'border-emerald-400 bg-emerald-400' : 'border-slate-400'}`} />
-                <span className={t.done ? 'text-slate-400 line-through' : ''}>
-                  {t.label}
-                  {t.done && <span className="sr-only"> (done)</span>}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="absolute inset-x-3 bottom-3 flex flex-wrap items-end justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5 rounded-lg bg-slate-950/80 p-1.5 backdrop-blur" role="toolbar" aria-label="Tools">
-            {TOOLS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTool(t.id)}
-                aria-pressed={tool === t.id}
-                className={`rounded-md px-2.5 py-1.5 text-xs font-medium ${tool === t.id ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-100 hover:bg-slate-700'}`}
-              >
-                {t.label}
-              </button>
-            ))}
-            {tool === 'meter' && (
-              <button type="button" onClick={() => { setMode((m) => (m === 'volts' ? 'continuity' : 'volts')); setProbes([null, null]) }} className="rounded-md bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-slate-950">
-                {mode === 'volts' ? 'Volts (DC/AC)' : 'Continuity'}
-              </button>
-            )}
+        <div className="pointer-events-none absolute right-3 top-3 flex flex-col items-end gap-2">
+          <button
+            type="button"
+            aria-label="View settings"
+            aria-expanded={showSettings}
+            onClick={() => setShowSettings((x) => !x)}
+            className={`pointer-events-auto flex h-11 w-11 items-center justify-center ${PANEL} hover:bg-[#0d2646]`}
+          >
+            <svg aria-hidden viewBox="0 0 24 24" className="h-6 w-6 text-[#3b9bff]" fill="currentColor">
+              <path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.4 7.4 0 0 0-1.7-1l-.4-2.6a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.6c-.6.2-1.2.6-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6L4.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5c.1.2.4.3.6.2l2.5-1c.5.4 1.1.8 1.7 1l.4 2.6c0 .2.2.4.5.4h4c.3 0 .5-.2.5-.4l.4-2.6c.6-.2 1.2-.6 1.7-1l2.5 1c.2.1.5 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" />
+            </svg>
+          </button>
+          {showSettings && (
+            <div className={`pointer-events-auto w-52 p-3 text-sm ${PANEL}`}>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={labelsOn} onChange={(e) => { setLabelsOn(e.target.checked); sceneRef.current?.setLabels(e.target.checked) }} />
+                Part labels and cable tags
+              </label>
+            </div>
+          )}
+          <div className={`${creative ? 'hidden' : 'hidden sm:block'} w-64 p-4 ${PANEL}`}>
+            <div className="text-lg font-semibold text-[#3b9bff]">Task Checklist</div>
+            <ul className="mt-3 space-y-3 text-[13px] leading-snug">
+              {tasks.map((t) => (
+                <li key={t.id} className="flex items-start gap-3">
+                  <span
+                    aria-hidden
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${t.done ? 'border-[#3b9bff] bg-[#3b9bff]' : 'border-[#3b9bff]'}`}
+                  >
+                    {t.done && (
+                      <svg viewBox="0 0 12 12" className="h-3 w-3 text-[#081a30]" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path d="m2.5 6.2 2.2 2.2 4.8-4.8" />
+                      </svg>
+                    )}
+                  </span>
+                  <span className={t.done ? 'text-slate-400 line-through' : ''}>
+                    {t.label}
+                    {t.done && <span className="sr-only"> (done)</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="flex flex-wrap gap-1.5 rounded-lg bg-slate-950/80 p-1.5 backdrop-blur" role="toolbar" aria-label="Camera views">
-            {CAMERA_PRESETS.map((c) => (
-              <button key={c.id} type="button" onClick={() => sceneRef.current?.flyTo(c.id)} className="rounded-md bg-slate-800 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-700">
-                {c.label}
-              </button>
-            ))}
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-3">
+          <div className="pointer-events-auto flex min-w-0 flex-col gap-2">
+            <div className={`flex flex-wrap gap-1.5 p-1.5 ${PANEL}`} role="toolbar" aria-label="Tools">
+              {TOOLS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTool(t.id)}
+                  aria-pressed={tool === t.id}
+                  className={`rounded-lg px-2.5 py-1.5 text-xs font-medium ${tool === t.id ? 'bg-[#2f8cff] text-white' : 'bg-[#0f2a4a] text-slate-100 hover:bg-[#15375f]'}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+              {tool === 'meter' && (
+                <button type="button" onClick={() => { setMode((m) => (m === 'volts' ? 'continuity' : 'volts')); setProbes([null, null]) }} className="rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-slate-950">
+                  {mode === 'volts' ? 'Volts' : 'Continuity'}
+                </button>
+              )}
+            </div>
+            <div className={`hidden items-center gap-5 px-4 py-2.5 sm:flex ${PANEL}`} aria-hidden>
+              {[
+                { label: 'Rotate', icon: 'M12 3a5 5 0 0 0-5 5v6a5 5 0 0 0 10 0V8a5 5 0 0 0-5-5zm0 2a3 3 0 0 1 3 3v1h-6V8a3 3 0 0 1 3-3z' },
+                { label: 'Zoom', icon: 'M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z' },
+                { label: 'Pan', icon: 'M12 2 8.5 5.5h2.5V11H5.5V8.5L2 12l3.5 3.5V13H11v5.5H8.5L12 22l3.5-3.5H13V13h5.5v2.5L22 12l-3.5-3.5V11H13V5.5h2.5z' },
+              ].map((x) => (
+                <div key={x.label} className="flex flex-col items-center gap-0.5 text-[11px] font-medium text-slate-200">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6 text-[#3b9bff]" fill="currentColor">
+                    <path d={x.icon} />
+                  </svg>
+                  {x.label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pointer-events-auto relative shrink-0">
+            {showViews && (
+              <div className={`absolute bottom-full right-0 mb-2 w-44 p-1.5 ${PANEL}`} role="menu">
+                {CAMERA_PRESETS.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="menuitem"
+                    onClick={() => { setView(c.label); setShowViews(false); sceneRef.current?.flyTo(c.id) }}
+                    className="block w-full rounded-lg px-2.5 py-1.5 text-left text-xs text-slate-100 hover:bg-[#15375f]"
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button type="button" onClick={() => setShowViews((x) => !x)} aria-expanded={showViews} className={`flex w-28 flex-col items-center gap-1 px-3 py-2.5 hover:bg-[#0d2646] sm:w-32 ${PANEL}`}>
+              <svg aria-hidden viewBox="0 0 40 56" className="h-12 w-9">
+                <rect x="6" y="2" width="28" height="52" rx="3" fill="#1b1d22" stroke="#3b9bff" strokeWidth="1.5" />
+                <rect x="9" y="16" width="22" height="14" fill="#14633a" />
+                <rect x="9" y="33" width="22" height="9" fill="#2a2d32" />
+                <path d="M20 4v6M17 7l3-3 3 3" stroke="#3b9bff" strokeWidth="1.5" fill="none" />
+              </svg>
+              <span className="text-xs font-semibold text-[#3b9bff]">{view}</span>
+            </button>
           </div>
         </div>
 
         {tip && (
-          <div className="pointer-events-none fixed z-50 rounded-md bg-slate-950/90 px-2 py-1 text-xs text-white shadow" style={{ left: tip.x + 12, top: tip.y + 12 }}>
+          <div className="pointer-events-none fixed z-50 rounded-lg border border-[#1d4f80] bg-[#081a30]/95 px-2.5 py-1.5 text-xs text-white shadow" style={{ left: tip.x + 12, top: tip.y + 12 }}>
             {tip.text}
           </div>
         )}

@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { PARTS, SOCKETS, partById, socketById, type Part } from '../../content/sims/wireBox'
 import { fits } from '../../sims/wirebox/engine'
 import type { LabState } from '../../sims/inverter3d/engine'
-import { BENCH_Y, BOX, CAMERA_PRESETS, SOCKET_POS, SPARE_SLOT, benchSlot, boltDish, boltPos, exitPos, type V3 } from './layout'
+import { BAND, BENCH_Y, BLOCK, BOX, CAMERA_PRESETS, FROM_BELOW, HOLDER, SOCKET_POS, SPARE_SLOT, acX, bandX, bandY, benchSlot, boltDish, boltPos, exitPos, pvX, type V3 } from './layout'
 
 export type Tool = 'inspect' | 'hand' | 'tighten' | 'loosen' | 'meter' | 'tester'
 
@@ -17,15 +19,15 @@ export interface SceneCallbacks {
   onHover(label: string | null, x: number, y: number): void
 }
 
-/** Sim colors only (the documents do not give wire colors). */
+/** Wire colors follow the author's photos where they show one (AC: black L1, red L2, white N; battery red and black; black and blue Ethernet). */
 function partColor(p: Part): number {
   switch (p.kind) {
-    case 'battery': return p.tag.includes('+') ? 0xb91c1c : 0x1f2937
-    case 'pv': return p.tag.includes('+') ? 0xc2410c : 0x334155
-    case 'ac': return p.label.endsWith('L1') ? 0xa16207 : p.label.endsWith('L2') ? 0x1d4ed8 : p.label.endsWith('N') ? 0xe5e7eb : 0x4b5563
-    case 'ethernet': return 0x0369a1
-    case 'antenna': return 0x7e22ce
-    case 'plug': return 0x047857
+    case 'battery': return p.tag.includes('+') ? 0xc8261b : 0x121212
+    case 'pv': return p.tag.includes('+') ? 0xb91c1c : 0x151515
+    case 'ac': return p.label.endsWith('L1') ? 0x151515 : p.label.endsWith('L2') ? 0xc0201c : 0xe8e8e8
+    case 'ethernet': return /emsc|router|addressing/.test(p.id) ? 0x2e86d6 : 0x141414
+    case 'antenna': return 0x1b1b1b
+    case 'plug': return 0xb91c1c
   }
 }
 
@@ -97,6 +99,9 @@ function makeSprite(text: string, scale = 1): THREE.Sprite {
   return s
 }
 
+/** Bolt head radius: big hex bolts on the busbars, smaller screws on the terminals. */
+const boltR = (id: string, kind: string): number => (kind === 'busbar' ? 0.46 : id.startsWith('pv') ? 0.13 : 0.17)
+
 const standard = (color: number, rough = 0.6, metal = 0.1) => new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal })
 
 export class InverterScene {
@@ -122,12 +127,18 @@ export class InverterScene {
   private flyTo_: { pos: THREE.Vector3; target: THREE.Vector3 } | null = null
   private last = performance.now()
   private framed = false
+  private labels: THREE.Object3D[] = []
+  private tags = true
 
   constructor(private host: HTMLElement, private cb: SceneCallbacks) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
-    this.renderer.setClearColor(0x0f172a)
+    this.renderer.setClearColor(0x0b1220)
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping
+    this.renderer.toneMappingExposure = 1.05
+    this.renderer.shadowMap.enabled = true
+    this.renderer.shadowMap.type = THREE.PCFShadowMap
     host.appendChild(this.renderer.domElement)
     this.renderer.domElement.style.touchAction = 'none'
     this.renderer.domElement.style.display = 'block'
@@ -239,6 +250,13 @@ export class InverterScene {
     if (b) this.probeMarkers[1].position.copy(v(SOCKET_POS[b])).add(new THREE.Vector3(0, 0, 0.7))
   }
 
+  /** Show or hide the printed labels on the parts and the tags on loose cables. */
+  setLabels(on: boolean) {
+    this.tags = on
+    for (const l of this.labels) l.visible = on
+    if (this.lab) this.sync(this.lab)
+  }
+
   dispose() {
     this.disposed = true
     cancelAnimationFrame(this.frame)
@@ -274,175 +292,338 @@ export class InverterScene {
     })
   }
 
-  private box(w: number, h: number, d: number, color: number, pos: V3, opts: { rough?: number; metal?: number; pick?: Pick; opacity?: number } = {}): THREE.Mesh {
+  private box(w: number, h: number, d: number, color: number, pos: V3, opts: { rough?: number; metal?: number; pick?: Pick; opacity?: number; round?: number; shadow?: boolean } = {}): THREE.Mesh {
     const mat = standard(color, opts.rough ?? 0.7, opts.metal ?? 0.1)
     if (opts.opacity !== undefined) {
       mat.transparent = true
       mat.opacity = opts.opacity
     }
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat)
+    const geo = opts.round ? new RoundedBoxGeometry(w, h, d, 3, opts.round) : new THREE.BoxGeometry(w, h, d)
+    const m = new THREE.Mesh(geo, mat)
     m.position.set(...pos)
+    if (opts.shadow !== false) {
+      m.castShadow = true
+      m.receiveShadow = true
+    }
     this.scene.add(m)
     if (opts.pick) this.mark(m, opts.pick)
     return m
   }
 
+  /** An invisible box that only exists to be clicked or hovered. */
+  private hit(w: number, h: number, d: number, pos: V3, pick: Pick) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshBasicMaterial({ visible: false }))
+    m.position.set(...pos)
+    this.scene.add(m)
+    this.mark(m, pick)
+  }
+
+  private loadTexture(file: string, repeat?: [number, number]): THREE.Texture {
+    const t = new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}images/${file}`)
+    t.colorSpace = THREE.SRGBColorSpace
+    t.anisotropy = 8
+    if (repeat) {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping
+      t.repeat.set(...repeat)
+    }
+    return t
+  }
+
+  private label(text: string, w: number, h: number, pos: V3, fg?: string, bg?: string | null, font?: string): THREE.Mesh {
+    const l = labelPlane(text, w, h, fg, bg, font)
+    l.position.set(...pos)
+    this.scene.add(l)
+    this.labels.push(l)
+    return l
+  }
+
+  private woodTexture(): THREE.CanvasTexture {
+    const c = document.createElement('canvas')
+    c.width = 1024
+    c.height = 1024
+    const g = c.getContext('2d')!
+    g.fillStyle = '#d8b987'
+    g.fillRect(0, 0, 1024, 1024)
+    let seed = 7
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
+    for (let i = 0; i < 900; i++) {
+      const x = rnd() * 1024
+      g.strokeStyle = `rgba(${90 + rnd() * 50},${55 + rnd() * 30},${20 + rnd() * 20},${0.05 + rnd() * 0.12})`
+      g.lineWidth = 0.5 + rnd() * 2
+      g.beginPath()
+      g.moveTo(x, 0)
+      g.bezierCurveTo(x + (rnd() - 0.5) * 30, 300, x + (rnd() - 0.5) * 30, 700, x + (rnd() - 0.5) * 20, 1024)
+      g.stroke()
+    }
+    for (let i = 0; i < 6; i++) {
+      const x = rnd() * 1024
+      const y = rnd() * 1024
+      const gr = g.createRadialGradient(x, y, 2, x, y, 40)
+      gr.addColorStop(0, 'rgba(110,70,30,0.45)')
+      gr.addColorStop(1, 'rgba(110,70,30,0)')
+      g.fillStyle = gr
+      g.beginPath()
+      g.ellipse(x, y, 22, 46, 0, 0, Math.PI * 2)
+      g.fill()
+    }
+    g.strokeStyle = 'rgba(70,45,20,0.55)'
+    g.lineWidth = 3
+    g.strokeRect(0, 0, 1024, 1024)
+    const t = new THREE.CanvasTexture(c)
+    t.colorSpace = THREE.SRGBColorSpace
+    t.wrapS = t.wrapT = THREE.RepeatWrapping
+    t.anisotropy = 8
+    return t
+  }
+
+  private concreteTexture(): THREE.CanvasTexture {
+    const c = document.createElement('canvas')
+    c.width = 512
+    c.height = 512
+    const g = c.getContext('2d')!
+    g.fillStyle = '#8b8f94'
+    g.fillRect(0, 0, 512, 512)
+    let seed = 11
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
+    for (let i = 0; i < 5000; i++) {
+      const v1 = 110 + rnd() * 60
+      g.fillStyle = `rgba(${v1},${v1},${v1 + 4},${0.15 + rnd() * 0.25})`
+      g.fillRect(rnd() * 512, rnd() * 512, 1 + rnd() * 3, 1 + rnd() * 3)
+    }
+    const t = new THREE.CanvasTexture(c)
+    t.colorSpace = THREE.SRGBColorSpace
+    t.wrapS = t.wrapT = THREE.RepeatWrapping
+    return t
+  }
+
+  private railTexture(): THREE.CanvasTexture {
+    const c = document.createElement('canvas')
+    c.width = 256
+    c.height = 64
+    const g = c.getContext('2d')!
+    g.fillStyle = '#b8bcc2'
+    g.fillRect(0, 0, 256, 64)
+    g.fillStyle = '#16181b'
+    for (let i = 0; i < 4; i++) {
+      g.beginPath()
+      g.roundRect(14 + i * 64, 22, 38, 20, 10)
+      g.fill()
+    }
+    const t = new THREE.CanvasTexture(c)
+    t.colorSpace = THREE.SRGBColorSpace
+    t.wrapS = THREE.RepeatWrapping
+    t.repeat.set(12, 1)
+    return t
+  }
+
   private buildWorld() {
     const s = this.scene
-    s.background = new THREE.Color(0x0f172a)
-    s.add(new THREE.HemisphereLight(0xffffff, 0x334155, 1.15))
-    const key = new THREE.DirectionalLight(0xffffff, 1.6)
-    key.position.set(6, 14, 22)
+    s.background = new THREE.Color(0x0b1220)
+    const pm = new THREE.PMREMGenerator(this.renderer)
+    s.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture
+    s.environmentIntensity = 0.55
+    pm.dispose()
+    s.add(new THREE.HemisphereLight(0xffffff, 0x5b6573, 0.55))
+    const key = new THREE.DirectionalLight(0xfff5e6, 2.1)
+    key.position.set(10, 26, 30)
+    key.castShadow = true
+    key.shadow.mapSize.set(2048, 2048)
+    key.shadow.camera.left = -34
+    key.shadow.camera.right = 34
+    key.shadow.camera.top = 30
+    key.shadow.camera.bottom = -24
+    key.shadow.camera.far = 90
+    key.shadow.bias = -0.0004
+    key.shadow.normalBias = 0.04
     s.add(key)
-    const fill = new THREE.DirectionalLight(0x93c5fd, 0.5)
-    fill.position.set(-14, 4, 10)
+    const fill = new THREE.DirectionalLight(0xbcd7ff, 0.5)
+    fill.position.set(-20, 6, 18)
     s.add(fill)
 
-    // Wall behind, a floor, and the bench the loose cables lie on.
-    const wall = new THREE.Mesh(new THREE.PlaneGeometry(90, 60), standard(0xc9a77c, 0.9, 0))
-    wall.position.set(0, 0, -0.4)
-    s.add(wall)
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(90, 60), standard(0x6b7280, 0.95, 0))
-    floor.rotation.x = -Math.PI / 2
-    floor.position.set(0, -16, 20)
-    s.add(floor)
-    this.bench = this.box(26, 0.4, 11, 0x475569, [1.2, BENCH_Y - 0.2, 10.4], { rough: 0.8 })
-    this.bench.userData.bench = true
-    const benchLabel = labelPlane('Bench', 2, 0.5, '#cbd5e1')
-    benchLabel.rotation.x = -Math.PI / 2
-    benchLabel.position.set(-9.8, BENCH_Y + 0.02, 14.6)
-    s.add(benchLabel)
-    this.box(26, 0.2, 0.4, 0x1e293b, [1.2, BENCH_Y - 0.5, 15.8])
-
-    // Inverter body above, enclosure shell, back plate.
     const W = BOX.x1 - BOX.x0
     const H = BOX.y1 - BOX.y0
     const cx = (BOX.x0 + BOX.x1) / 2
     const cy = (BOX.y0 + BOX.y1) / 2
-    this.box(W + 0.6, 11, BOX.depth + 0.8, 0x1c1c1f, [cx, BOX.y1 + 5.6, BOX.depth / 2 - 0.1], { rough: 0.85 })
-    const lion = labelPlane('LION', 3.2, 1.0, '#e5e7eb', null, 'bold 90px system-ui, sans-serif')
-    lion.position.set(cx, BOX.y1 + 7.4, BOX.depth + 0.32)
-    s.add(lion)
-    const led = this.box(1.2, 0.35, 0.1, 0x020617, [cx, BOX.y1 + 4.2, BOX.depth + 0.32])
-    led.add(new THREE.Mesh(new THREE.CircleGeometry(0.07, 12), new THREE.MeshBasicMaterial({ color: 0x22c55e })))
-    ;(led.children[0] as THREE.Mesh).position.set(-0.3, 0, 0.06)
-    this.box(W, H, 0.2, 0x111113, [cx, cy, -0.1], { rough: 0.95 })
-    this.box(0.3, H, BOX.depth, 0x1c1c1f, [BOX.x0 - 0.15, cy, BOX.depth / 2])
-    this.box(0.3, H, BOX.depth, 0x1c1c1f, [BOX.x1 + 0.15, cy, BOX.depth / 2])
-    this.box(W + 0.6, 0.3, BOX.depth, 0x1c1c1f, [cx, BOX.y1 + 0.15, BOX.depth / 2])
-    this.box(W + 0.6, 0.35, 0.5, 0x1c1c1f, [cx, BOX.y0 - 0.15, BOX.depth - 0.25])
-    // A piece of conduit on the right.
-    const conduit = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 40, 20), standard(0xb6bcc4, 0.35, 0.8))
-    conduit.position.set(BOX.x1 + 3.6, 6, 1.2)
+
+    // Plywood wall, concrete floor, and the bench that loose cables lie on.
+    const wallTex = this.woodTexture()
+    wallTex.repeat.set(10, 7)
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(130, 90), new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.85, metalness: 0 }))
+    wall.position.set(0, 10, -0.5)
+    wall.receiveShadow = true
+    s.add(wall)
+    const floorTex = this.concreteTexture()
+    floorTex.repeat.set(16, 12)
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(130, 90), new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.9, metalness: 0 }))
+    floor.rotation.x = -Math.PI / 2
+    floor.position.set(0, -16, 30)
+    floor.receiveShadow = true
+    s.add(floor)
+    this.bench = this.box(28, 0.5, 12, 0x5a6472, [0.6, BENCH_Y - 0.25, 11.6], { rough: 0.55, metal: 0.25, round: 0.08 })
+    this.bench.userData.bench = true
+    for (const x of [-12.2, 13.4]) for (const z of [6.4, 16.8]) this.box(0.5, 7.3, 0.5, 0x2b3139, [x, BENCH_Y - 3.9, z], { rough: 0.5, metal: 0.5 })
+    const benchLabel = labelPlane('BENCH', 2.4, 0.6, '#cbd5e1')
+    benchLabel.rotation.x = -Math.PI / 2
+    benchLabel.position.set(-11.2, BENCH_Y + 0.03, 16.2)
+    s.add(benchLabel)
+
+    // Framed wire box cover diagram on the wall, conduit with the rapid shutdown sticker, and a battery box.
+    const fx = -15.2
+    this.box(7.6, 6.2, 0.3, 0x0e0e10, [fx, 3.0, -0.2], { rough: 0.6, metal: 0.3 })
+    this.box(6.9, 5.5, 0.12, 0xf4f4f2, [fx, 3.0, -0.02], { rough: 0.9, metal: 0 })
+    const diagram = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 5.06), new THREE.MeshBasicMaterial({ map: this.loadTexture('rev4-wire-box-cover-diagram.webp') }))
+    diagram.position.set(fx, 3.0, 0.06)
+    s.add(diagram)
+    const conduit = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 70, 28), standard(0xc4c9d0, 0.28, 0.85))
+    conduit.position.set(13.2, 10, 0.9)
+    conduit.castShadow = true
     s.add(conduit)
+    for (const y of [-2, 12, 26]) this.box(1.5, 0.35, 0.7, 0x9aa1ab, [13.2, y, 0.9], { metal: 0.8, rough: 0.35 })
+    const sticker = labelPlane('SOLAR PV SYSTEM EQUIPPED\nWITH RAPID SHUTDOWN', 1.1, 8.6, '#111827', '#facc15', 'bold 34px system-ui, sans-serif')
+    sticker.rotation.z = Math.PI / 2
+    sticker.position.set(13.2, 6.5, 1.53)
+    s.add(sticker)
+    const lowerConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 12, 28), standard(0xc4c9d0, 0.28, 0.85))
+    lowerConduit.rotation.z = Math.PI / 2
+    lowerConduit.position.set(15.4, -9.2, 2.0)
+    lowerConduit.castShadow = true
+    s.add(lowerConduit)
+    this.box(8, 12, 6, 0x151618, [21.4, -10.2, 2.6], { rough: 0.6, metal: 0.35, round: 0.4 })
+
+    // Inverter body above the wiring compartment, with the lion logo, the lights window and screws.
+    const bodyMat = { rough: 0.5, metal: 0.4, round: 0.3 }
+    this.box(W + 1.0, 15.4, BOX.depth + 0.9, 0x17181b, [cx, BOX.y1 + 8.0, BOX.depth / 2 - 0.1], bodyMat)
+    const lion = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 4.32), new THREE.MeshBasicMaterial({ map: this.loadTexture('lab/lion.png'), transparent: true, opacity: 0.92 }))
+    lion.position.set(cx, BOX.y1 + 10.6, BOX.depth + 0.38)
+    s.add(lion)
+    const lights = this.box(2.1, 0.7, 0.14, 0x040507, [cx, BOX.y1 + 6.2, BOX.depth + 0.4], { round: 0.1, rough: 0.2, metal: 0.6 })
+    for (const [dx, col] of [[-0.55, 0x22c55e], [0.55, 0x4b5563]] as const) {
+      const d = new THREE.Mesh(new THREE.CircleGeometry(0.1, 14), new THREE.MeshBasicMaterial({ color: col }))
+      d.position.set(dx, 0, 0.09)
+      lights.add(d)
+    }
+    for (const sx of [-1, 1]) {
+      for (const y of [BOX.y1 + 14.2, BOX.y1 + 1.6]) {
+        const screw = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.08, 14), standard(0x0a0a0b, 0.4, 0.7))
+        screw.rotation.x = Math.PI / 2
+        screw.position.set(cx + sx * (W / 2 - 0.2), y, BOX.depth + 0.38)
+        s.add(screw)
+      }
+    }
+    const handle = this.box(0.6, 1.4, 0.7, 0xdc2626, [BOX.x0 - 1.0, BOX.y1 + 6.4, BOX.depth - 0.4], { rough: 0.4, metal: 0.2, round: 0.1 })
+    handle.castShadow = true
+
+    // The open wiring compartment: back plate, walls, and the black lower cover where the cables go in.
+    this.box(W, H, 0.2, 0x0a0a0b, [cx, cy, -0.1], { rough: 0.8, metal: 0.3 })
+    this.box(0.4, H, BOX.depth, 0x17181b, [BOX.x0 - 0.2, cy, BOX.depth / 2], { rough: 0.5, metal: 0.4 })
+    this.box(0.4, H, BOX.depth, 0x17181b, [BOX.x1 + 0.2, cy, BOX.depth / 2], { rough: 0.5, metal: 0.4 })
+    this.box(W + 0.8, 0.45, BOX.depth, 0x17181b, [cx, BOX.y1 + 0.2, BOX.depth / 2], { rough: 0.5, metal: 0.4 })
+    this.box(W + 1.0, 4.2, BOX.depth + 0.9, 0x17181b, [cx, BOX.y0 - 2.15, BOX.depth / 2 - 0.1], bodyMat)
+    this.box(W + 1.0, 0.18, 0.12, 0x2a2c31, [cx, BOX.y0 - 4.3, BOX.depth + 0.4], { shadow: false })
+    this.box(W + 1.0, 5.8, BOX.depth + 0.9, 0x17181b, [cx, BOX.y0 - 7.3, BOX.depth / 2 - 0.1], bodyMat)
+    const lion2 = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 3.8), new THREE.MeshBasicMaterial({ map: this.loadTexture('lab/lion.png'), transparent: true, opacity: 0.9 }))
+    lion2.position.set(cx, BOX.y0 - 7.4, BOX.depth + 0.38)
+    s.add(lion2)
+    // The clear front lip of the compartment.
+    this.box(W, 0.35, 0.5, 0x1e2024, [cx, BOX.y0 + 0.2, BOX.depth - 0.2], { rough: 0.45, metal: 0.4 })
 
     this.buildInside()
   }
 
   private buildInside() {
     const s = this.scene
+    // Top band: busbars, CT, WCM, control board, relays and lugs are a photo of the training unit.
+    const bandW = BAND.w * BAND.scale
+    const bandH = BAND.h * BAND.scale
+    const tex = this.loadTexture('lab/board-band.webp')
+    const band = new THREE.Mesh(
+      new THREE.PlaneGeometry(bandW, bandH),
+      new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: new THREE.Color(0xffffff), emissiveIntensity: 0.55, roughness: 0.8, metalness: 0 }),
+    )
+    band.position.set(BAND.x0 + bandW / 2, BAND.y1 - bandH / 2, 0.5)
+    band.receiveShadow = true
+    s.add(band)
+    this.mark(band, { type: 'component', id: 'control', label: 'Control board' })
+    const px = (a: number) => bandX(a)
+    const py = (a: number) => bandY(a)
+    const area = (x0: number, y0: number, x1: number, y1: number, id: string, label: string) =>
+      this.hit(px(x1) - px(x0), py(y0) - py(y1), 0.4, [(px(x0) + px(x1)) / 2, (py(y0) + py(y1)) / 2, 0.7], { type: 'component', id, label })
+    area(120, 40, 490, 478, 'busbars', 'Battery busbars (BAT+ and BAT-)')
+    area(490, 80, 695, 478, 'wcm', 'WCM (not used on this unit)')
+    area(770, 340, 850, 480, 'ports-bms', 'Port block: Parallel A / BMS COMM')
+    area(852, 340, 935, 480, 'ports-wifi', 'Port block: Parallel B / WiFi Port')
+    area(936, 340, 1020, 480, 'ports-ct', 'Port block: Meter Port (not used) / CT1 & CT2')
+    this.box(0.7, 1.0, 0.5, 0x1d4ed8, [BOX.x0 + 0.6, 3.0, 0.35], { rough: 0.5, metal: 0.1, round: 0.1 }) // CT clamp at the left edge
+
     // DIN rails
-    this.box(11.4, 0.35, 0.3, 0x9ca3af, [2.6, -2.2, 0.35], { metal: 0.8, rough: 0.4 })
-    this.box(11.4, 0.35, 0.3, 0x9ca3af, [2.6, -3.9, 0.35], { metal: 0.8, rough: 0.4 })
-
-    // Battery busbars with the clear cover, CT, red and black cables are drawn with the cable parts.
-    for (const id of ['bat_p', 'bat_n'] as const) {
-      const p = SOCKET_POS[id]
-      this.box(1.15, 1.7, 0.5, 0xb87333, [p[0], p[1] + 0.1, 0.5], { metal: 0.9, rough: 0.35, pick: { type: 'component', id: 'busbars', label: 'Battery busbars (BAT+ and BAT-)' } })
+    const rail = new THREE.MeshStandardMaterial({ map: this.railTexture(), roughness: 0.4, metalness: 0.7 })
+    for (const y of [-2.75, -5.15]) {
+      const r = new THREE.Mesh(new THREE.BoxGeometry(12.6, 0.62, 0.3), rail)
+      r.position.set(3.2, y, 0.42)
+      r.castShadow = true
+      r.receiveShadow = true
+      s.add(r)
     }
-    this.box(2.9, 2.0, 0.12, 0xbfdbfe, [-5.35, 3.4, 1.25], { opacity: 0.22, metal: 0, rough: 0.1, pick: { type: 'component', id: 'busbars', label: 'Battery busbars (BAT+ and BAT-)' } })
-    for (const [text, x] of [['BAT+', -6.0], ['BAT-', -4.7]] as const) {
-      const l = labelPlane(text, 0.9, 0.3, '#f8fafc', '#111827', 'bold 44px system-ui, sans-serif')
-      l.position.set(x, 4.45, 1.32)
-      s.add(l)
-    }
-    this.box(0.9, 1.0, 0.7, 0x2563eb, [-7.0, 3.1, 0.6]) // CT clamp
-
-    // WCM (unused on the training unit) and the control board.
-    this.box(1.6, 2.5, 0.12, 0x15803d, [-2.8, 3.0, 0.45], { pick: { type: 'component', id: 'wcm', label: 'WCM (not used on this unit)' } })
-    this.box(9.6, 2.9, 0.12, 0x15803d, [3.4, 3.0, 0.45], { rough: 0.5, pick: { type: 'component', id: 'control', label: 'Control board' } })
-    const green = [0x22c55e]
-    for (let i = 0; i < 9; i++) this.box(0.45, 0.4, 0.45, green[0], [-1.2 + i * 0.55, 4.0, 0.8], { pick: { type: 'component', id: 'control', label: 'Control board' } })
-    for (let i = 0; i < 4; i++) {
-      this.box(0.55, 0.9, 0.4, 0xdc2626, [4.0 + i * 1.2, 4.9, 0.6], { metal: 0.3 }) // red AC lugs on the board
-      this.box(0.3, 0.3, 0.1, 0xe5e7eb, [4.0 + i * 1.2, 4.4, 0.85], { metal: 0.9 })
-    }
-    this.box(1.7, 1.6, 1.3, 0x111827, [5.0, 2.6, 1.0], { pick: { type: 'component', id: 'control', label: 'Load relay (line 1, left)' } })
-    this.box(1.7, 1.6, 1.3, 0x111827, [7.0, 2.6, 1.0], { pick: { type: 'component', id: 'control', label: 'Load relay (line 2, right)' } })
-    const rsdL = labelPlane('REMOTE\nSHUTDOWN', 1.2, 0.5, '#e5e7eb', null, 'bold 30px system-ui, sans-serif')
-    rsdL.position.set(-0.4, 4.6, 1.3)
-    s.add(rsdL)
-    const agsL = labelPlane('GEN AGS', 1.1, 0.3, '#e5e7eb')
-    agsL.position.set(0.8, 4.55, 1.3)
-    s.add(agsL)
-    const rssL = labelPlane('RSS', 1.1, 0.3, '#e5e7eb')
-    rssL.position.set(2.0, 4.55, 1.3)
-    s.add(rssL)
-
-    // The three black port blocks: FRONT (upper) and BACK (lower) RJ45 ports.
-    const bricks: [string, string, number, string][] = [
-      ['ports-bms', 'PARALLEL A\nBMS COMM', -0.6, 'Port block: Parallel A / BMS COMM'],
-      ['ports-wifi', 'PARALLEL B\nWIFI PORT', 0.6, 'Port block: Parallel B / WiFi Port'],
-      ['ports-ct', 'NOT USED\nCT1 & CT2', 1.8, 'Port block: Meter Port (not used) / CT1 & CT2'],
-    ]
-    for (const [cid, text, x, label] of bricks) {
-      this.box(1.0, 2.15, 0.8, 0x050505, [x, 1.35, 1.0], { rough: 0.5, pick: { type: 'component', id: cid, label } })
-      const t = labelPlane(text, 0.9, 0.62, '#f8fafc', null, 'bold 40px system-ui, sans-serif')
-      t.position.set(x, 1.33, 1.41)
-      s.add(t)
-      for (const y of [1.7, 0.95]) this.box(0.62, 0.3, 0.1, 0x6b7280, [x, y, 1.45], { rough: 0.4, metal: 0.5 })
-    }
-
-    // EMS-C
-    this.box(2.1, 4.6, 1.1, 0x0b0b0d, [-6.6, -2.2, 0.9], { rough: 0.5, pick: { type: 'component', id: 'emsc', label: 'EMS-C' } })
-    for (const [id, text] of [['ems_bat', 'BATTERY'], ['ems_eth', 'ETHERNET'], ['ems_cell', 'CELLULAR'], ['ems_wifi', 'WIFI/BT']] as const) {
-      const p = SOCKET_POS[id]
-      this.box(0.75, 0.38, 0.1, 0x6b7280, [p[0], p[1], 1.5], { metal: 0.5, rough: 0.4 })
-      const t = labelPlane(text, 0.75, 0.2, '#9ca3af', null, 'bold 34px system-ui, sans-serif')
-      t.position.set(p[0] + 0.0, p[1] - 0.3, 1.46)
-      s.add(t)
-    }
-    ;['STATUS', 'CELL', 'BT', 'POWER'].forEach((t, i) => {
-      const dot = new THREE.Mesh(new THREE.CircleGeometry(0.07, 12), new THREE.MeshBasicMaterial({ color: 0x3b82f6 }))
-      dot.position.set(-7.4 + i * 0.5, -4.2, 1.46)
-      s.add(dot)
-      const l = labelPlane(t, 0.5, 0.16, '#9ca3af', null, 'bold 30px system-ui, sans-serif')
-      l.position.set(-7.4 + i * 0.5, -4.0, 1.46)
-      s.add(l)
-    })
 
     // PV fuse holders (PV1+ ... PV4+, PV1- ... PV4-).
+    const holderH = HOLDER.top - HOLDER.bottom
     for (let i = 0; i < 8; i++) {
-      const x = -3.0 + i * 0.62
-      this.box(0.55, 1.5, 0.75, 0xd1d5db, [x, -0.05, 0.8], { rough: 0.5, pick: { type: 'component', id: 'pv-fuses', label: 'PV fuse holders' } })
-      this.box(0.5, 0.5, 0.3, 0x111827, [x, 0.25, 1.2], { pick: { type: 'component', id: 'pv-fuses', label: 'PV fuse holders' } })
+      const x = pvX(i)
+      const pick: Pick = { type: 'component', id: 'pv-fuses', label: 'PV fuse holders' }
+      this.box(HOLDER.w, 0.56, 0.8, 0x2a2d32, [x, HOLDER.top - 0.28, 0.55], { rough: 0.55, pick })
+      this.box(HOLDER.w, 0.34, 0.82, 0xe5e7eb, [x, bandY(562), 0.56], { rough: 0.7, pick })
+      this.box(HOLDER.w, 1.0, 0.8, 0x0e0f11, [x, bandY(635), 0.56], { rough: 0.45, pick })
+      this.box(HOLDER.w, 0.66, 0.8, 0xc9ccd1, [x, bandY(725), 0.55], { rough: 0.55, pick })
       const name = i < 4 ? `PV${i + 1}+` : `PV${i - 3}-`
-      const l = labelPlane(name, 0.56, 0.2, '#111827', '#f3f4f6', 'bold 36px system-ui, sans-serif')
-      l.position.set(x, 0.85, 1.2)
-      s.add(l)
+      this.label(name, 0.54, 0.2, [x, bandY(562), 0.98], '#111827', null, 'bold 40px system-ui, sans-serif')
+      const topScrew = new THREE.Mesh(new THREE.CircleGeometry(0.1, 14), new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.5, metalness: 0.5 }))
+      topScrew.position.set(x, bandY(510), 0.96)
+      s.add(topScrew)
     }
+    void holderH
+
     // Grid, generator and load terminal blocks.
     ;(['grid', 'gen', 'load'] as const).forEach((g, block) => {
-      const x = 2.2 + block * 2.1 + 0.65
+      const x = (acX(block, 0) + acX(block, 2)) / 2
       const comp = `ac-${g}`
       const title = g === 'grid' ? 'Grid input terminals (L1, L2, N)' : g === 'gen' ? 'Generator terminals (L1, L2, N)' : 'Load output terminals (L1, L2, N)'
-      this.box(2.0, 1.6, 0.8, 0x6b7280, [x, -0.1, 0.8], { rough: 0.55, pick: { type: 'component', id: comp, label: title } })
-      this.box(1.9, 0.14, 0.82, 0x374151, [x, 0.9, 0.82])
-      const l = labelPlane(g === 'grid' ? 'GRID' : g === 'gen' ? 'GEN' : 'LOAD', 1.1, 0.34, '#111827', '#fbbf24', 'bold 52px system-ui, sans-serif')
-      l.position.set(x, 1.2, 1.2)
-      s.add(l)
-      ;['L1', 'L2', 'N'].forEach((n, i) => {
-        const t = labelPlane(n, 0.4, 0.2, '#f9fafb', '#111827', 'bold 36px system-ui, sans-serif')
-        t.position.set(2.2 + block * 2.1 + i * 0.65, -0.95, 1.25)
-        s.add(t)
-      })
+      const pick: Pick = { type: 'component', id: comp, label: title }
+      this.box(BLOCK.w, BLOCK.top - BLOCK.bottom, 0.8, 0x9ea3aa, [x, (BLOCK.top + BLOCK.bottom) / 2, 0.55], { rough: 0.5, metal: 0.15, pick, round: 0.04 })
+      for (let i = 0; i < 3; i++) {
+        const tx = acX(block, i)
+        this.box(0.34, 0.34, 0.1, 0x16181b, [tx, bandY(572), 0.97], { rough: 0.6, shadow: false })
+        const decor = new THREE.Mesh(new THREE.CircleGeometry(0.13, 14), new THREE.MeshStandardMaterial({ color: 0x2a2d32, roughness: 0.4, metalness: 0.7 }))
+        decor.position.set(tx, bandY(600), 0.97)
+        s.add(decor)
+        this.label(['L1', 'L2', 'N'][i], 0.3, 0.17, [tx, bandY(722), 0.97], '#111827', null, 'bold 40px system-ui, sans-serif')
+      }
+      this.label(g === 'grid' ? 'GRID' : g === 'gen' ? 'GEN' : 'LOAD', 0.9, 0.3, [x, BLOCK.top + 0.22, 0.97], '#111827', '#e5e7eb', 'bold 50px system-ui, sans-serif')
+    })
+
+    // EMS-C
+    const ems: Pick = { type: 'component', id: 'emsc', label: 'EMS-C' }
+    this.box(2.5, 4.7, 1.1, 0x08090a, [-6.9, -4.15, 0.6], { rough: 0.45, metal: 0.35, round: 0.12, pick: ems })
+    this.box(0.5, 1.5, 0.05, 0xf3f4f6, [-8.0, -3.2, 1.18], { shadow: false })
+    this.label('04001', 0.5, 0.18, [-8.0, -3.2, 1.22], '#111827', null, 'bold 40px system-ui, sans-serif').rotation.z = Math.PI / 2
+    for (const [id, text] of [['ems_bat', 'BATTERY'], ['ems_eth', 'ETHERNET'], ['ems_cell', 'CELL'], ['ems_wifi', 'WIFI/BT']] as const) {
+      const p = SOCKET_POS[id]
+      if (id === 'ems_bat' || id === 'ems_eth') this.box(0.8, 0.42, 0.14, 0x7b8088, [p[0], p[1], 1.14], { metal: 0.6, rough: 0.35, shadow: false })
+      else this.box(0.34, 0.34, 0.12, 0xb8860b, [p[0], p[1], 1.14], { metal: 0.9, rough: 0.3, shadow: false })
+      this.label(text, 0.8, 0.18, [p[0], p[1] - 0.34, 1.2], '#9ca3af', null, 'bold 34px system-ui, sans-serif')
+    }
+    ;['STATUS', 'CELLULAR', 'BLUETOOTH', 'POWER'].forEach((t, i) => {
+      const y = -5.0 - i * 0.38
+      const dot = new THREE.Mesh(new THREE.CircleGeometry(0.07, 12), new THREE.MeshBasicMaterial({ color: 0x3b82f6 }))
+      dot.position.set(-7.75, y, 1.18)
+      s.add(dot)
+      this.label(t, 0.9, 0.17, [-6.95, y, 1.18], '#cbd5e1', null, 'bold 34px system-ui, sans-serif')
     })
 
     // Invisible proxies so every socket can be probed.
     for (const sk of SOCKETS) {
       const p = SOCKET_POS[sk.id]
       const proxy = new THREE.Mesh(new THREE.SphereGeometry(0.34, 8, 8), new THREE.MeshBasicMaterial({ visible: false }))
-      proxy.position.set(p[0], p[1], p[2] + (sk.kind === 'rj45' || sk.kind === 'antenna' ? 0.1 : 0.2))
+      proxy.position.set(p[0], p[1], p[2] + 0.1)
       s.add(proxy)
       this.mark(proxy, { type: 'socket', id: sk.id, socket: sk.id, label: sk.label })
     }
@@ -479,11 +660,11 @@ export class InverterScene {
       radius = 0.05
     } else if (kind === 'battery') {
       // A flat lug under the busbar bolt, and the heavy cable leaves it downward.
-      const lug = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.1), standard(0xd1d5db, 0.3, 0.9))
-      const boot = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.9, 16), body)
-      boot.position.set(0, -0.55, 0.0)
+      const lug = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 0.1), standard(0xc9ced4, 0.3, 0.9))
+      const boot = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 1.1, 18), body)
+      boot.position.set(0, -0.8, 0.0)
       g.add(lug, boot)
-      radius = 0.19
+      radius = 0.27
     } else {
       // PV and AC wires end in a ferrule that goes up into the terminal.
       const f = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.55, 10), standard(0xd4d4d8, 0.3, 0.9))
@@ -524,17 +705,21 @@ export class InverterScene {
     c.at = at
     if (at) {
       const sp = v(SOCKET_POS[at])
-      const sk = socketById(at)
       const lifted = lab.fasteners[at] === 'removed'
       if (c.part?.kind === 'battery') {
-        c.plug.position.copy(sp).add(new THREE.Vector3(0, -0.2, 0.2 + (lifted ? 0.3 : 0)))
+        c.plug.position.copy(sp).add(new THREE.Vector3(0, 0, 0.12 + (lifted ? 0.3 : 0)))
         c.plug.rotation.set(0, 0, 0)
+      } else if (c.part?.kind === 'ethernet' && FROM_BELOW.has(at)) {
+        c.plug.position.copy(sp).add(new THREE.Vector3(0, 0.05, 0))
+        c.plug.rotation.set(Math.PI / 2, 0, 0)
+      } else if (id === 'spare' && FROM_BELOW.has(at)) {
+        c.plug.position.copy(sp).add(new THREE.Vector3(0, 0.05, 0))
+        c.plug.rotation.set(Math.PI / 2, 0, 0)
       } else if (this.isVerticalPlug(c)) {
         c.plug.position.copy(sp).add(new THREE.Vector3(0, lifted ? -0.35 : -0.15, 0.05))
         c.plug.rotation.set(0, 0, 0)
       } else {
-        const lift = sk.kind === 'busbar' ? 0.2 : 0
-        c.plug.position.copy(sp).add(new THREE.Vector3(0, 0, 0.05 + lift))
+        c.plug.position.copy(sp).add(new THREE.Vector3(0, 0, 0.05))
         c.plug.rotation.set(0, 0, 0)
       }
       this.rebuildTube(c, c.plug.position, this.attachDir(c))
@@ -545,7 +730,7 @@ export class InverterScene {
       c.plug.position.copy(slot)
       c.plug.rotation.set(Math.PI / 2, 0, 0)
       this.rebuildTube(c, slot, new THREE.Vector3(0, 0, 1), true)
-      c.tag.visible = true
+      c.tag.visible = this.tags
       c.tag.position.copy(slot).add(new THREE.Vector3(0, 0.9, 0.6))
     }
   }
@@ -558,7 +743,7 @@ export class InverterScene {
   }
 
   private attachDir(c: CableView): THREE.Vector3 {
-    return this.isVerticalPlug(c) ? new THREE.Vector3(0, -1, 0) : new THREE.Vector3(0, 0, 1)
+    return this.isVerticalPlug(c) || (c.at && FROM_BELOW.has(c.at)) ? new THREE.Vector3(0, -1, 0) : new THREE.Vector3(0, 0, 1)
   }
 
   /** The cable goes from where the plug is to the exit in the bottom of the box (or, for the spare, to its far end on the bench). */
@@ -575,11 +760,13 @@ export class InverterScene {
     else end = v(exitPos(c.id))
     const pts: THREE.Vector3[] = [start]
     if (onBench) {
-      pts.push(new THREE.Vector3(start.x, start.y + 0.15, start.z - 1.0))
+      pts.push(new THREE.Vector3(start.x, start.y + 0.2, start.z - 1.3))
       if (isSpare) pts.push(new THREE.Vector3((start.x + end.x) / 2, BENCH_Y + 0.2, (start.z + end.z) / 2 + 0.8))
       else {
-        pts.push(new THREE.Vector3((start.x + end.x) / 2, (start.y + end.y) / 2 + 0.5, (start.z + end.z) / 2 + 0.5))
-        pts.push(new THREE.Vector3(end.x, end.y - 1.2, end.z + 0.6))
+        // Out of the front of the lower cover, then across the bench. The part inside the cover is hidden by it.
+        pts.push(new THREE.Vector3((start.x * 2 + end.x) / 3, BENCH_Y + 0.5, 5.9))
+        pts.push(new THREE.Vector3((start.x + end.x * 2) / 3, BENCH_Y + 0.9, 4.2))
+        pts.push(new THREE.Vector3(end.x, end.y - 1.0, end.z + 0.6))
       }
       pts.push(end)
     } else if (isSpare) {
@@ -613,20 +800,20 @@ export class InverterScene {
     for (const sk of SOCKETS) {
       if (sk.kind !== 'terminal' && sk.kind !== 'busbar') continue
       const g = new THREE.Group()
-      const head = new THREE.Mesh(new THREE.CylinderGeometry(sk.kind === 'busbar' ? 0.28 : 0.2, sk.kind === 'busbar' ? 0.28 : 0.2, 0.14, 16), standard(0xf1f5f9, 0.3, 0.9))
+      const head = new THREE.Mesh(new THREE.CylinderGeometry(boltR(sk.id, sk.kind), boltR(sk.id, sk.kind), 0.14, 20), standard(0xdfe3e8, 0.28, 0.9))
       head.rotation.x = Math.PI / 2
-      const slot1 = new THREE.Mesh(new THREE.BoxGeometry(sk.kind === 'busbar' ? 0.44 : 0.28, 0.045, 0.03), standard(0x111827))
+      const slot1 = new THREE.Mesh(new THREE.BoxGeometry(boltR(sk.id, sk.kind) * 1.5, boltR(sk.id, sk.kind) * 0.22, 0.03), standard(0x111827))
       const slot2 = slot1.clone()
       slot2.rotation.z = Math.PI / 2
       slot1.position.z = slot2.position.z = 0.07
       g.add(head, slot1, slot2)
-      const big = new THREE.Mesh(new THREE.SphereGeometry(0.34, 8, 8), new THREE.MeshBasicMaterial({ visible: false }))
+      const big = new THREE.Mesh(new THREE.SphereGeometry(Math.max(0.3, boltR(sk.id, sk.kind)), 8, 8), new THREE.MeshBasicMaterial({ visible: false }))
       g.add(big)
       const home = v(boltPos(sk.id))
       g.position.copy(home)
       this.scene.add(g)
       this.mark(g, { type: 'bolt', id: sk.id, socket: sk.id, label: `${sk.group}: ${sk.label} bolt` })
-      const hole = new THREE.Mesh(new THREE.CircleGeometry(sk.kind === 'busbar' ? 0.22 : 0.14, 16), new THREE.MeshBasicMaterial({ color: 0x020617 }))
+      const hole = new THREE.Mesh(new THREE.CircleGeometry(boltR(sk.id, sk.kind) * 1.15, 20), new THREE.MeshBasicMaterial({ color: 0x050607 }))
       hole.position.copy(home).add(new THREE.Vector3(0, 0, 0.02))
       hole.visible = false
       this.scene.add(hole)
