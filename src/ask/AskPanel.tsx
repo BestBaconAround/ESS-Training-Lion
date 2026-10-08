@@ -44,6 +44,20 @@ export default function AskPanel({ onOpenEntry, rev }: { onOpenEntry: (entryId: 
   const ask = (question: string) => {
     const q = question.trim()
     if (!q) return
+    const codes = getIndex().faultCodeHits(q)
+    // Two or more fault codes in one question: answer each code on its own, in the order typed.
+    if (codes.found.length + codes.missing.length >= 2) {
+      history.recordAsk(q, snapshotAnswer(codes.found))
+      const base = nextId.current
+      const replies: Message[] = codes.found.map((h, i) => ({ id: base + 1 + i, from: 'bot', text: h.chunk.title, hits: [h] }))
+      if (codes.missing.length > 0) {
+        replies.push({ id: base + 1 + codes.found.length, from: 'bot', text: `No entry for ${codes.missing.join(', ')} in the reference material.` })
+      }
+      setMessages((m) => [...m, { id: base, from: 'user', text: q }, ...replies])
+      nextId.current += 1 + replies.length
+      setInput('')
+      return
+    }
     const hits = getIndex().search(q, 3)
     // Saved only while the private history is unlocked; otherwise nothing is kept.
     history.recordAsk(q, snapshotAnswer(hits))

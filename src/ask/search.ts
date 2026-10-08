@@ -93,6 +93,22 @@ export class SearchIndex {
     return hits.filter((h) => h.score >= Math.max(best.score * 0.25, minScore)).slice(0, limit)
   }
 
+  /**
+   * Fault codes typed in a question ("A1_3, a2_20, F1_12"), each with its own entry. Order follows the question,
+   * duplicates are dropped, and a code with no entry is listed as missing instead of guessed.
+   */
+  faultCodeHits(query: string): { found: Hit[]; missing: string[] } {
+    const codes = [...new Set(tokenize(query, { stop: false }).filter(isFaultCode))]
+    const found: Hit[] = []
+    const missing: string[] = []
+    for (const code of codes) {
+      const chunk = this.docs.find((d) => d.chunk.id === `ts-fault-${code}`)?.chunk
+      if (chunk) found.push({ chunk, score: 100 })
+      else missing.push(code.toUpperCase())
+    }
+    return { found, missing }
+  }
+
   private coverageOf(chunk: Chunk, qTokens: string[], totalWeight: number): number {
     const d = this.docs.find((x) => x.chunk === chunk)!
     let matched = 0

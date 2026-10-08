@@ -180,3 +180,19 @@ describe('reference markdown', () => {
     expect(hits[0].chunk.title).toBe('Zebra relay')
   })
 })
+
+describe('Ask the notes: several fault codes in one question', () => {
+  it('finds each code, in the order typed, whatever the case or separators', () => {
+    const r = index.faultCodeHits('A1_3, a2_20, A2_19, A2_18, F1_21, F1_12, F1_10')
+    expect(r.found.map((h) => h.chunk.id)).toEqual(['ts-fault-a1_3', 'ts-fault-a2_20', 'ts-fault-a2_19', 'ts-fault-a2_18', 'ts-fault-f1_21', 'ts-fault-f1_12', 'ts-fault-f1_10'])
+    expect(r.missing).toEqual([])
+  })
+  it('drops repeats and names a code that has no entry instead of guessing', () => {
+    const r = index.faultCodeHits('what are a1_3 and A1_3 and z9_99')
+    expect(r.found.map((h) => h.chunk.id)).toEqual(['ts-fault-a1_3'])
+    expect(r.missing).toEqual(['Z9_99'])
+  })
+  it('a question with no code has no code hits', () => {
+    expect(index.faultCodeHits('battery will not address')).toEqual({ found: [], missing: [] })
+  })
+})
