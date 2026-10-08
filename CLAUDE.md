@@ -1,5 +1,7 @@
 # ESS-Training-Lion
 
+> New session? Also read `HANDOFF.md` (current state, how the author likes to work, open questions, how to run the browser checks).
+
 Training platform for new Lion Energy tech support specialists on the **Sanctuary 2 Energy Storage System** (12kW hybrid inverter, 14.3kWh LFP batteries, up to 3 batteries per inverter). Currently a single-user tool (the author). The learner learns by doing, by example, and by repetition.
 
 ## Source of truth
